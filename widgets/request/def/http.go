@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"sync/atomic"
 	"time"
+	"os"
 )
 
 type HTTP_Request_Body struct {
@@ -125,10 +126,7 @@ func (data *HTTP_Data) ResponseData(fn func(value *HTTP_Response_Data)) {
 }
 
 type HTTP_Response_Body struct {
-	// TODO:
-	//File         *os.File
-	//Path         string
-	//IsFileClosed bool
+	File         *os.File
 
 	ContentType ContentType
 	content     []byte
