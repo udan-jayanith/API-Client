@@ -13,6 +13,7 @@ import (
 
 // This implements Io.ReadCloser
 type ReadReader struct {
+	r io.ReadCloser
 	buf  []byte
 	file os.File
 }
@@ -23,7 +24,7 @@ func (r *ReadReader) NewReader() io.ReadCloser {
 }
 
 // NewReadReader returns a new *ReadReader, that reads form r, if there are any compressions r get decompressed in order.
-// content reads form r gets stored in a internal buffer if internal buffer size exceeds 20mb buffer will be a file in OS temporory directory.
+// content reads form r gets stored in a internal buffer if internal buffer size exceeds 2mb buffer will be a file in OS temporory directory.
 func NewReadReader(r io.Reader, compressions []string) *ReadReader {
 	return nil
 }
