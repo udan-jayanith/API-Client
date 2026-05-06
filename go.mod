@@ -6,7 +6,7 @@ require (
 	codeberg.org/udan-jayanith/Opener v0.0.3
 	github.com/docker/go-units v0.5.0
 	github.com/golang-ds/queue v1.0.0
-	github.com/guigui-gui/guigui v0.0.0-20260505155458-e4e4f87a0977
+	github.com/guigui-gui/guigui v0.0.0-20260506043918-eaff316ab15b
 	github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260503064022-84fc28f504ba
 	github.com/hajimehoshi/iro v0.2.0
 )
