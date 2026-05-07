@@ -22,10 +22,17 @@ type closer interface {
 type read_handler struct {
 }
 
+var count int = 0
+
 // This implements Io.ReadCloser
 type ReadReader struct {
+	id   int
 	buf  *bytes.Buffer
 	file *os.File
+}
+
+func (r *ReadReader) Id() int {
+	return 0
 }
 
 // Decode uncompreses the underlying buffers content using given compressions formats.

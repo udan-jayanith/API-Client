@@ -2,8 +2,8 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
+	requests_handler "API-Client/pages/request/requests-handler"
 	attr "API-Client/pages/request/requests-handler/attributes"
-	"API-Client/pages/request/requests-handler"
 	"fmt"
 	"net/http"
 	"time"
