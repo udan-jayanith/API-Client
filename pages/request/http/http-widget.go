@@ -3,7 +3,7 @@ package http_widget
 import (
 	CommonWidgets "API-Client/common-widgets"
 	message_model "API-Client/message-model"
-	"API-Client/pages/request/requests-handler"
+	requests_handler "API-Client/pages/request/requests-handler"
 	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
@@ -74,6 +74,9 @@ func (brp *HTTP_Widget) setup_request_widget() {
 	if err != nil {
 		// TODO: Make message model widgets handle nil function
 		message_model.Show(err.Error(), message_model.Alert, nil)
+	}
+	if u == nil {
+		return
 	}
 	u.Path = data.URL.EncodedPath()
 	brp.request_widget.SetURL(u)
@@ -179,6 +182,9 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, text string, commit
 	u, err := url.Parse(text)
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
+	}
+	if u == nil {
+		return
 	}
 	brp.request_widget.SetURL(u)
 

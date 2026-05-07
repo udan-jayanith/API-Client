@@ -215,7 +215,7 @@ loop:
 		if err != nil && err != io.EOF {
 			data.request.err.Store(err)
 			break
-		} else if err == io.EOF {
+		} else if err == io.EOF && n == 0 {
 			break
 		}
 
