@@ -3,9 +3,9 @@ package request_page
 import (
 	"API-Client/basic"
 	CommonWidgets "API-Client/common-widgets"
-	"API-Client/widgets/request/def"
-	http_widget "API-Client/widgets/request/page/http"
-	websocket_widget "API-Client/widgets/request/page/websocket"
+	http_widget "API-Client/pages/request/http"
+	requests_handler "API-Client/pages/request/requests-handler"
+	websocket_widget "API-Client/pages/request/websocket"
 
 	"image"
 
@@ -16,7 +16,7 @@ import (
 
 type sidebar_item struct {
 	IsFolder bool
-	Data     def.FolderOrFile
+	Data     requests_handler.FolderOrFile
 }
 
 func (si *sidebar_item) GetPath() string {
@@ -37,7 +37,7 @@ type RequestPage struct {
 	tabs_handler   TabsHandler
 	nothing_widget nothing_widget
 
-	request_widget   CommonWidgets.WidgetWithPadding[def.RequestWidget]
+	request_widget   CommonWidgets.WidgetWithPadding[requests_handler.RequestWidget]
 	http_widget      http_widget.HTTP_Widget
 	websocket_widget websocket_widget.WebsocketWidget
 
@@ -49,7 +49,7 @@ type RequestPage struct {
 	popup_widget  widget.Popup
 }
 
-func (rp *RequestPage) create_sidebar_item(request *def.Request) {
+func (rp *RequestPage) create_sidebar_item(request *requests_handler.Request) {
 	request_container := sidebar_item{
 		Data: request,
 	}
@@ -63,7 +63,7 @@ func (rp *RequestPage) create_sidebar_item(request *def.Request) {
 }
 
 func (rp *RequestPage) create_folder(path string, name string) {
-	folder := def.NewFolder(path, name)
+	folder := requests_handler.NewFolder(path, name)
 	request_container := sidebar_item{
 		IsFolder: true,
 		Data:     &folder,
@@ -103,7 +103,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			return
 		}
 
-		request := item.Data.(*def.Request)
+		request := item.Data.(*requests_handler.Request)
 		rp.tabs_handler.Open(request, ctx)
 	})
 	adder.AddWidget(&rp.sidebar)
@@ -122,10 +122,10 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			panic("Invalid")
 		}
 		switch data.Type {
-		case def.HTTP:
+		case requests_handler.HTTP:
 			rp.http_widget.SetReq(data)
 			rp.request_widget.SetWidget(&rp.http_widget)
-		case def.Websocket:
+		case requests_handler.Websocket:
 			rp.websocket_widget.SetReq(data)
 			rp.request_widget.SetWidget(&rp.websocket_widget)
 		default:
@@ -154,7 +154,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		rp.open_popup(&rp.request_create_widget, ctx)
 	})
 
-	rp.request_create_widget.OnCreateButtonClicked(func(request *def.Request) {
+	rp.request_create_widget.OnCreateButtonClicked(func(request *requests_handler.Request) {
 		rp.create_sidebar_item(request)
 		rp.popup_widget.SetOpen(false)
 	})

@@ -3,7 +3,7 @@ package request_page
 import (
 	CommonWidgets "API-Client/common-widgets"
 	"API-Client/icons"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 	"slices"
 
 	gui "github.com/guigui-gui/guigui"
@@ -13,7 +13,7 @@ import (
 type TabsHandler struct {
 	tab_widget CommonWidgets.Tab
 	tab_items  []CommonWidgets.TabItem
-	tabs_data  []*def.Request
+	tabs_data  []*requests_handler.Request
 
 	on_select func(from CommonWidgets.TabItemContainer, to CommonWidgets.TabItemContainer, by_user bool)
 	on_close  func(closed CommonWidgets.TabItemContainer)
@@ -28,7 +28,7 @@ func (tabs *TabsHandler) OnClose(fn func(closed CommonWidgets.TabItemContainer))
 }
 
 // Open opens
-func (tabs *TabsHandler) Open(request *def.Request, ctx *gui.Context) {
+func (tabs *TabsHandler) Open(request *requests_handler.Request, ctx *gui.Context) {
 	for i, _ := range tabs.tab_items {
 		if tabs.tabs_data[i].Path() == request.Path() {
 			tabs.tab_widget.SelectTab(i)
@@ -63,7 +63,7 @@ func (tabs *TabsHandler) IsEmpty() bool {
 	return len(tabs.tab_items) == 0
 }
 
-func (tabs *TabsHandler) GetData(index int) *def.Request {
+func (tabs *TabsHandler) GetData(index int) *requests_handler.Request {
 	if index >= len(tabs.tabs_data) {
 		return nil
 	}

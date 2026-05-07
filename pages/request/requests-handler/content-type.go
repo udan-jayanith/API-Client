@@ -1,4 +1,4 @@
-package def
+package requests_handler
 
 type ContentType string
 

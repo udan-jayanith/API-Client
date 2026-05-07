@@ -1,12 +1,12 @@
-package def_test
+package requests_handler_test
 
 import (
 	"testing"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 )
 
 var content_type_testcases = []struct {
-	content_type def.ContentType
+	content_type requests_handler.ContentType
 	t, sub_t string
 }{
 	{

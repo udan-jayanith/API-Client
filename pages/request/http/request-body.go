@@ -2,7 +2,7 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
@@ -174,10 +174,10 @@ func (body *request_body_widget) SetAutowrap(autowrap bool) {
 	body.header.auto_wrap.toggle.SetValue(autowrap)
 }
 
-func (body *request_body_widget) ContentType() def.ContentType {
-	return def.ContentType(body.header.content_type.Value())
+func (body *request_body_widget) ContentType() requests_handler.ContentType {
+	return requests_handler.ContentType(body.header.content_type.Value())
 }
 
-func (body *request_body_widget) SetContentType(content_type def.ContentType) {
+func (body *request_body_widget) SetContentType(content_type requests_handler.ContentType) {
 	body.header.content_type.SetValue(string(content_type))
 }

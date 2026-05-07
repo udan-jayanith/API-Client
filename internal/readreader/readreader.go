@@ -9,7 +9,7 @@ import (
 	// "compress/gzip" // Has a read closer
 	// "compress/flate" // Also has a read closer
 	// "github.com/andybalholm/brotli" // br // has a reader
-	// "github.com/klauspost/compress/zstd" // has a reader, reader should closed but dosen't implement io.Closer
+	// "github.com/klauspost/compress/zstd" // has a reader, reader should be closed but dosen't implement io.Closer
 )
 
 type closer interface {
@@ -24,9 +24,13 @@ type read_handler struct {
 
 // This implements Io.ReadCloser
 type ReadReader struct {
-	r    io.Reader
 	buf  *bytes.Buffer
-	file os.File
+	file *os.File
+}
+
+// Decode uncompreses the underlying buffers content using given compressions formats.
+func (r *ReadReader) Decode(compressions []string) error {
+	return nil
 }
 
 // NewReader returns a new io.Reader that reads from r's internal buffer. This does not clear the internal buffer from r
@@ -34,8 +38,17 @@ func (r *ReadReader) NewReader() io.ReadCloser {
 	return nil
 }
 
-// NewReadReader returns a new *ReadReader, that reads form r, if there are any compressions r get decompressed in order.
-// content reads form r gets stored in an internal buffer. If internal buffer size exceeds 2mb buffer will be a file in OS temporory directory. If r is a io.ReadCloser ReadReader handle the closing.
-func NewReadReader(r io.Reader, compressions []string) *ReadReader {
+// Write writes to the underlying bytes buffer if it's size exceed 2m underlying buffer becomes the file.
+func (r *ReadReader) Write(p []byte) {
+
+}
+
+// Close should be used to free up spacce
+func (r *ReadReader) Close() error {
+	return nil
+}
+
+// NewReadReader returns a reader that stores p, If size of p is greate then 19. p's content is stored to a file in the OS's tempory folder.
+func NewReadReader(p []byte) *ReadReader {
 	return nil
 }

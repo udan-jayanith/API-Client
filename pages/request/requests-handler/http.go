@@ -1,9 +1,9 @@
-package def
+package requests_handler
 
 import (
-	attr "API-Client/widgets/request/attributes"
-	lazy_atomic "API-Client/widgets/request/def/internal/lazy-atomic"
-	url_utils "API-Client/widgets/request/url-utils"
+	attr "API-Client/pages/request/requests-handler/attributes"
+	lazy_atomic "API-Client/pages/request/requests-handler/internal/lazy-atomic"
+	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"net/url"
 	"sync/atomic"
 	"time"

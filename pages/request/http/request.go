@@ -2,9 +2,9 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	attr "API-Client/widgets/request/attributes"
-	"API-Client/widgets/request/def"
-	url_utils "API-Client/widgets/request/url-utils"
+	attr "API-Client/pages/request/requests-handler/attributes"
+	"API-Client/pages/request/requests-handler"
+	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
 	"strings"
@@ -56,11 +56,11 @@ func (rw *request_widget) Body() string {
 	return rw.tab_content.body.Body()
 }
 
-func (rw *request_widget) ContentType() def.ContentType {
+func (rw *request_widget) ContentType() requests_handler.ContentType {
 	return rw.tab_content.body.ContentType()
 }
 
-func (rw *request_widget) SetContentType(content_type def.ContentType) {
+func (rw *request_widget) SetContentType(content_type requests_handler.ContentType) {
 	rw.tab_content.body.SetContentType(content_type)
 }
 
@@ -152,7 +152,7 @@ func (rw *request_widget) Headers() []attr.AttrCheck {
 }
 
 // SetBody set the http request body
-func (rw *request_widget) SetBody(body *def.HTTP_Request_Body) {
+func (rw *request_widget) SetBody(body *requests_handler.HTTP_Request_Body) {
 	rw.tab_content.body.SetBody(body.Content)
 }
 
