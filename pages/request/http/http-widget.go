@@ -24,11 +24,11 @@ type HTTP_Widget struct {
 
 	url_panel_widget url_panel_widget
 	popup_widget     widget.Popup
-	is_fetching      bool // TODO: change this in SetReq
 
-	req  *requests_handler.Request
-	data *requests_handler.HTTP_Data
-	t    time.Time
+	req         *requests_handler.Request
+	data        *requests_handler.HTTP_Data
+	t           time.Time
+	is_fetching bool
 }
 
 func (brp *HTTP_Widget) RequestType() requests_handler.RequestType {
@@ -52,8 +52,9 @@ func (brp *HTTP_Widget) SetReq(req *requests_handler.Request) {
 
 	// Setup request widget
 	brp.data = data
+	brp.is_fetching = data.IsFetching()
 	brp.setup_request_widget()
-	brp.setup_response_widget(data.IsFetching())
+	brp.setup_response_widget()
 	gui.RequestRebuild(brp)
 }
 
@@ -84,12 +85,11 @@ func (brp *HTTP_Widget) setup_request_widget() {
 
 }
 
-func (brp *HTTP_Widget) setup_response_widget(is_fetching bool) {
+func (brp *HTTP_Widget) setup_response_widget() {
 	// Setup response widget
 	data := brp.data
-	brp.is_fetching = is_fetching
 	data.ResponseData(func(res_data *requests_handler.HTTP_Response_Data) {
-		if is_fetching {
+		if brp.is_fetching {
 			brp.response_widget.SetLazyLoading(len(res_data.Body.Content()) == 0, len(res_data.Headers) == 0)
 		} else {
 			brp.response_widget.SetLazyLoading(false, false)
@@ -172,6 +172,9 @@ func (brp *HTTP_Widget) on_request_button_clicked(ctx *gui.Context, value string
 		brp.data.Do()
 		brp.response_widget.Clear()
 		brp.setup_request_widget()
+		brp.is_fetching = true
+	} else if err := brp.data.CancelRequest(); err != nil {
+		message_model.Show(err.Error(), message_model.Alert, nil)
 	}
 }
 
@@ -230,21 +233,26 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
 
-	is_fetching := brp.data.IsFetching()
-	if !is_fetching {
-		brp.request_widget.SetRequestButtonText(RequestButton)
-	}
-
-	brp.setup_response_widget(is_fetching)
-	err := brp.data.GrabRequestErr()
-	if err != nil {
-		message_model.Show(err.Error(), message_model.Alert, nil)
-	}
-	brp.is_fetching = is_fetching
-
-	if is_fetching {
+	if brp.is_fetching {
 		adder.AddWidget(&brp.loading_bar)
+	} else {
 	}
+
+	if brp.data.HeadersChanged() {
+		brp.setup_response_widget()
+	}
+
+	select {
+	case err := <-brp.data.OnComplete():
+		brp.setup_response_widget()
+		brp.is_fetching = false
+		if err != nil {
+			message_model.Show(err.Error(), message_model.Alert, nil)
+		}
+		brp.request_widget.SetRequestButtonText(RequestButton)
+	default:
+	}
+
 	adder.AddWidget(&brp.request_widget)
 	adder.AddWidget(&brp.vr)
 	adder.AddWidget(&brp.response_widget)

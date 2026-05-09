@@ -5,9 +5,9 @@ import (
 	lazy_atomic "API-Client/pages/request/requests-handler/internal/lazy-atomic"
 	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"net/url"
+	"os"
 	"sync/atomic"
 	"time"
-	"os"
 )
 
 type HTTP_Request_Body struct {
@@ -87,9 +87,9 @@ type HTTP_Data struct {
 	// TODO: Store wether the url panel is opne or not
 
 	request struct {
-		is_fetching, canceled atomic.Bool
-		cancel                chan struct{}
-		err                   lazy_atomic.Value[error]
+		is_fetching, canceled, headers_changed atomic.Bool
+		on_complete                            chan error
+		cancel                                 chan struct{}
 	}
 	response_data lazy_atomic.Value[HTTP_Response_Data]
 }
@@ -126,7 +126,7 @@ func (data *HTTP_Data) ResponseData(fn func(value *HTTP_Response_Data)) {
 }
 
 type HTTP_Response_Body struct {
-	File         *os.File
+	File *os.File
 
 	ContentType ContentType
 	content     []byte

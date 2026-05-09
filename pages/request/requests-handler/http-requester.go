@@ -9,16 +9,6 @@ import (
 	"time"
 )
 
-func (data *HTTP_Data) IsFetching() bool {
-	return data.request.is_fetching.Load()
-}
-
-func (data *HTTP_Data) GrabRequestErr() error {
-	err := data.request.err.Load()
-	data.request.err.Store(nil)
-	return err
-}
-
 // set_req_headers is not concurrent safe
 func (data *HTTP_Data) set_req_headers(req *http.Request) {
 	req_headers_mapped := make(map[string]string, len(req.Header))
@@ -118,15 +108,31 @@ func (data *HTTP_Data) set_req_headers(req *http.Request) {
 
 func (data *HTTP_Data) open_request() {
 	data.request.cancel = make(chan struct{}, 1)
+	data.request.on_complete = make(chan error)
 	data.request.is_fetching.Store(true)
 	data.request.canceled.Store(false)
-	data.request.err.Store(nil)
 	data.set_response_data(HTTP_Response_Data{})
 }
 
-func (data *HTTP_Data) close_request() {
+func (data *HTTP_Data) close_request(err error) {
 	close(data.request.cancel)
 	data.request.is_fetching.Store(false)
+	go func() {
+		data.request.on_complete <- err
+		close(data.request.on_complete)
+	}()
+}
+
+func (data *HTTP_Data) IsFetching() bool {
+	return data.request.is_fetching.Load()
+}
+
+func (data *HTTP_Data) HeadersChanged() bool {
+	return data.request.headers_changed.CompareAndSwap(true, false)
+}
+
+func (data *HTTP_Data) OnComplete() chan error {
+	return data.request.on_complete
 }
 
 func (data *HTTP_Data) CancelRequest() error {
@@ -157,8 +163,7 @@ func (data *HTTP_Data) Do() bool {
 
 	req, err := http.NewRequest(method, data.FullURL().String(), body)
 	if err != nil {
-		data.request.err.Store(err)
-		data.close_request()
+		data.close_request(err)
 		return false
 	}
 	data.set_req_headers(req)
@@ -180,17 +185,17 @@ func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 		value.Headers = headers_copied
 		value.Body.content = body_content_copied
 	})
+
+	data.request.headers_changed.Store(true)
 }
 
 func (data *HTTP_Data) do(req *http.Request) {
-	defer data.close_request()
-
 	res_data := HTTP_Response_Data{}
 	response_time := time.Now()
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		data.request.err.Store(err)
+		data.close_request(err)
 		return
 	}
 	defer res.Body.Close()
@@ -211,11 +216,11 @@ func (data *HTTP_Data) do(req *http.Request) {
 
 loop:
 	for {
-		n, err := res.Body.Read(buffer)
-		if err != nil && err != io.EOF {
-			data.request.err.Store(err)
+		n, e := res.Body.Read(buffer)
+		if e != nil && e != io.EOF {
+			err = e
 			break
-		} else if err == io.EOF && n == 0 {
+		} else if e == io.EOF && n == 0 {
 			break
 		}
 
@@ -238,4 +243,5 @@ loop:
 	// TODO: decode the body content if it uses some kind of encription
 	res_data.Body.content = body_content
 	data.set_response_data(res_data)
+	data.close_request(err)
 }
