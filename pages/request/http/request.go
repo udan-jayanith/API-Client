@@ -40,6 +40,10 @@ func (rw *request_widget) OnMethodChanged(fn func(method string)) {
 	rw.input_bar_widget.on_method_changed(fn)
 }
 
+func (rw *request_widget) Method() string {
+	return rw.input_bar_widget.method()
+}
+
 func (rw *request_widget) OnOpenIn(fn func(ctx *gui.Context)) {
 	rw.input_bar_widget.on_open_in_clicked(fn)
 }
@@ -169,6 +173,7 @@ func (rw *request_widget) SelectTab(index int) {
 
 func (rw *request_widget) set_tab_items() {
 	method := strings.ToUpper(rw.input_bar_widget.method())
+	selected_tab, _ := rw.tab.SelectedTab()
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		rw.tab.SetTabItems([]CommonWidgets.TabItem{
 			{
@@ -184,8 +189,8 @@ func (rw *request_widget) set_tab_items() {
 				Value: "body",
 			},
 		})
+		rw.tab.SelectTab(selected_tab)
 	} else {
-		selected_tab, _ := rw.tab.SelectedTab()
 		rw.tab.SetTabItems([]CommonWidgets.TabItem{
 			{
 				Text:  "Parameters",
@@ -196,11 +201,9 @@ func (rw *request_widget) set_tab_items() {
 				Value: "headers",
 			},
 		})
-
-		if selected_tab == 2 {
-			rw.tab.SelectTab(1)
-		}
+		rw.tab.SelectTab(min(selected_tab, 1))
 	}
+
 }
 
 func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
