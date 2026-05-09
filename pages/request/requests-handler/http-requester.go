@@ -11,99 +11,26 @@ import (
 
 // set_req_headers is not concurrent safe
 func (data *HTTP_Data) set_req_headers(req *http.Request) {
-	req_headers_mapped := make(map[string]string, len(req.Header))
-	for key, vals := range req.Header {
-		req_headers_mapped[key] = strings.Join(vals, ",")
-	}
-
-	for i, header := range data.Headers {
-		if len(req_headers_mapped) == 0 {
-			break
+	// TODO: Iterate over the data.Headers and add each header to req.Headers
+	// TODO: Do this in HTTP_Widget by listing to http Method change and ContentType input change
+	/*
+		method := strings.ToUpper(data.Method)
+		if data.Body.ContentType != "" && (method == "POST" || method == "PUT" || method == "PATCH") {
+			index, ok := headers_mapped["Content-Type"]
+			if ok {
+				data.Headers[index].Value = string(data.Body.ContentType)
+			} else {
+				data.Headers = append([]attr.AttrCheck{
+					{
+						Checked: true,
+						Key:     "Content-Type",
+						Value:   string(data.Body.ContentType),
+					},
+				}, data.Headers...)
+				shift++
+			}
 		}
-		val, ok := req_headers_mapped[header.Key]
-		if ok {
-			header.Checked = true
-			header.Value = val
-			data.Headers[i] = header
-			delete(req_headers_mapped, header.Key)
-		}
-	}
-
-	for k, v := range req_headers_mapped {
-		data.Headers = append([]attr.AttrCheck{
-			{
-				Checked: true,
-				Key:     k,
-				Value:   v,
-			},
-		}, data.Headers...)
-	}
-
-	headers_mapped := make(map[string]int, len(data.Headers))
-	var shift int
-	for i, header := range data.Headers {
-		headers_mapped[header.Key] = i
-	}
-
-	method := strings.ToUpper(data.Method)
-	if data.Body.ContentType != "" && (method == "POST" || method == "PUT" || method == "PATCH") {
-		index, ok := headers_mapped["Content-Type"]
-		if ok {
-			data.Headers[index].Value = string(data.Body.ContentType)
-		} else {
-			data.Headers = append([]attr.AttrCheck{
-				{
-					Checked: true,
-					Key:     "Content-Type",
-					Value:   string(data.Body.ContentType),
-				},
-			}, data.Headers...)
-			shift++
-		}
-	}
-
-	_, ok := headers_mapped["Accept"]
-	if !ok {
-		data.Headers = append([]attr.AttrCheck{
-			{
-				Checked: true,
-				Key:     "Accept",
-				Value:   "*/*",
-			},
-		}, data.Headers...)
-		shift++
-	}
-
-	_, ok = headers_mapped["Accept-Encoding"]
-	if !ok {
-		data.Headers = append([]attr.AttrCheck{
-			{
-				Checked: true,
-				Key:     "Accept-Encoding",
-				Value:   "gzip, deflate, br, zstd",
-			},
-		}, data.Headers...)
-		shift++
-	}
-
-	_, ok = headers_mapped["User-Agent"]
-	if !ok {
-		data.Headers = append([]attr.AttrCheck{
-			{
-				Checked: true,
-				Key:     "User-Agent",
-				Value:   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-			},
-		}, data.Headers...)
-		shift++
-	}
-
-	for _, header := range data.Headers {
-		if !header.Checked {
-			continue
-		}
-		req.Header.Set(header.Key, header.Value)
-	}
+	*/
 }
 
 func (data *HTTP_Data) open_request() {

@@ -1,6 +1,7 @@
 package requests_handler
 
 import (
+	attr "API-Client/pages/request/requests-handler/attributes"
 	"path/filepath"
 
 	gui "github.com/guigui-gui/guigui"
@@ -62,6 +63,23 @@ func NewRequest(t RequestType, path string) Request {
 		data := HTTP_Data{}
 		data.ResponseConfig.AutoWrap = true
 		data.ResponseConfig.Formate = true
+		data.Headers = []attr.AttrCheck{
+			{
+				Checked: true,
+				Key:     "Accept",
+				Value:   "*/*",
+			},
+			{
+				Checked: true,
+				Key:     "Accept-Encoding",
+				Value:   "gzip, deflate, br, zstd",
+			},
+			{
+				Checked: true,
+				Key:     "User-Agent",
+				Value:   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+			},
+		}
 		req.data = &data
 	}
 	return req
