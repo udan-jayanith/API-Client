@@ -2,8 +2,8 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
+	requests_handler "API-Client/pages/request/requests-handler"
 	attr "API-Client/pages/request/requests-handler/attributes"
-	"API-Client/pages/request/requests-handler"
 	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
@@ -56,8 +56,8 @@ func (rw *request_widget) Body() string {
 	return rw.tab_content.body.Body()
 }
 
-func (rw *request_widget) ContentType() requests_handler.ContentType {
-	return rw.tab_content.body.ContentType()
+func (rw *request_widget) OnContentTypeChanged(fn func(context *gui.Context, value string, committed bool)) {
+	rw.tab_content.body.OnContentTypeChanged(fn)
 }
 
 func (rw *request_widget) SetContentType(content_type requests_handler.ContentType) {
@@ -152,8 +152,8 @@ func (rw *request_widget) Headers() []attr.AttrCheck {
 }
 
 // SetBody set the http request body
-func (rw *request_widget) SetBody(body *requests_handler.HTTP_Request_Body) {
-	rw.tab_content.body.SetBody(body.Content)
+func (rw *request_widget) SetBody(body string) {
+	rw.tab_content.body.SetBody(body)
 }
 
 func (rw *request_widget) SelectedTab() int {

@@ -61,7 +61,7 @@ func (data *HTTP_Data) Do() bool {
 	method := strings.ToUpper(data.Method)
 	var body io.Reader
 	if method == "POST" || method == "PUT" || method == "PATCH" {
-		body = strings.NewReader(data.Body.Content)
+		body = strings.NewReader(data.Body)
 	}
 
 	req, err := http.NewRequest(method, data.FullURL().String(), body)
@@ -72,7 +72,7 @@ func (data *HTTP_Data) Do() bool {
 	for _, header := range data.Headers {
 		req.Header.Set(header.Key, header.Value)
 	}
-	
+
 	go data.do(req)
 
 	return true

@@ -2,7 +2,7 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	"API-Client/pages/request/requests-handler"
+	requests_handler "API-Client/pages/request/requests-handler"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
@@ -12,13 +12,12 @@ import (
 type request_body_header struct {
 	gui.DefaultWidget
 
-	auto_wrap    struct {
+	auto_wrap struct {
 		text   widget.Text
 		toggle widget.Toggle
 	}
-	format CommonWidgets.ButtonWithTooltip
+	format       CommonWidgets.ButtonWithTooltip
 	content_type widget.Combobox
-	
 }
 
 func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -26,7 +25,7 @@ func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	input_widget.SetAllowFreeInput(true)
 	input_widget.SetItems([]string{"application/json", "application/octet-stream", "text/html", "text/plain", "image/png", "image/jpeg"})
 	adder.AddWidget(input_widget)
-
+	
 	w.auto_wrap.text.SetValue("Auto wrap")
 	w.auto_wrap.text.SetVerticalAlign(widget.VerticalAlignMiddle)
 	adder.AddWidget(&w.auto_wrap.text)
@@ -174,8 +173,8 @@ func (body *request_body_widget) SetAutowrap(autowrap bool) {
 	body.header.auto_wrap.toggle.SetValue(autowrap)
 }
 
-func (body *request_body_widget) ContentType() requests_handler.ContentType {
-	return requests_handler.ContentType(body.header.content_type.Value())
+func (body *request_body_widget) OnContentTypeChanged(fn func(context *gui.Context, value string, committed bool)) {
+	body.header.content_type.OnValueChanged(fn)
 }
 
 func (body *request_body_widget) SetContentType(content_type requests_handler.ContentType) {

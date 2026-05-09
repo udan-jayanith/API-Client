@@ -10,11 +10,6 @@ import (
 	"time"
 )
 
-type HTTP_Request_Body struct {
-	ContentType ContentType `json:"content-type"`
-	Content     string      `json:"content"`
-}
-
 type URL struct {
 	BaseURL string `json:"base-url"` // Everything before the path.
 
@@ -69,9 +64,9 @@ type HTTP_Data struct {
 
 	URL URL `json:"url"`
 
-	Parameters []attr.AttrCheck  `json:"parameters"`
-	Headers    []attr.AttrCheck  `json:"headers"`
-	Body       HTTP_Request_Body `json:"body"` // Filepath of Content
+	Parameters []attr.AttrCheck `json:"parameters"`
+	Headers    []attr.AttrCheck `json:"headers"`
+	Body       string           `json:"body"` // TODO: change this to a ReadReader
 
 	RequestConfig struct {
 		AutoWrap bool `json:"auto-wrap"`

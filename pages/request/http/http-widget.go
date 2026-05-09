@@ -4,6 +4,7 @@ import (
 	CommonWidgets "API-Client/common-widgets"
 	message_model "API-Client/message-model"
 	requests_handler "API-Client/pages/request/requests-handler"
+	attr "API-Client/pages/request/requests-handler/attributes"
 	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
@@ -64,8 +65,7 @@ func (brp *HTTP_Widget) setup_request_widget() {
 	brp.request_widget.SetHeaders(data.Headers)
 	brp.request_widget.SetParameters(data.Parameters)
 	brp.request_widget.SetAutowrap(data.RequestConfig.AutoWrap)
-	brp.request_widget.SetContentType(data.Body.ContentType)
-	brp.request_widget.SetBody(&data.Body)
+	brp.request_widget.SetBody(data.Body)
 	if data.Method == "" {
 		data.Method = "Get"
 	}
@@ -112,8 +112,7 @@ func (brp *HTTP_Widget) setup_response_widget() {
 func (brp *HTTP_Widget) SyncData() {
 	brp.data.Parameters = brp.request_widget.Parameters()
 	brp.data.Headers = brp.request_widget.Headers()
-	brp.data.Body.ContentType = brp.request_widget.ContentType()
-	brp.data.Body.Content = brp.request_widget.Body()
+	brp.data.Body = brp.request_widget.Body()
 
 	// TODO: sync response data
 	brp.data.SetSelectedRequestTab(brp.request_widget.SelectedTab())
@@ -225,6 +224,39 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	brp.request_widget.OnMethodChanged(func(method string) {
 		brp.data.Method = method
+
+		brp.data.Headers = brp.request_widget.Headers()
+		method = strings.ToLower(method)
+		allowed := method == "post" || method == "put" || method == "patch"
+		for i, header := range brp.data.Headers {
+			if header.Key == "Content-Type" {
+				brp.data.Headers[i].Checked = allowed
+				break
+			}
+		}
+		brp.request_widget.SetHeaders(brp.data.Headers)
+	})
+
+	brp.request_widget.OnContentTypeChanged(func(ctx *gui.Context, content_type string, committed bool) {
+		if !committed {
+			return
+		}
+		brp.data.Headers = brp.request_widget.Headers()
+		for i, header := range brp.data.Headers {
+			if header.Key == "Content-Type" {
+				brp.data.Headers[i].Checked = true
+				brp.data.Headers[i].Value = content_type
+				return
+			}
+		}
+		brp.data.Headers = append([]attr.AttrCheck{
+			{
+				Checked: true,
+				Key:     "Content-Type",
+				Value:   content_type,
+			},
+		}, brp.data.Headers...)
+		brp.request_widget.SetHeaders(brp.data.Headers)
 	})
 
 	brp.request_widget.OnURLInputChanged(brp.on_url_input_changed)
