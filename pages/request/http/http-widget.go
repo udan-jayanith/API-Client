@@ -187,6 +187,8 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, commi
 
 	if url_utils.IsJustPortNumber(u_str) {
 		u_str = "http://localhost" + u_str
+	} else if strings.HasPrefix(u_str, "localhost") {
+		u_str = "http://" + u_str
 	}
 
 	u, err := url.Parse(u_str)

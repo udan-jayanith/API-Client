@@ -77,12 +77,13 @@ func (w *url_panel_content) url() string {
 		u.Host = w.host.Value()
 	}
 
+	path := strings.TrimLeft(pattern.Path(), "/")
 	if u.Path == "" {
-		u.Path = pattern.Path()
+		u.Path = path
 	} else if u.Path[len(u.Path)-1] != '/' {
-		u.Path += pattern.Path()
+		u.Path = u.Path + "/" + path
 	} else {
-		u.Path = u.Path + "/" + pattern.Path()
+		u.Path += path
 	}
 	return u.String()
 }
