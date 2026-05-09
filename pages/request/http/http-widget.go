@@ -7,6 +7,7 @@ import (
 	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
+	"strings"
 	"time"
 
 	gui "github.com/guigui-gui/guigui"
@@ -177,15 +178,24 @@ func (brp *HTTP_Widget) on_request_button_clicked(ctx *gui.Context, value string
 	}
 }
 
-func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, text string, committed bool) {
+func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, committed bool) {
 	if !committed || brp.data.URL.IsPattern() {
 		return
 	}
-	u, err := url.Parse(text)
+
+	if url_utils.IsJustPortNumber(u_str) {
+		u_str = "http://localhost" + u_str
+	}
+
+	u, err := url.Parse(u_str)
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
 		return
 	}
+	if !strings.HasPrefix(u_str, "http") {
+		u.Scheme = "https"
+	}
+
 	brp.request_widget.SetURL(u)
 
 	url_utils.CleanURL(u)

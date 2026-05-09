@@ -9,3 +9,18 @@ func CleanURL(u *url.URL) {
 	u.Fragment = ""
 	u.ForceQuery = false
 }
+
+func IsJustPortNumber(u_str string) bool {
+	if len(u_str) <= 1 {
+		return false
+	} else if u_str[0] != ':' {
+		return false
+	}
+	u_str = u_str[1:]
+	for _, char := range u_str {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+	return true
+}
