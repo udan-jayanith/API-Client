@@ -66,6 +66,7 @@ func (r *ReadReader) Content() ([]byte, error) {
 		//content := make([]byte, stat.Size())
 		r.file.Seek(0, 0)
 	}
+	return nil, nil
 }
 
 // Decode uncompreses the current underlying buffers content using given compressions formats.
