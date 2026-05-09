@@ -123,17 +123,19 @@ func (brp *HTTP_Widget) SyncData() {
 	// TODO: HTTP response data is synced in when request is finished
 }
 
-func (brp *HTTP_Widget) url_panel_popup_size(ctx *gui.Context, widgetBounds *gui.WidgetBounds) image.Rectangle {
-	url_measurements := brp.url_panel_widget.Measure(ctx, gui.Constraints{})
+func (brp *HTTP_Widget) url_panel_bounds(ctx *gui.Context, widgetBounds *gui.WidgetBounds) image.Rectangle {
 	b := widgetBounds.Bounds()
+	draw_area := b
 
-	b.Min.X += (b.Dx() / 2) - (url_measurements.X / 2)
-	b.Min.Y += (b.Dy() / 2) - (url_measurements.Y / 2)
+	w := brp.url_panel_widget.Measure(ctx, gui.FixedWidthConstraints(b.Dx())).X
+	draw_area.Min.X += (b.Dx() / 2) - (w / 2)
+	draw_area.Max.X = draw_area.Min.X + w
 
-	b.Max.X = b.Min.X + url_measurements.X
-	b.Max.Y = b.Min.Y + url_measurements.Y
+	h := brp.url_panel_widget.Measure(ctx, gui.FixedHeightConstraints(b.Dy())).Y
+	draw_area.Min.Y += (b.Dy() / 2) - (h / 2)
+	draw_area.Max.Y = draw_area.Min.Y + h
 
-	return b
+	return draw_area
 }
 
 func (brp *HTTP_Widget) on_url_panel_open(ctx *gui.Context) {
@@ -214,6 +216,9 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		brp.popup_widget.SetBackgroundDark(true)
 		brp.popup_widget.SetCloseByClickingOutside(true)
 		brp.popup_widget.SetContent(&brp.url_panel_widget)
+		brp.url_panel_widget.OnDoneButtonClicked(func(context *gui.Context) {
+			brp.popup_widget.SetOpen(false)
+		})
 		brp.popup_widget.OnClose(brp.on_url_panel_close)
 	}
 
@@ -269,7 +274,7 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 func (brp *HTTP_Widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	if brp.popup_widget.IsOpen() {
 		brp.popup_widget.SetBackgroundBounds(widgetBounds.Bounds())
-		layouter.LayoutWidget(&brp.popup_widget, brp.url_panel_popup_size(ctx, widgetBounds))
+		layouter.LayoutWidget(&brp.popup_widget, brp.url_panel_bounds(ctx, widgetBounds))
 	}
 
 	if brp.is_fetching {

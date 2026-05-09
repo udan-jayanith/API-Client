@@ -12,7 +12,6 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type long_text_input_widget struct {
@@ -47,6 +46,8 @@ type url_panel_content struct {
 
 	table_updates_left                   bool
 	url_preview_update_t, table_update_t time.Time
+
+	done_btn widget.Button
 }
 
 // update_query_table updates the query table based on the path input
@@ -191,6 +192,10 @@ func (w *url_panel_content) Build(ctx *gui.Context, adder *gui.ChildAdder) error
 		w.url_preview_update_t = time.Now()
 	}
 	adder.AddWidget(&w.url_preview)
+
+	w.done_btn.SetType(widget.ButtonTypePrimary)
+	w.done_btn.SetText("Done")
+	adder.AddWidget(&w.done_btn)
 	return nil
 }
 
@@ -238,21 +243,39 @@ func (w *url_panel_content) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBou
 			{
 				Widget: &w.url_preview,
 			},
+			gap,
+			{
+				Layout: gui.LinearLayout{
+					Direction: gui.LayoutDirectionHorizontal,
+					Items: []gui.LinearLayoutItem{
+						{
+							Size: gui.FlexibleSize(1),
+						},
+						{
+							Widget: &w.done_btn,
+						},
+					},
+				},
+			},
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+}
+
+func (w *url_panel_content) on_done_btn_clicked(fn func(context *gui.Context)) {
+	w.done_btn.OnDown(fn)
 }
 
 func (w *url_panel_content) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	var point image.Point
 	u := widget.UnitSize(ctx)
 	point.X = u * 36
-	point.Y = u * 20
+	point.Y = u * 24
 
-	x, y := ebiten.WindowSize()
-	if x < point.X && y < point.Y {
-		point.X = u * 28
+	if w, ok := constraints.FixedWidth(); ok && w < point.X {
+		point.X = w
 	}
+
 	return point
 }
 
@@ -281,6 +304,10 @@ func (w *url_panel_widget) Set(shceme, host, path string, pattern []attr.Attribu
 	w.content.set(shceme, host, path, pattern)
 }
 
+func (w *url_panel_widget) OnDoneButtonClicked(fn func(context *gui.Context)) {
+	w.content.on_done_btn_clicked(fn)
+}
+
 func (w *url_panel_widget) Build(context *gui.Context, adder *gui.ChildAdder) error {
 	w.panel.SetContentConstraints(widget.PanelContentConstraintsFixedWidth)
 	w.panel.SetContent(&w.content)
@@ -293,13 +320,9 @@ func (w *url_panel_widget) Layout(context *gui.Context, widgetBounds *gui.Widget
 }
 
 func (w *url_panel_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	point := w.content.Measure(ctx, gui.Constraints{})
-	u := widget.UnitSize(ctx)
-
-	x, y := ebiten.WindowSize()
-	if x < point.X && y < point.Y {
-		point.X = u * 28
-		point.Y = u * 18
+	size := w.content.Measure(ctx, constraints)
+	if h, ok := constraints.FixedHeight(); ok && h < size.Y {
+		size.Y = h
 	}
-	return point
+	return size
 }
