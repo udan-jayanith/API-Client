@@ -75,8 +75,6 @@ func (brp *HTTP_Widget) setup_request_widget() {
 	if err != nil {
 		// TODO: Make message model widgets handle nil function
 		message_model.Show(err.Error(), message_model.Alert, nil)
-	}
-	if u == nil {
 		return
 	}
 	u.Path = data.URL.EncodedPath()
@@ -147,6 +145,7 @@ func (brp *HTTP_Widget) on_url_panel_close(ctx *gui.Context, reason widget.Popup
 	u, err := url.Parse(brp.url_panel_widget.URL())
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
+		return
 	}
 	brp.request_widget.SetURL(u)
 
@@ -185,8 +184,6 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, text string, commit
 	u, err := url.Parse(text)
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
-	}
-	if u == nil {
 		return
 	}
 	brp.request_widget.SetURL(u)
