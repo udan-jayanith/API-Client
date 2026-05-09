@@ -26,32 +26,55 @@ var count int = 0
 
 // This implements Io.ReadCloser
 type ReadReader struct {
-	id   int
 	buf  *bytes.Buffer
 	file *os.File
 }
 
-func (r *ReadReader) Id() int {
-	return 0
+func temp_file() (*os.File, error) {
+	return os.CreateTemp(os.TempDir(), "api-client-*")
 }
 
-// Decode uncompreses the underlying buffers content using given compressions formats.
+// Write writes to the underlying bytes buffer if it's size exceed 2m underlying buffer becomes the file.
+func (r *ReadReader) Write(b []byte) (int, error) {
+	if r.file != nil {
+		return r.file.Write(b)
+	} else {
+		return r.buf.Write(b)
+	}
+}
+
+// Close should be used to free up spacce
+func (r *ReadReader) Close() error {
+	r.buf.Truncate(0)
+	r.buf = bytes.NewBuffer(nil)
+	if r.file != nil {
+		err := r.file.Close()
+		if err != nil {
+			return err
+		}
+		return os.Remove(r.file.Name())
+	}
+	return nil
+}
+
+func (r *ReadReader) Content() ([]byte, error) {
+	if r.file != nil {
+		//stat, err := r.file.Stat()
+		//if err != nil {
+		//	return nil, err
+		//}
+		//content := make([]byte, stat.Size())
+		r.file.Seek(0, 0)
+	}
+}
+
+// Decode uncompreses the current underlying buffers content using given compressions formats.
 func (r *ReadReader) Decode(compressions []string) error {
 	return nil
 }
 
 // NewReader returns a new io.Reader that reads from r's internal buffer. This does not clear the internal buffer from r
 func (r *ReadReader) NewReader() io.ReadCloser {
-	return nil
-}
-
-// Write writes to the underlying bytes buffer if it's size exceed 2m underlying buffer becomes the file.
-func (r *ReadReader) Write(p []byte) {
-
-}
-
-// Close should be used to free up spacce
-func (r *ReadReader) Close() error {
 	return nil
 }
 
