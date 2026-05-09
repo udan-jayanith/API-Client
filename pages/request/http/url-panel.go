@@ -64,12 +64,25 @@ func (w *url_panel_content) url() string {
 		pattern.Set(attr.Key, attr.Value)
 	}
 
-	u, _ := url.Parse(w.host.Value())
+	u := url.URL{}
 	w.init_scheme()
 	selected_item, _ := w.scheme.SelectedItem()
 	u.Scheme = strings.ToLower(selected_item.Text)
-	u.Host = w.host.Value() // net/url parses the localhost:8080 by path
-	u.Path = pattern.Path()
+
+	// net/url parses the localhost:8080 by path
+	if strings.HasPrefix(w.host.Value(), "localhost:") {
+		u.Path = w.host.Value()
+	} else {
+		u.Host = w.host.Value()
+	}
+
+	if u.Path == "" {
+		u.Path = pattern.Path()
+	} else if u.Path[len(u.Path)-1] != '/' {
+		u.Path += pattern.Path()
+	} else {
+		u.Path = u.Path + "/" + pattern.Path()
+	}
 	return u.String()
 }
 
@@ -173,7 +186,8 @@ func (w *url_panel_content) Build(ctx *gui.Context, adder *gui.ChildAdder) error
 	adder.AddWidget(&w.url_preview_header)
 
 	if time.Now().Sub(w.url_preview_update_t).Seconds() >= 1 && !w.table_updates_left {
-		w.url_preview.SetURL(w.url())
+		u := w.url()
+		w.url_preview.SetURL(u)
 		w.url_preview_update_t = time.Now()
 	}
 	adder.AddWidget(&w.url_preview)
