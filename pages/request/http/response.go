@@ -2,8 +2,8 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	attr "API-Client/widgets/request/attributes"
-	"API-Client/widgets/request/def"
+	requests_handler "API-Client/pages/request/requests-handler"
+	attr "API-Client/pages/request/requests-handler/attributes"
 	"fmt"
 	"net/http"
 	"time"
@@ -67,7 +67,7 @@ func (rw *response_widget) SetResponseTime(response_time time.Duration) {
 	rw.header_widget.response_time.SetValue(response_time.Round(time.Millisecond).String())
 }
 
-func (rw *response_widget) SetHTTPVersion(version def.Version) {
+func (rw *response_widget) SetHTTPVersion(version requests_handler.Version) {
 	rw.header_widget.proto.SetValue(fmt.Sprintf("HTTP v%v.%v", version.Major, version.Minor))
 }
 
@@ -94,7 +94,7 @@ func (rw *response_widget) SetHeaders(headers []attr.AttrCheck) {
 	rw.tab_content.response_header.Widget().SetItems(header_items)
 }
 
-func (rw *response_widget) SetResponseBody(body *def.HTTP_Response_Body) {
+func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
 	// TODO: handle this so that images and large files can render.
 	rw.tab_content.response_body.SetBody(string(body.Content()), body.ContentType)
 	rw.tab_content.response_body.SetContentType(body.ContentType)

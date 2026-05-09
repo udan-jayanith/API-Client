@@ -2,7 +2,7 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
@@ -183,7 +183,7 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 	return point
 }
 
-func (body *response_body_widget) SetBody(content string, content_type def.ContentType) {
+func (body *response_body_widget) SetBody(content string, content_type requests_handler.ContentType) {
 	t, sub_t := content_type.Parse()
 	if t == "text" || (t == "application" && sub_t == "json") || content_type == "" {
 		body.body.Widget().ForceSetValue(content)
@@ -197,11 +197,11 @@ func (body *response_body_widget) Body() string {
 	return body.body.Widget().Value()
 }
 
-func (body *response_body_widget) ContentType() def.ContentType {
-	return def.ContentType(body.header.content_type.Value())
+func (body *response_body_widget) ContentType() requests_handler.ContentType {
+	return requests_handler.ContentType(body.header.content_type.Value())
 }
 
-func (body *response_body_widget) SetContentType(content_type def.ContentType) {
+func (body *response_body_widget) SetContentType(content_type requests_handler.ContentType) {
 	body.header.content_type.SetValue(string(content_type))
 }
 

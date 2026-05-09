@@ -1,7 +1,7 @@
 package url_utils
 
 import (
-	attr "API-Client/widgets/request/attributes"
+	attr "API-Client/pages/request/requests-handler/attributes"
 	"fmt"
 	"net/url"
 	"strings"

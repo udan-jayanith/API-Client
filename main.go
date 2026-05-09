@@ -14,8 +14,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	message_model "API-Client/message-model"
-	home "API-Client/widgets/home"
-	request_page "API-Client/widgets/request/page"
+	home "API-Client/pages/home"
+	request_page "API-Client/pages/request"
 )
 
 type Root struct {

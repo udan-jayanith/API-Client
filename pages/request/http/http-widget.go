@@ -3,8 +3,8 @@ package http_widget
 import (
 	CommonWidgets "API-Client/common-widgets"
 	message_model "API-Client/message-model"
-	"API-Client/widgets/request/def"
-	url_utils "API-Client/widgets/request/url-utils"
+	requests_handler "API-Client/pages/request/requests-handler"
+	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
 	"time"
@@ -26,18 +26,18 @@ type HTTP_Widget struct {
 	popup_widget     widget.Popup
 	is_fetching      bool // TODO: change this in SetReq
 
-	req  *def.Request
-	data *def.HTTP_Data
+	req  *requests_handler.Request
+	data *requests_handler.HTTP_Data
 	t    time.Time
 }
 
-func (brp *HTTP_Widget) RequestType() def.RequestType {
-	return def.HTTP
+func (brp *HTTP_Widget) RequestType() requests_handler.RequestType {
+	return requests_handler.HTTP
 }
 
 // SetReq runs when switching tabs and tab data are passed to this.
-func (brp *HTTP_Widget) SetReq(req *def.Request) {
-	if req.Type != def.HTTP {
+func (brp *HTTP_Widget) SetReq(req *requests_handler.Request) {
+	if req.Type != requests_handler.HTTP {
 		panic("Invalid request type")
 	}
 	if brp.req == req {
@@ -45,7 +45,7 @@ func (brp *HTTP_Widget) SetReq(req *def.Request) {
 	}
 	brp.req = req
 
-	data, ok := req.Data().(*def.HTTP_Data)
+	data, ok := req.Data().(*requests_handler.HTTP_Data)
 	if !ok {
 		panic("Invalid data type")
 	}
@@ -75,6 +75,9 @@ func (brp *HTTP_Widget) setup_request_widget() {
 		// TODO: Make message model widgets handle nil function
 		message_model.Show(err.Error(), message_model.Alert, nil)
 	}
+	if u == nil {
+		return
+	}
 	u.Path = data.URL.EncodedPath()
 	brp.request_widget.SetURL(u)
 	brp.request_widget.DisableURLInput(data.URL.IsPattern())
@@ -85,7 +88,7 @@ func (brp *HTTP_Widget) setup_response_widget(is_fetching bool) {
 	// Setup response widget
 	data := brp.data
 	brp.is_fetching = is_fetching
-	data.ResponseData(func(res_data *def.HTTP_Response_Data) {
+	data.ResponseData(func(res_data *requests_handler.HTTP_Response_Data) {
 		if is_fetching {
 			brp.response_widget.SetLazyLoading(len(res_data.Body.Content()) == 0, len(res_data.Headers) == 0)
 		} else {
@@ -115,7 +118,7 @@ func (brp *HTTP_Widget) SyncData() {
 
 	// TODO: sync response data
 	brp.data.SetSelectedRequestTab(brp.request_widget.SelectedTab())
-	brp.data.ResponseData(func(value *def.HTTP_Response_Data) {
+	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
 	// TODO: HTTP response data is synced in when request is finished
@@ -180,6 +183,9 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, text string, commit
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
 	}
+	if u == nil {
+		return
+	}
 	brp.request_widget.SetURL(u)
 
 	url_utils.CleanURL(u)
@@ -220,7 +226,7 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		brp.data.ResponseConfig.Formate = value
 	})
 
-	brp.data.ResponseData(func(value *def.HTTP_Response_Data) {
+	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
 

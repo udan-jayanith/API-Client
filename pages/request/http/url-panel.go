@@ -3,8 +3,8 @@ package http_widget
 import (
 	"API-Client/basic"
 	CommonWidgets "API-Client/common-widgets"
-	attr "API-Client/widgets/request/attributes"
-	url_utils "API-Client/widgets/request/url-utils"
+	attr "API-Client/pages/request/requests-handler/attributes"
+	url_utils "API-Client/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
 	"strings"
@@ -16,7 +16,8 @@ import (
 )
 
 type long_text_input_widget struct {
-	CommonWidgets.TextInputWithContextMenu}
+	CommonWidgets.TextInputWithContextMenu
+}
 
 func (w *long_text_input_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	point := w.TextInput.Measure(ctx, gui.Constraints{})
@@ -67,7 +68,7 @@ func (w *url_panel_content) url() string {
 	w.init_scheme()
 	selected_item, _ := w.scheme.SelectedItem()
 	u.Scheme = strings.ToLower(selected_item.Text)
-	u.Host = w.host.Value()
+	u.Host = w.host.Value() // net/url parses the localhost:8080 by path
 	u.Path = pattern.Path()
 	return u.String()
 }

@@ -1,7 +1,7 @@
-package def
+package requests_handler
 
 import (
-	attr "API-Client/widgets/request/attributes"
+	attr "API-Client/pages/request/requests-handler/attributes"
 	"errors"
 	"io"
 	"net/http"
@@ -215,7 +215,7 @@ loop:
 		if err != nil && err != io.EOF {
 			data.request.err.Store(err)
 			break
-		} else if err == io.EOF {
+		} else if err == io.EOF && n == 0 {
 			break
 		}
 

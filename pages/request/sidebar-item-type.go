@@ -4,7 +4,7 @@ import (
 	"API-Client/basic"
 	CommonWidgets "API-Client/common-widgets"
 	"API-Client/icons"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 	"image"
 	"log"
 
@@ -159,21 +159,21 @@ type sidebar_item_types_panel struct {
 	gui.DefaultWidget
 
 	http, websocket, graphql, grpc gui.WidgetWithSize[*widget.Button]
-	selected_request_type          def.RequestType
+	selected_request_type          requests_handler.RequestType
 
 	line CommonWidgets.HorizontalLine
 
 	select_type_text_widget widget.Text
 	request_name_input      request_name_inputs_widget
-	on_create_clicked       func(request *def.Request)
+	on_create_clicked       func(request *requests_handler.Request)
 }
 
 func (sitp *sidebar_item_types_panel) Clear() {
-	sitp.selected_request_type = def.HTTP
+	sitp.selected_request_type = requests_handler.HTTP
 	sitp.request_name_input.input_widget.SetValue("")
 }
 
-func (sitp *sidebar_item_types_panel) OnCreateButtonClicked(fn func(request *def.Request)) {
+func (sitp *sidebar_item_types_panel) OnCreateButtonClicked(fn func(request *requests_handler.Request)) {
 	sitp.on_create_clicked = fn
 }
 
@@ -194,7 +194,7 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 		Icon_name: "http",
 	})
 	http.OnDown(func(context *gui.Context) {
-		sitp.selected_request_type = def.HTTP
+		sitp.selected_request_type = requests_handler.HTTP
 	})
 	adder.AddWidget(&sitp.http)
 
@@ -205,7 +205,7 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 		Icon_name: "websocket",
 	})
 	websocket.OnDown(func(context *gui.Context) {
-		sitp.selected_request_type = def.Websocket
+		sitp.selected_request_type = requests_handler.Websocket
 	})
 
 	adder.AddWidget(&sitp.websocket)
@@ -217,7 +217,7 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 		Icon_name: "graphql",
 	})
 	graphql.OnDown(func(context *gui.Context) {
-		sitp.selected_request_type = def.GraphQL
+		sitp.selected_request_type = requests_handler.GraphQL
 	})
 	adder.AddWidget(&sitp.graphql)
 
@@ -228,7 +228,7 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 		Icon_name: "grpc",
 	})
 	grpc.OnDown(func(context *gui.Context) {
-		sitp.selected_request_type = def.Grpc
+		sitp.selected_request_type = requests_handler.Grpc
 	})
 	adder.AddWidget(&sitp.grpc)
 
@@ -238,13 +238,13 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 	grpc.SetType(widget.ButtonTypeNormal)
 
 	switch sitp.selected_request_type {
-	case def.HTTP:
+	case requests_handler.HTTP:
 		http.SetType(widget.ButtonTypePrimary)
-	case def.Websocket:
+	case requests_handler.Websocket:
 		websocket.SetType(widget.ButtonTypePrimary)
-	case def.GraphQL:
+	case requests_handler.GraphQL:
 		graphql.SetType(widget.ButtonTypePrimary)
-	case def.Grpc:
+	case requests_handler.Grpc:
 		grpc.SetType(widget.ButtonTypePrimary)
 	default:
 		log.Fatal("Unknown request type selected")
@@ -253,7 +253,7 @@ func (sitp *sidebar_item_types_panel) Build(ctx *gui.Context, adder *gui.ChildAd
 	adder.AddWidget(&sitp.line)
 
 	sitp.request_name_input.OnCreateButtonClicked(func(name string) {
-		req := def.NewRequest(sitp.selected_request_type, name)
+		req := requests_handler.NewRequest(sitp.selected_request_type, name)
 		sitp.on_create_clicked(&req)
 	})
 	adder.AddWidget(&sitp.request_name_input)

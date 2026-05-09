@@ -1,7 +1,7 @@
-package def
+package requests_handler
 
 import (
-	attr "API-Client/widgets/request/attributes"
+	attr "API-Client/pages/request/requests-handler/attributes"
 	"net/http"
 	"strings"
 )

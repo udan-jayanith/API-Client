@@ -2,7 +2,7 @@ package websocket_widget
 
 import (
 	"API-Client/basic"
-	"API-Client/widgets/request/def"
+	"API-Client/pages/request/requests-handler"
 
 	gui "github.com/guigui-gui/guigui"
 )
@@ -39,10 +39,10 @@ func (ww *WebsocketWidget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
-func (ww *WebsocketWidget) RequestType() def.RequestType {
-	return def.Websocket
+func (ww *WebsocketWidget) RequestType() requests_handler.RequestType {
+	return requests_handler.Websocket
 }
 
-func (ww *WebsocketWidget) SetReq(req *def.Request) {}
+func (ww *WebsocketWidget) SetReq(req *requests_handler.Request) {}
 
 func (ww *WebsocketWidget) SyncData() {}
