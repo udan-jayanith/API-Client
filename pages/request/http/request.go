@@ -174,6 +174,7 @@ func (rw *request_widget) SelectTab(index int) {
 func (rw *request_widget) set_tab_items() {
 	method := strings.ToUpper(rw.input_bar_widget.method())
 	selected_tab, _ := rw.tab.SelectedTab()
+	// TODO: don't run this in every build
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		rw.tab.SetTabItems([]CommonWidgets.TabItem{
 			{
@@ -222,8 +223,10 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		if to.Item.Value == "parameters" {
 			rw.tab_content.table.SetRowsCheck(rw.tab_content.params)
 		} else if to.Item.Value == "headers" {
+			println("Setting rows")
 			rw.tab_content.table.SetRowsCheck(rw.tab_content.header)
 		}
+		// TODO: This runs every time when the build runs
 	})
 
 	_, selected_tab := rw.tab.SelectedTab()
