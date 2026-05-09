@@ -9,30 +9,6 @@ import (
 	"time"
 )
 
-// set_req_headers is not concurrent safe
-func (data *HTTP_Data) set_req_headers(req *http.Request) {
-	// TODO: Iterate over the data.Headers and add each header to req.Headers
-	// TODO: Do this in HTTP_Widget by listing to http Method change and ContentType input change
-	/*
-		method := strings.ToUpper(data.Method)
-		if data.Body.ContentType != "" && (method == "POST" || method == "PUT" || method == "PATCH") {
-			index, ok := headers_mapped["Content-Type"]
-			if ok {
-				data.Headers[index].Value = string(data.Body.ContentType)
-			} else {
-				data.Headers = append([]attr.AttrCheck{
-					{
-						Checked: true,
-						Key:     "Content-Type",
-						Value:   string(data.Body.ContentType),
-					},
-				}, data.Headers...)
-				shift++
-			}
-		}
-	*/
-}
-
 func (data *HTTP_Data) open_request() {
 	data.request.cancel = make(chan struct{}, 1)
 	data.request.on_complete = make(chan error)
@@ -93,7 +69,10 @@ func (data *HTTP_Data) Do() bool {
 		data.close_request(err)
 		return false
 	}
-	data.set_req_headers(req)
+	for _, header := range data.Headers {
+		req.Header.Set(header.Key, header.Value)
+	}
+	
 	go data.do(req)
 
 	return true
