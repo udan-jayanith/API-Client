@@ -70,7 +70,9 @@ func (data *HTTP_Data) Do() bool {
 		return false
 	}
 	for _, header := range data.Headers {
-		req.Header.Set(header.Key, header.Value)
+		if header.Checked {
+			req.Header.Set(header.Key, header.Value)
+		}
 	}
 
 	go data.do(req)
