@@ -2,8 +2,8 @@ package CommonWidgets
 
 import (
 	"API-Client/basic"
-	draw_color "API-Client/internal/draw"
 	"API-Client/icons"
+	draw_color "API-Client/internal/draw"
 	attr "API-Client/pages/request/requests-handler/attributes"
 	"image"
 	"image/color"
@@ -131,6 +131,8 @@ type attribute_table struct {
 	checkbox_disabled, delete_disabled bool
 	key_not_editable                   bool
 	rwo_delete_fn                      func(index int)
+	on_hover                           func(ctx *gui.Context, t string, widget EditableText, widget_bounds gui.WidgetBounds)
+	on_type                            func(ctx *gui.Context, t string, widget EditableText, widget_bounds gui.WidgetBounds)
 }
 
 func (at *attribute_table) push_row(row attr.AttrCheck) {
