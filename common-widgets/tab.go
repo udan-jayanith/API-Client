@@ -36,6 +36,10 @@ type tabs_container struct {
 	}
 }
 
+func (tab *tabs_container) item_count() int {
+	return len(tab.tab_items)
+}
+
 func (tab *tabs_container) on_select(index int, tab_item TabItem, by_user bool) {
 	if tab.listeners.on_select != nil {
 		from := TabItemContainer{
@@ -121,7 +125,6 @@ func (tab *tabs_container) set_tab_items(tab_items []TabItem) {
 	if len(tab_items) > 0 {
 		tab.on_select(0, tab_items[0], false)
 	}
-	gui.RequestRebuild(tab)
 }
 
 func (tab *tabs_container) select_tab(index int, by_user bool) {
@@ -129,7 +132,6 @@ func (tab *tabs_container) select_tab(index int, by_user bool) {
 		panic("Invalid index")
 	}
 	tab.on_select(index, tab.tab_items[index].tab_item, by_user)
-	gui.RequestRedraw(tab)
 }
 
 func (tab *tabs_container) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -244,6 +246,10 @@ func (tab *Tab) SelectedTab() (int, TabItem) {
 		return 0, TabItem{}
 	}
 	return tab.tab_container.selected_item_index, tab.tab_container.tab_items[tab.tab_container.selected_item_index].tab_item
+}
+
+func (tab *Tab) ItemCount() int {
+	return tab.tab_container.item_count()
 }
 
 func (tab *Tab) OnSelect(fn func(from TabItemContainer, to TabItemContainer, by_user bool)) {

@@ -18,6 +18,7 @@ type request_widget struct {
 	gui.DefaultWidget
 	input_bar_widget          request_input_bar_widget
 	on_input_bar_value_change func(ctx *gui.Context, text string, committed bool, by_user bool)
+	on_method_change          func(method string)
 
 	t           time.Time
 	url_preview CommonWidgets.URLPreview
@@ -37,7 +38,7 @@ func (rw *request_widget) SetMethod(method string) {
 }
 
 func (rw *request_widget) OnMethodChanged(fn func(method string)) {
-	rw.input_bar_widget.on_method_changed(fn)
+	rw.on_method_change = fn
 }
 
 func (rw *request_widget) Method() string {
@@ -174,7 +175,7 @@ func (rw *request_widget) SelectTab(index int) {
 func (rw *request_widget) set_tab_items() {
 	method := strings.ToUpper(rw.input_bar_widget.method())
 	selected_tab, _ := rw.tab.SelectedTab()
-	// TODO: don't run this in every build
+
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		rw.tab.SetTabItems([]CommonWidgets.TabItem{
 			{
@@ -204,14 +205,22 @@ func (rw *request_widget) set_tab_items() {
 		})
 		rw.tab.SelectTab(min(selected_tab, 1))
 	}
-
 }
 
 func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.input_bar_widget)
 	adder.AddWidget(&rw.url_preview)
 
-	rw.set_tab_items()
+	rw.input_bar_widget.on_method_changed(func(method string) {
+		rw.set_tab_items()
+		if rw.on_method_change != nil {
+			rw.on_method_change(method)
+		}
+	})
+
+	if rw.tab.ItemCount() == 0 {
+		rw.set_tab_items()
+	}
 
 	rw.tab.OnSelect(func(from, to CommonWidgets.TabItemContainer, _ bool) {
 		if from.Item.Value == "parameters" && to.Item.Value == "headers" {
@@ -223,7 +232,6 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		if to.Item.Value == "parameters" {
 			rw.tab_content.table.SetRowsCheck(rw.tab_content.params)
 		} else if to.Item.Value == "headers" {
-			println("Setting rows")
 			rw.tab_content.table.SetRowsCheck(rw.tab_content.header)
 		}
 		// TODO: This runs every time when the build runs
