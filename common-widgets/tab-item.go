@@ -7,7 +7,7 @@ import (
 	"API-Client/basic"
 	"API-Client/icons"
 
-	draw_color "API-Client/common-widgets/internal/draw"
+	draw_color "API-Client/internal/draw"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"

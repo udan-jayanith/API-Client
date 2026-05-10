@@ -1,6 +1,7 @@
 package http_widget
 
 import (
+	"API-Client/basic"
 	CommonWidgets "API-Client/common-widgets"
 	message_model "API-Client/message-model"
 	requests_handler "API-Client/pages/request/requests-handler"
@@ -21,7 +22,6 @@ type HTTP_Widget struct {
 
 	loading_bar     CommonWidgets.InfiniteLoadingBar
 	request_widget  request_widget
-	vr              CommonWidgets.VerticalLine
 	response_widget response_widget
 
 	url_panel_widget url_panel_widget
@@ -299,7 +299,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	}
 
 	adder.AddWidget(&brp.request_widget)
-	adder.AddWidget(&brp.vr)
 	adder.AddWidget(&brp.response_widget)
 	return nil
 }
@@ -320,14 +319,11 @@ func (brp *HTTP_Widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds,
 
 	layout := gui.LinearLayout{
 		Direction: gui.LayoutDirectionHorizontal,
-		Gap:       widget.UnitSize(ctx) / 4,
+		Gap:       basic.Gap(ctx),
 		Items: []gui.LinearLayoutItem{
 			{
 				Widget: &brp.request_widget,
 				Size:   gui.FlexibleSize(1),
-			},
-			{
-				Widget: &brp.vr,
 			},
 			{
 				Widget: &brp.response_widget,
@@ -336,4 +332,11 @@ func (brp *HTTP_Widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds,
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+}
+
+func (brp *HTTP_Widget) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+	//b := widgetBounds.Bounds()
+	//width := basic.LineWidth(ctx)
+	//middle := float32(b.Min.X + b.Dx()/2)
+	//vector.StrokeLine(dst, middle, float32(b.Min.Y), middle, float32(b.Max.Y), width, basic.LineColor(ctx), false)
 }

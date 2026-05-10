@@ -1,6 +1,9 @@
 package basic
 
 import (
+	draw_color "API-Client/internal/draw"
+	"image/color"
+
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 )
@@ -112,4 +115,12 @@ func BorderRadius(ctx *gui.Context) int {
 
 func Gap(ctx *gui.Context) int {
 	return BorderRadius(ctx)
+}
+
+func LineWidth(ctx *gui.Context) float32 {
+	return 1 * float32(ctx.Scale())
+}
+
+func LineColor(ctx *gui.Context) color.Color {
+	return draw_color.ScaleAlpha(draw_color.Color(ctx.ColorMode(), draw_color.ColorTypeBase, 0), 6/32.0)
 }

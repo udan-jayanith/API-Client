@@ -2,7 +2,7 @@ package CommonWidgets
 
 import (
 	"API-Client/basic"
-	draw_color "API-Client/common-widgets/internal/draw"
+	draw_color "API-Client/internal/draw"
 	"image"
 	"time"
 
