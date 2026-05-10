@@ -16,7 +16,7 @@ type Description struct {
 func (w *Description) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	w.text_widget.SetEllipsisString("...")
 	w.text_widget.SetMultiline(true)
-	w.text_widget.SetAutoWrap(true)
+	w.text_widget.SetWrapMode(widget.WrapModeAnywhere)
 	w.text_widget.SetHorizontalAlign(widget.HorizontalAlignLeft)
 	w.text_widget.SetVerticalAlign(widget.VerticalAlignMiddle)
 	w.text_widget.SetOpacity(0.84)

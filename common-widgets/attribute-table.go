@@ -42,12 +42,12 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	}
 
 	w.key_cell.SetEditable(!w.table.key_not_editable)
-	w.key_cell.SetAutoWrap(true)
+	w.key_cell.SetWrapMode(widget.WrapModeAnywhere)
 	w.key_cell.SetEllipsisString("...")
 	adder.AddWidget(&w.key_cell)
 
 	w.value_cell.SetEllipsisString("...")
-	w.value_cell.SetAutoWrap(true)
+	w.value_cell.SetWrapMode(widget.WrapModeAnywhere)
 	adder.AddWidget(&w.value_cell)
 
 	if !w.table.delete_disabled {

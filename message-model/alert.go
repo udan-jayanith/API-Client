@@ -40,7 +40,7 @@ func (w *alert_widget_content) Bounds(ctx *gui.Context, widgetBounds *gui.Widget
 }
 
 func (w *alert_widget_content) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	w.text.SetAutoWrap(true)
+	w.text.SetWrapMode(widget.WrapModeAnywhere)
 	w.text.SetMultiline(true)
 	w.text.SetHorizontalAlign(widget.HorizontalAlignLeft)
 	w.text.SetVerticalAlign(widget.VerticalAlignTop)

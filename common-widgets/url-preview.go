@@ -20,7 +20,7 @@ type URLPreview struct {
 }
 
 func (up *URLPreview) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	up.url_preview.SetAutoWrap(true)
+	up.url_preview.SetWrapMode(widget.WrapModeAnywhere)
 	up.url_preview.SetEditable(false)
 	up.url_preview.SetHorizontalAlign(widget.HorizontalAlignLeft)
 	up.url_preview.SetVerticalAlign(widget.VerticalAlignTop)

@@ -2,7 +2,7 @@ package http_widget
 
 import (
 	CommonWidgets "API-Client/common-widgets"
-	"API-Client/pages/request/requests-handler"
+	requests_handler "API-Client/pages/request/requests-handler"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
@@ -134,7 +134,9 @@ func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 	adder.AddWidget(&w.header)
 
 	body := w.body.Widget()
-	body.SetAutoWrap(w.header.options.auto_wrap.toggle.Value())
+	if w.header.options.auto_wrap.toggle.Value() {
+		body.SetWrapMode(widget.WrapModeAnywhere)
+	}
 	body.SetMultiline(w.header.options.auto_wrap.toggle.Value())
 	adder.AddWidget(&w.body)
 	// make the view handle images and text.

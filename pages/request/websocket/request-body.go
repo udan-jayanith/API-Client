@@ -21,7 +21,7 @@ func (ww *request_body) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&ww.send_button)
 
 	ww.text_widget.SetMultiline(true)
-	ww.text_widget.SetAutoWrap(true)
+	ww.text_widget.SetWrapMode(widget.WrapModeAnywhere)
 	adder.AddWidget(&ww.text_widget)
 	return nil
 }

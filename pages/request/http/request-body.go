@@ -25,7 +25,7 @@ func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	input_widget.SetAllowFreeInput(true)
 	input_widget.SetItems([]string{"application/json", "application/octet-stream", "text/html", "text/plain", "image/png", "image/jpeg"})
 	adder.AddWidget(input_widget)
-	
+
 	w.auto_wrap.text.SetValue("Auto wrap")
 	w.auto_wrap.text.SetVerticalAlign(widget.VerticalAlignMiddle)
 	adder.AddWidget(&w.auto_wrap.text)
@@ -109,7 +109,9 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	adder.AddWidget(&w.header)
 
 	body := w.body.Widget()
-	body.SetAutoWrap(w.header.auto_wrap.toggle.Value())
+	if w.header.auto_wrap.toggle.Value() {
+		body.SetWrapMode(widget.WrapModeAnywhere)
+	}
 	body.SetMultiline(true)
 	body.SetEditable(true)
 	adder.AddWidget(&w.body)

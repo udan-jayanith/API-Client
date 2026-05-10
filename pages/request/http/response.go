@@ -83,9 +83,15 @@ func (rw *response_widget) SetHeaders(headers []attr.AttrCheck) {
 			Cells: []widget.TableCell{
 				{
 					Text: v.Key,
+					TextStyle: widget.TextStyle{
+						WrapMode: widget.WrapModeAnywhere,
+					},
 				},
 				{
 					Text: v.Value,
+					TextStyle: widget.TextStyle{
+						WrapMode: widget.WrapModeAnywhere,
+					},
 				},
 			},
 		})
