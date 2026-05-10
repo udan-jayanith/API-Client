@@ -235,7 +235,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			}
 		}
 		brp.request_widget.SetHeaders(brp.data.Headers)
-		println("Setting headers from http method select")
 	})
 
 	brp.request_widget.OnContentTypeChanged(func(ctx *gui.Context, content_type string, committed bool) {
@@ -258,7 +257,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			},
 		}, brp.data.Headers...)
 		brp.request_widget.SetHeaders(brp.data.Headers)
-		println("Setting headers")
 	})
 
 	brp.request_widget.OnURLInputChanged(brp.on_url_input_changed)
