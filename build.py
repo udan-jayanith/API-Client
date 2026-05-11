@@ -1,6 +1,3 @@
-#from textual.app import App, ComposeResult
-#from textual.widgets import Header, Footer, Button, Select, Label
-
 import os
 import platform
 import subprocess
@@ -9,6 +6,7 @@ from pathlib import Path
 
 file_path = Path(__file__).resolve()
 root_dir = file_path.parent
+
 
 def execute_command(command):
     # Determine the command based on the OS
@@ -24,14 +22,26 @@ def execute_command(command):
         return f"An error occurred: {e}"
 
 
+def run_zbolt():
+    result = execute_command(["go", "run", root_dir])
+    if result != "":
+        print(result)
+
+
 def main():
     args = sys.argv
     if len(args) == 2 and args[1] == "run":
-        result = execute_command(["go", "run", root_dir])
-        if result != "":
-            print(result)
+        run_zbolt()
+        os._exit(0)
     elif len(args) >= 2:
         print("Unknow argument passed")
+        os._exit(1)
+
+    print("[1] Genrate\n[2] Build\n[3] Run")
+    option = input("Enter: ")
+    
+    if option == "1":
+        run_zbolt()
         os._exit(1)
 
 
