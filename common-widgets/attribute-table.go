@@ -10,14 +10,12 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
-	"github.com/guigui-gui/guigui/basicwidget/basicwidgetdraw"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type table_row_widget struct {
 	gui.DefaultWidget
 
-	table *attribute_table
+	table *AttributeTable
 
 	index                int
 	checkbox             widget.Checkbox
@@ -77,7 +75,7 @@ func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 	gap := w.gap(ctx)
 
 	b1 := widgetBounds.Bounds()
-	
+
 	if !w.table.checkbox_disabled {
 		size := w.checkbox.Measure(ctx, gui.Constraints{})
 		checkbox_bounds := b1
@@ -130,7 +128,7 @@ func (row_widget *table_row_widget) on_delete(fn func(index int)) {
 	})
 }
 
-type attribute_table struct {
+type AttributeTable struct {
 	gui.DefaultWidget
 	key_header, value_header widget.Text
 	rows                     []*table_row_widget
@@ -145,7 +143,7 @@ type attribute_table struct {
 	on_scroll                            func(offset_x, height int)
 }
 
-func (at *attribute_table) push_row(row attr.AttrCheck) {
+func (at *AttributeTable) push_row(row attr.AttrCheck) {
 	row_widget := table_row_widget{}
 	row_widget.index = len(at.rows)
 	row_widget.table = at
@@ -155,25 +153,12 @@ func (at *attribute_table) push_row(row attr.AttrCheck) {
 	at.rows = append(at.rows, &row_widget)
 }
 
-func (at *attribute_table) delete_row(index int) {
+func (at *AttributeTable) delete_row(index int) {
 	at.rows = slices.Delete(at.rows, index, index+1)
 	gui.RequestRebuild(at)
 }
 
-func (at *attribute_table) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	// TODO: only render widgets vissible to the viewport.
-
-	/*
-		at.key_header.SetValue("Key")
-		at.key_header.SetBold(true)
-		at.key_header.SetVerticalAlign(widget.VerticalAlignMiddle)
-		adder.AddWidget(&at.key_header)
-
-		at.value_header.SetValue("Value")
-		at.value_header.SetBold(true)
-		at.value_header.SetVerticalAlign(widget.VerticalAlignMiddle)
-		adder.AddWidget(&at.value_header)
-	*/
+func (at *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	l := len(at.rows)
 	if !at.disable_auto_add && (l == 0 || strings.TrimSpace(at.rows[l-1].key_cell.Value()) != "") {
 		at.push_row(attr.AttrCheck{
@@ -197,7 +182,7 @@ func (at *attribute_table) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 		{
 			Header: true,
 			Border: true,
-			Text: "Hello world",
+			Text:   "Hello world",
 		},
 	}, list_items...)
 	at.list.SetItems(list_items)
@@ -206,140 +191,22 @@ func (at *attribute_table) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	return nil
 }
 
-func (at *attribute_table) header_height(ctx *gui.Context) int {
-	return widget.LineHeight(ctx) + (widget.UnitSize(ctx)/8)*2
-}
-
-func (at *attribute_table) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	/*
-		layout := gui.LinearLayout{
-			Direction: gui.LayoutDirectionVertical,
-			Items:     make([]gui.LinearLayoutItem, 0, len(at.rows)),
-		}
-
-		u := widget.UnitSize(ctx)
-		header_layout := gui.LinearLayout{
-			Direction: gui.LayoutDirectionHorizontal,
-			Gap:       u / 2,
-			Padding:   basic.NewPadding(u / 8),
-			Items: []gui.LinearLayoutItem{
-				{
-					Widget: &at.key_header,
-					Size:   gui.FlexibleSize(1),
-				},
-				{
-					Widget: &at.value_header,
-					Size:   gui.FlexibleSize(1),
-				},
-			},
-		}
-		layout.Items = append(layout.Items, gui.LinearLayoutItem{
-			Layout: header_layout,
-			Size:   gui.FixedSize(at.header_height(ctx)),
-		})
-
-		for i, _ := range at.rows {
-			layout.Items = append(layout.Items, gui.LinearLayoutItem{
-				Widget: at.rows[i],
-			})
-		}
-
-		layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
-	*/
+func (at *AttributeTable) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	layouter.LayoutWidget(&at.list, widgetBounds.Bounds())
 }
 
-func (at *attribute_table) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	/*
-		var point image.Point
-
-		if w, ok := constraints.FixedWidth(); ok {
-			point.X = w
-		} else {
-			point.X = widget.UnitSize(ctx) * 6
-		}
-
-		point.Y = at.header_height(ctx)
-		for i, _ := range at.rows {
-			point.Y += at.rows[i].Measure(ctx, gui.FixedWidthConstraints(point.X)).Y
-		}
-
-		return point
-	*/
+func (at *AttributeTable) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	return at.list.Measure(ctx, constraints)
 }
 
-/*
-func (at *attribute_table) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
-	b := widgetBounds.Bounds()
-	header_heaight := at.header_height(ctx)
-	b.Min.Y += header_heaight
-
-	width := 1 * ctx.Scale()
-	line_color := draw_color.ScaleAlpha(draw_color.Color(ctx.ColorMode(), draw_color.ColorTypeBase, 0), 6/32.0)
-
-	vector.StrokeLine(dst, float32(b.Min.X), float32(b.Min.Y), float32(b.Max.X), float32(b.Min.Y), float32(width), line_color, false)
-
-	padding := widget.UnitSize(ctx) / 4
-	middle := float32(b.Min.X + b.Dx()/2)
-	vector.StrokeLine(dst, middle, float32(b.Min.Y)-float32(header_heaight)+float32(padding), middle, float32(b.Min.Y)-float32(padding), float32(width), line_color, false)
-
-	for i, _ := range at.rows {
-		if i%2 == 1 {
-			b := b
-			b.Max.Y = b.Min.Y + at.rows[i].Measure(ctx, gui.FixedWidthConstraints(b.Dx())).Y
-			basicwidgetdraw.DrawRoundedRect(ctx, dst, b, color.Alpha16{0x1111}, basic.BorderRadius(ctx))
-		}
-		b.Min.Y += at.rows[i].Measure(ctx, gui.FixedWidthConstraints(b.Dx())).Y
-	}
-}
-*/
-
-type AttributeTable struct {
-	gui.DefaultWidget
-	table attribute_table
-
-	//panel widget.Panel
-}
-
-func (table *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	adder.AddWidget(&table.table)
-	return nil
-}
-
-func (table *AttributeTable) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	layouter.LayoutWidget(&table.table, widgetBounds.Bounds())
-}
-
-func (t *AttributeTable) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	// TODO: fix this
-	size := image.Pt(12*widget.UnitSize(ctx), 6*widget.UnitSize(ctx))
-	if w, ok := constraints.FixedWidth(); ok {
-		size.X = w
-	} else if h, ok := constraints.FixedHeight(); ok {
-		size.Y = h
-	}
-
-	return size
-}
-
-func (t *AttributeTable) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
-	r := widget.RoundedCornerRadius(ctx)
-	background_clr := basicwidgetdraw.ControlColor(ctx.ColorMode(), ctx.IsEnabled(t))
-	basicwidgetdraw.DrawRoundedRect(ctx, dst, widgetBounds.Bounds(), background_clr, r)
-
-	border_clr1, border_clr2 := basicwidgetdraw.BorderColors(ctx.ColorMode(), basicwidgetdraw.RoundedRectBorderTypeInset)
-	basicwidgetdraw.DrawRoundedRectBorder(ctx, dst, widgetBounds.Bounds(), border_clr1, border_clr2, r, 1, basicwidgetdraw.RoundedRectBorderTypeInset)
-}
-
 func (t *AttributeTable) SetRows(rows []attr.Attribute) {
-	table_rows := t.table.rows
+	table_rows := t.rows
 	if len(table_rows) > len(rows) {
 		table_rows = table_rows[:len(rows)]
 	} else if len(table_rows) != len(rows) {
 		table_rows = make([]*table_row_widget, len(rows))
 	}
-	table := &t.table
+	table := t
 
 	for i, row := range rows {
 		if table_rows[i] == nil {
@@ -352,11 +219,11 @@ func (t *AttributeTable) SetRows(rows []attr.Attribute) {
 		table_row.key_cell.SetValue(row.Key)
 		table_row.value_cell.SetValue(row.Value)
 	}
-	t.table.rows = table_rows
+	t.rows = table_rows
 }
 
 func (t *AttributeTable) SetRowsCheck(rows []attr.AttrCheck) {
-	table_rows := t.table.rows
+	table_rows := t.rows
 	//TODO: BUG: optimizations doesn't work figure out what is happening.
 
 	//if len(table_rows) > len(rows) {
@@ -364,7 +231,7 @@ func (t *AttributeTable) SetRowsCheck(rows []attr.AttrCheck) {
 	//} else if len(table_rows) != len(rows) {
 	table_rows = make([]*table_row_widget, len(rows))
 	//}
-	table := &t.table
+	table := t
 
 	for i, row := range rows {
 		if table_rows[i] == nil {
@@ -379,11 +246,11 @@ func (t *AttributeTable) SetRowsCheck(rows []attr.AttrCheck) {
 		table_row.key_cell.SetValue(row.Key)
 		table_row.value_cell.SetValue(row.Value)
 	}
-	t.table.rows = table_rows
+	t.rows = table_rows
 }
 
 func (t *AttributeTable) RowsCheck() []attr.AttrCheck {
-	table_rows := t.table.rows
+	table_rows := t.rows
 	rows := make([]attr.AttrCheck, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
@@ -401,7 +268,7 @@ func (t *AttributeTable) RowsCheck() []attr.AttrCheck {
 }
 
 func (t *AttributeTable) Rows() []attr.Attribute {
-	table_rows := t.table.rows
+	table_rows := t.rows
 	rows := make([]attr.Attribute, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
@@ -418,43 +285,43 @@ func (t *AttributeTable) Rows() []attr.Attribute {
 }
 
 func (t *AttributeTable) DisableCheckbox(disable bool) {
-	t.table.checkbox_disabled = disable
-	gui.RequestRebuild(&t.table.list)
+	t.checkbox_disabled = disable
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) DisableDelete(disable bool) {
-	t.table.delete_disabled = disable
-	gui.RequestRebuild(&t.table.list)
+	t.delete_disabled = disable
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) KeyEditable(editable bool) {
-	t.table.key_not_editable = !editable
-	gui.RequestRebuild(&t.table.list)
+	t.key_not_editable = !editable
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) ValueEditable(editable bool) {
-	t.table.value_not_editable = !editable
-	gui.RequestRebuild(&t.table.list)
+	t.value_not_editable = !editable
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) AutoAddRow(auto_add bool) {
-	t.table.disable_auto_add = !auto_add
-	gui.RequestRebuild(&t.table.list)
+	t.disable_auto_add = !auto_add
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) Count() int {
-	return len(t.table.rows)
+	return len(t.rows)
 }
 
 func (t *AttributeTable) PushRow(row attr.AttrCheck) {
-	t.table.push_row(row)
-	gui.RequestRebuild(&t.table.list)
+	t.push_row(row)
+	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) OnHover(fn func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)) {
-	t.table.on_hover = fn
+	t.on_hover = fn
 }
 
 func (t *AttributeTable) OnType(fn func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)) {
-	t.table.on_type = fn
+	t.on_type = fn
 }
