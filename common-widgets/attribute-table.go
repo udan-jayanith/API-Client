@@ -44,10 +44,31 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	w.key_cell.SetEditable(!w.table.key_not_editable)
 	w.key_cell.SetWrapMode(widget.WrapModeAnywhere)
 	w.key_cell.SetEllipsisString("...")
+	if w.table.on_type != nil {
+		w.key_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
+			w.table.on_type(ctx, "key", &w.key_cell, widget_bounds)
+		})
+	}
+	if w.table.on_hover != nil {
+		w.key_cell.OnHover(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
+			w.table.on_hover(ctx, "key", &w.key_cell, widget_bounds)
+		})
+	}
 	adder.AddWidget(&w.key_cell)
 
+	w.value_cell.SetEditable(!w.table.value_not_editable)
 	w.value_cell.SetEllipsisString("...")
 	w.value_cell.SetWrapMode(widget.WrapModeAnywhere)
+	if w.table.on_type != nil {
+		w.value_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
+			w.table.on_type(ctx, "value", &w.key_cell, widget_bounds)
+		})
+	}
+	if w.table.on_hover != nil {
+		w.value_cell.OnHover(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
+			w.table.on_hover(ctx, "value", &w.key_cell, widget_bounds)
+		})
+	}
 	adder.AddWidget(&w.value_cell)
 
 	if !w.table.delete_disabled {
@@ -127,12 +148,12 @@ type attribute_table struct {
 	key_header, value_header widget.Text
 	rows                     []*table_row_widget
 
-	disable_auto_add                   bool
-	checkbox_disabled, delete_disabled bool
-	key_not_editable                   bool
-	rwo_delete_fn                      func(index int)
-	on_hover                           func(ctx *gui.Context, t string, widget EditableText, widget_bounds gui.WidgetBounds)
-	on_type                            func(ctx *gui.Context, t string, widget EditableText, widget_bounds gui.WidgetBounds)
+	disable_auto_add                     bool
+	checkbox_disabled, delete_disabled   bool
+	key_not_editable, value_not_editable bool
+	rwo_delete_fn                        func(index int)
+	on_hover                             func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)
+	on_type                              func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)
 }
 
 func (at *attribute_table) push_row(row attr.AttrCheck) {
@@ -403,12 +424,15 @@ func (t *AttributeTable) DisableDelete(disable bool) {
 
 func (t *AttributeTable) KeyEditable(editable bool) {
 	t.table.Widget().key_not_editable = !editable
-	gui.RequestRebuild(t)
 }
+
+func (t *AttributeTable) ValueEditable(editable bool) {
+	t.table.Widget().value_not_editable = !editable
+}
+
 
 func (t *AttributeTable) AutoAddRow(auto_add bool) {
 	t.table.Widget().disable_auto_add = !auto_add
-	gui.RequestRebuild(t)
 }
 
 func (t *AttributeTable) Count() int {
@@ -418,4 +442,12 @@ func (t *AttributeTable) Count() int {
 func (t *AttributeTable) PushRow(row attr.AttrCheck) {
 	t.table.Widget().push_row(row)
 	gui.RequestRebuild(t.table.Widget())
+}
+
+func (t *AttributeTable) OnHover(fn func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)) {
+	t.table.Widget().on_hover = fn
+}
+
+func (t *AttributeTable) OnType(fn func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)) {
+	t.table.Widget().on_type = fn
 }
