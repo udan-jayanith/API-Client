@@ -37,7 +37,7 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	}
 
 	w.key_cell.SetEditable(!w.table.key_not_editable)
-	key_cell := w.key_cell.Widget()
+	key_cell := &w.key_cell
 	key_cell.SetWrapMode(widget.WrapModeAnywhere)
 	key_cell.SetEllipsisString("...")
 	if w.table.on_type != nil {
@@ -53,7 +53,7 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	adder.AddWidget(&w.key_cell)
 
 	w.value_cell.SetEditable(!w.table.value_not_editable)
-	value_cell := w.value_cell.Widget()
+	value_cell := &w.value_cell
 	value_cell.SetEllipsisString("...")
 	value_cell.SetWrapMode(widget.WrapModeAnywhere)
 	if w.table.on_type != nil {
@@ -211,8 +211,8 @@ func (at *AttributeTable) push_row(row attr.AttrCheck) {
 	row_widget.index = len(at.rows)
 	row_widget.table = at
 	row_widget.checkbox.SetValue(row.Checked)
-	row_widget.key_cell.Widget().SetValue(row.Key)
-	row_widget.value_cell.Widget().SetValue(row.Value)
+	row_widget.key_cell.SetValue(row.Key)
+	row_widget.value_cell.SetValue(row.Value)
 	at.rows = append(at.rows, &row_widget)
 }
 
@@ -223,7 +223,7 @@ func (at *AttributeTable) delete_row(index int) {
 
 func (at *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	l := len(at.rows)
-	if !at.disable_auto_add && (l == 0 || strings.TrimSpace(at.rows[l-1].key_cell.Widget().Value()) != "") {
+	if !at.disable_auto_add && (l == 0 || strings.TrimSpace(at.rows[l-1].key_cell.Value()) != "") {
 		at.push_row(attr.AttrCheck{
 			Checked: true,
 		})
@@ -282,8 +282,8 @@ func (t *AttributeTable) SetRows(rows []attr.Attribute) {
 		table_row.table = table
 		table_row.index = i
 
-		table_row.key_cell.Widget().SetValue(row.Key)
-		table_row.value_cell.Widget().SetValue(row.Value)
+		table_row.key_cell.SetValue(row.Key)
+		table_row.value_cell.SetValue(row.Value)
 	}
 	t.rows = table_rows
 }
@@ -307,8 +307,8 @@ func (t *AttributeTable) SetRowsCheck(rows []attr.AttrCheck) {
 		table_row.index = i
 
 		table_row.checkbox.SetValue(row.Checked)
-		table_row.key_cell.Widget().SetValue(row.Key)
-		table_row.value_cell.Widget().SetValue(row.Value)
+		table_row.key_cell.SetValue(row.Key)
+		table_row.value_cell.SetValue(row.Value)
 	}
 	t.rows = table_rows
 }
@@ -318,12 +318,12 @@ func (t *AttributeTable) RowsCheck() []attr.AttrCheck {
 	rows := make([]attr.AttrCheck, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
-		if strings.TrimSpace(table_row.key_cell.Widget().Value()) == "" {
+		if strings.TrimSpace(table_row.key_cell.Value()) == "" {
 			continue
 		}
 		rows = append(rows, attr.AttrCheck{
-			Key:     table_row.key_cell.Widget().Value(),
-			Value:   table_row.value_cell.Widget().Value(),
+			Key:     table_row.key_cell.Value(),
+			Value:   table_row.value_cell.Value(),
 			Checked: table_row.checkbox.Value(),
 		})
 	}
@@ -336,12 +336,12 @@ func (t *AttributeTable) Rows() []attr.Attribute {
 	rows := make([]attr.Attribute, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
-		if strings.TrimSpace(table_row.key_cell.Widget().Value()) == "" {
+		if strings.TrimSpace(table_row.key_cell.Value()) == "" {
 			continue
 		}
 		rows = append(rows, attr.Attribute{
-			Key:   table_row.key_cell.Widget().Value(),
-			Value: table_row.value_cell.Widget().Value(),
+			Key:   table_row.key_cell.Value(),
+			Value: table_row.value_cell.Value(),
 		})
 	}
 
