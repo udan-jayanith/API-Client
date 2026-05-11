@@ -24,7 +24,7 @@ type read_handler struct {
 
 var count int = 0
 
-// This implements Io.ReadCloser
+// This implements Io.ReadCloser. This should be closed regurdless of errors.
 type ReadReader struct {
 	buf  *bytes.Buffer
 	file *os.File
@@ -43,7 +43,7 @@ func (r *ReadReader) Write(b []byte) (int, error) {
 	}
 }
 
-// Close should be used to free up spacce
+// Close should be used to free up space
 func (r *ReadReader) Close() error {
 	r.buf.Truncate(0)
 	r.buf = bytes.NewBuffer(nil)
