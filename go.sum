@@ -22,12 +22,16 @@ github.com/guigui-gui/guigui v0.0.0-20260509082203-9a0c5fb07146 h1:upmbp36HUtp+J
 github.com/guigui-gui/guigui v0.0.0-20260509082203-9a0c5fb07146/go.mod h1:xFp69bZ83dG60Mto5wvixAWjeNrYJB3K7r4tJebaiuM=
 github.com/guigui-gui/guigui v0.0.0-20260510084017-a114fd2d9440 h1:7AWCVCR6GFOEzx5JKmm59/TidhR77R3MupWqETwd/o0=
 github.com/guigui-gui/guigui v0.0.0-20260510084017-a114fd2d9440/go.mod h1:xFp69bZ83dG60Mto5wvixAWjeNrYJB3K7r4tJebaiuM=
+github.com/guigui-gui/guigui v0.0.0-20260510192023-3e62ced4dff3 h1:UEcj3/QsxOB83M1OdCOhVdn1zTSiLQE+7D3CngZBYBE=
+github.com/guigui-gui/guigui v0.0.0-20260510192023-3e62ced4dff3/go.mod h1:6G8grrC8rzFeviyVlveQuHFjTphwWdfw84vDjpV4x1c=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1 h1:5FNENqs0QbURnFG8HeDJuPl/FIjU4tNesm4suKJfIwY=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1/go.mod h1:/PD+aLjAJ0F2UoQx6hkOfXqWN7BkroDUMr5W+IT1dpE=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260506104157-54103ad0a026 h1:2efjP3n/ACjGXblWyy7Nk9rc90DVJn3N+XDTI2GPftg=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260506104157-54103ad0a026/go.mod h1:YxatHYuzf4QChYExalNBw+NnCU7dVEDZQCF2225DZ7s=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260506111225-31737d6bfb13 h1:IFjq0qEBolgXYkGNzlT8doe7RyhlHBmPe6QGm0SZMlc=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260506111225-31737d6bfb13/go.mod h1:YxatHYuzf4QChYExalNBw+NnCU7dVEDZQCF2225DZ7s=
+github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260510151556-c2959d299dee h1:ExB5O4ec4t+btfYOS9iIeajNmVVDDzCzGG6oYyhOjNY=
+github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260510151556-c2959d299dee/go.mod h1:YxatHYuzf4QChYExalNBw+NnCU7dVEDZQCF2225DZ7s=
 github.com/hajimehoshi/iro v0.2.0 h1:7RFpvbI9Cvdna445mF4uJGsGSVwnqh1uK/j/GKUfYpY=
 github.com/hajimehoshi/iro v0.2.0/go.mod h1:gfbDojwwKcq04DipcwqdW35ooEStXByUF3JanzJG5Ks=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=

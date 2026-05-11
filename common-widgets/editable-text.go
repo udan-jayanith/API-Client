@@ -22,14 +22,17 @@ func (et *EditableText) SetEditable(editable bool) {
 	et.not_editable = !editable
 }
 
+/*
 func (et *EditableText) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
+	// TODO: this dosen't work fix this later
+	et.Text.HandlePointingInput(ctx, widgetBounds)
 	if et.on_hover != nil && widgetBounds.IsHitAtCursor() {
 		et.on_hover(ctx, widgetBounds)
 	}
-	et.Text.HandlePointingInput(ctx, widgetBounds)
 	return gui.HandleInputResult{}
 }
-
+ */
+ 
 func (et *EditableText) OnHover(fn func(ctx *gui.Context, widget_bounds *gui.WidgetBounds)) {
 	et.on_hover = fn
 }

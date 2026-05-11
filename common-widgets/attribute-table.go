@@ -3,6 +3,7 @@ package CommonWidgets
 import (
 	"Zbolt/basic"
 	"Zbolt/icons"
+	draw_color "Zbolt/internal/draw"
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	"image"
 	"slices"
@@ -10,6 +11,8 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type table_row_widget struct {
@@ -91,7 +94,7 @@ func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 		btn_bounds.Min.X = btn_bounds.Max.X - size.X
 		btn_bounds.Min.Y += gap / 4
 		btn_bounds.Max.Y = btn_bounds.Min.Y + size.Y
-		b1.Max.X -= (gap + size.X)
+		b1.Max.X = btn_bounds.Min.X + gap/3 // Text widget containes a padding left
 		layouter.LayoutWidget(&w.row_delete_btn, btn_bounds)
 	}
 
@@ -99,11 +102,11 @@ func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 	middle := b2.Min.X + b2.Dx()/2
 
 	key_bounds := b1
-	key_bounds.Max.X = middle - gap
+	key_bounds.Max.X = middle
 	layouter.LayoutWidget(&w.key_cell, key_bounds)
 
 	val_bounds := b1
-	val_bounds.Min.X = middle + gap
+	val_bounds.Min.X = middle
 	layouter.LayoutWidget(&w.value_cell, val_bounds)
 }
 
@@ -128,11 +131,68 @@ func (row_widget *table_row_widget) on_delete(fn func(index int)) {
 	})
 }
 
+type table_header struct {
+	gui.DefaultWidget
+
+	key, value widget.Text
+}
+
+func (t *table_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	t.key.SetValue("Key")
+	t.value.SetValue("Value")
+	adder.AddWidget(&t.key)
+	adder.AddWidget(&t.value)
+	return nil
+}
+
+func (t *table_header) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	layout := gui.LinearLayout{
+		Direction: gui.LayoutDirectionHorizontal,
+		Gap:       basic.Gap(ctx) * 2,
+		Padding:   basic.NewPadding(0, widget.UnitSize(ctx)/6),
+		Items: []gui.LinearLayoutItem{
+			{
+				Widget: &t.key,
+				Size:   gui.FlexibleSize(1),
+			},
+			{
+				Widget: &t.value,
+				Size:   gui.FlexibleSize(1),
+			},
+		},
+	}
+	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+}
+
+func (t *table_header) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+	b := widgetBounds.Bounds()
+	middle := float32(b.Min.X+b.Dx()/2) - float32(ctx.Scale()/2)
+
+	clr := draw_color.Color2(ctx.ColorMode(), draw_color.ColorTypeBase, 0.9, 0.4)
+	if !ctx.IsEnabled(t) {
+		clr = draw_color.Color2(ctx.ColorMode(), draw_color.ColorTypeBase, 0.8, 0.3)
+	}
+	vector.StrokeLine(dst, middle, float32(b.Min.Y+basic.Gap(ctx)/2), middle, float32(b.Max.Y-basic.Gap(ctx)/2), float32(ctx.Scale()), clr, false)
+}
+
+func (t *table_header) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+	var s image.Point
+	if w, ok := constraints.FixedWidth(); ok {
+		s.X = w
+	} else {
+		s.X = widget.UnitSize(ctx) * 6
+	}
+
+	s.Y = widget.LineHeight(ctx)
+	return s
+}
+
 type AttributeTable struct {
 	gui.DefaultWidget
-	key_header, value_header widget.Text
-	rows                     []*table_row_widget
-	list                     widget.List[struct{}]
+	header table_header
+	hr     HorizontalLine
+	rows   []*table_row_widget
+	list   widget.List[struct{}]
 
 	disable_auto_add                     bool
 	checkbox_disabled, delete_disabled   bool
@@ -174,18 +234,21 @@ func (at *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			row_widget.on_delete(at.delete_row)
 		}
 		row_widget.index = i
-		//adder.AddWidget(at.rows[i])
 		list_items[i].Content = row_widget
 		list_items[i].Padding = padding
 	}
 	list_items = append([]widget.ListItem[struct{}]{
 		{
-			Header: true,
-			Border: true,
-			Text:   "Hello world",
+			Content:      &at.header,
+			Unselectable: true,
+		},
+		{
+			Content:      &at.hr,
+			Unselectable: true,
 		},
 	}, list_items...)
 	at.list.SetItems(list_items)
+
 	adder.AddWidget(&at.list)
 
 	return nil
