@@ -154,6 +154,7 @@ type attribute_table struct {
 	rwo_delete_fn                        func(index int)
 	on_hover                             func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)
 	on_type                              func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)
+	on_scroll                            func(offset_x, height int)
 }
 
 func (at *attribute_table) push_row(row attr.AttrCheck) {
@@ -172,6 +173,8 @@ func (at *attribute_table) delete_row(index int) {
 }
 
 func (at *attribute_table) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	// TODO: only render widgets vissible to the viewport.
+
 	at.key_header.SetValue("Key")
 	at.key_header.SetBold(true)
 	at.key_header.SetVerticalAlign(widget.VerticalAlignMiddle)
@@ -429,7 +432,6 @@ func (t *AttributeTable) KeyEditable(editable bool) {
 func (t *AttributeTable) ValueEditable(editable bool) {
 	t.table.Widget().value_not_editable = !editable
 }
-
 
 func (t *AttributeTable) AutoAddRow(auto_add bool) {
 	t.table.Widget().disable_auto_add = !auto_add
