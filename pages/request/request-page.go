@@ -1,11 +1,11 @@
 package request_page
 
 import (
-	"API-Client/basic"
-	CommonWidgets "API-Client/common-widgets"
-	http_widget "API-Client/pages/request/http"
-	requests_handler "API-Client/pages/request/requests-handler"
-	websocket_widget "API-Client/pages/request/websocket"
+	"Zbolt/basic"
+	CommonWidgets "Zbolt/common-widgets"
+	http_widget "Zbolt/pages/request/http"
+	requests_handler "Zbolt/pages/request/requests-handler"
+	websocket_widget "Zbolt/pages/request/websocket"
 
 	"image"
 

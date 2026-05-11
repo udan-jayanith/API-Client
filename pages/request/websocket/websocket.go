@@ -1,8 +1,8 @@
 package websocket_widget
 
 import (
-	"API-Client/basic"
-	"API-Client/pages/request/requests-handler"
+	"Zbolt/basic"
+	"Zbolt/pages/request/requests-handler"
 
 	gui "github.com/guigui-gui/guigui"
 )

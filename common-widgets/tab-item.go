@@ -4,10 +4,10 @@ import (
 	"image"
 	"image/color"
 
-	"API-Client/basic"
-	"API-Client/icons"
+	"Zbolt/basic"
+	"Zbolt/icons"
 
-	draw_color "API-Client/internal/draw"
+	draw_color "Zbolt/internal/draw"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"

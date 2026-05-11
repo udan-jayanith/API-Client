@@ -1,9 +1,9 @@
 package CommonWidgets
 
 import (
-	"API-Client/basic"
-	"API-Client/icons"
-	message_model "API-Client/message-model"
+	"Zbolt/basic"
+	"Zbolt/icons"
+	message_model "Zbolt/message-model"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"

@@ -1,10 +1,10 @@
 package request_page
 
 import (
-	"API-Client/basic"
-	CommonWidgets "API-Client/common-widgets"
-	"API-Client/icons"
-	"API-Client/pages/request/requests-handler"
+	"Zbolt/basic"
+	CommonWidgets "Zbolt/common-widgets"
+	"Zbolt/icons"
+	"Zbolt/pages/request/requests-handler"
 	"image"
 	"log"
 

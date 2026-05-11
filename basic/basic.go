@@ -1,7 +1,7 @@
 package basic
 
 import (
-	draw_color "API-Client/internal/draw"
+	draw_color "Zbolt/internal/draw"
 	"image/color"
 
 	gui "github.com/guigui-gui/guigui"

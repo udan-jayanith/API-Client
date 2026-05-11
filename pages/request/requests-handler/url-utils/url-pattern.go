@@ -1,7 +1,7 @@
 package url_utils
 
 import (
-	attr "API-Client/pages/request/requests-handler/attributes"
+	attr "Zbolt/pages/request/requests-handler/attributes"
 	"strings"
 )
 

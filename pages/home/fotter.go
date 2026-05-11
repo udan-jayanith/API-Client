@@ -1,8 +1,8 @@
 package home
 
 import (
-	"API-Client/basic"
-	"API-Client/icons"
+	"Zbolt/basic"
+	"Zbolt/icons"
 	"image"
 
 	opener "codeberg.org/udan-jayanith/Opener"

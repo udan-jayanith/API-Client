@@ -1,7 +1,7 @@
 package url_utils_test
 
 import (
-	url_utils "API-Client/pages/request/requests-handler/url-utils"
+	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"testing"
 )
 

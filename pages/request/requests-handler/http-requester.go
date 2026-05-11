@@ -1,7 +1,7 @@
 package requests_handler
 
 import (
-	attr "API-Client/pages/request/requests-handler/attributes"
+	attr "Zbolt/pages/request/requests-handler/attributes"
 	"errors"
 	"io"
 	"net/http"

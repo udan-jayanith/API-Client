@@ -1,9 +1,9 @@
 package request_page
 
 import (
-	CommonWidgets "API-Client/common-widgets"
-	"API-Client/icons"
-	"API-Client/pages/request/requests-handler"
+	CommonWidgets "Zbolt/common-widgets"
+	"Zbolt/icons"
+	"Zbolt/pages/request/requests-handler"
 	"slices"
 
 	gui "github.com/guigui-gui/guigui"

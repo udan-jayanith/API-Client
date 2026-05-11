@@ -1,8 +1,8 @@
 package CommonWidgets
 
 import (
-	"API-Client/basic"
-	"API-Client/icons"
+	"Zbolt/basic"
+	"Zbolt/icons"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"

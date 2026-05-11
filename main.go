@@ -13,9 +13,10 @@ import (
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
 
-	message_model "API-Client/message-model"
-	home "API-Client/pages/home"
-	request_page "API-Client/pages/request"
+	message_model "Zbolt/message-model"
+	home "Zbolt/pages/home"
+	request_page "Zbolt/pages/request"
+	//"runtime/pprof"
 )
 
 type Root struct {
@@ -75,6 +76,12 @@ func (r *Root) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter
 var zbolt_icon_bytes []byte
 
 func main() {
+	//os.Remove("./cpu.prof")
+	//f, _ := os.Create("cpu.prof")
+	//pprof.StartCPUProfile(f)
+	//defer pprof.StopCPUProfile()
+	//go tool pprof -http=:8080 cpu.prof
+
 	zebolt_icon, _, err := image.Decode(bytes.NewReader(zbolt_icon_bytes))
 	if err != nil {
 		log.Fatal(err.Error())

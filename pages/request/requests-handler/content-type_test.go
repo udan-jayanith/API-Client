@@ -2,7 +2,7 @@ package requests_handler_test
 
 import (
 	"testing"
-	"API-Client/pages/request/requests-handler"
+	"Zbolt/pages/request/requests-handler"
 )
 
 var content_type_testcases = []struct {

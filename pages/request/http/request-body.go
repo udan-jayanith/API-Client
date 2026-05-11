@@ -1,8 +1,8 @@
 package http_widget
 
 import (
-	CommonWidgets "API-Client/common-widgets"
-	requests_handler "API-Client/pages/request/requests-handler"
+	CommonWidgets "Zbolt/common-widgets"
+	requests_handler "Zbolt/pages/request/requests-handler"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"

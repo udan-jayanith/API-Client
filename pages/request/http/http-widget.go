@@ -1,12 +1,12 @@
 package http_widget
 
 import (
-	"API-Client/basic"
-	CommonWidgets "API-Client/common-widgets"
-	message_model "API-Client/message-model"
-	requests_handler "API-Client/pages/request/requests-handler"
-	attr "API-Client/pages/request/requests-handler/attributes"
-	url_utils "API-Client/pages/request/requests-handler/url-utils"
+	"Zbolt/basic"
+	CommonWidgets "Zbolt/common-widgets"
+	message_model "Zbolt/message-model"
+	requests_handler "Zbolt/pages/request/requests-handler"
+	attr "Zbolt/pages/request/requests-handler/attributes"
+	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
 	"strings"

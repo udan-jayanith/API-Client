@@ -3,7 +3,7 @@ package CommonWidgets
 import (
 	"image"
 
-	"API-Client/basic"
+	"Zbolt/basic"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"

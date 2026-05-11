@@ -1,9 +1,9 @@
 package requests_handler
 
 import (
-	attr "API-Client/pages/request/requests-handler/attributes"
-	lazy_atomic "API-Client/pages/request/requests-handler/internal/lazy-atomic"
-	url_utils "API-Client/pages/request/requests-handler/url-utils"
+	attr "Zbolt/pages/request/requests-handler/attributes"
+	lazy_atomic "Zbolt/pages/request/requests-handler/internal/lazy-atomic"
+	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"net/url"
 	"os"
 	"sync/atomic"

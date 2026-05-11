@@ -1,8 +1,8 @@
 package CommonWidgets
 
 import (
-	"API-Client/basic"
-	draw_color "API-Client/internal/draw"
+	"Zbolt/basic"
+	draw_color "Zbolt/internal/draw"
 	"image"
 	"time"
 

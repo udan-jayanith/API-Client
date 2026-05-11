@@ -1,8 +1,8 @@
 package request_page
 
 import (
-	"API-Client/basic"
-	CommonWidgets "API-Client/common-widgets"
+	"Zbolt/basic"
+	CommonWidgets "Zbolt/common-widgets"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"

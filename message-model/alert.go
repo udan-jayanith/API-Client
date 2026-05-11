@@ -1,7 +1,7 @@
 package message_model
 
 import (
-	"API-Client/basic"
+	"Zbolt/basic"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"

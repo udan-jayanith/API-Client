@@ -1,10 +1,10 @@
 package CommonWidgets
 
 import (
-	"API-Client/basic"
-	"API-Client/icons"
-	draw_color "API-Client/internal/draw"
-	attr "API-Client/pages/request/requests-handler/attributes"
+	"Zbolt/basic"
+	"Zbolt/icons"
+	draw_color "Zbolt/internal/draw"
+	attr "Zbolt/pages/request/requests-handler/attributes"
 	"image"
 	"image/color"
 	"slices"

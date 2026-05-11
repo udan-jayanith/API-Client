@@ -1,8 +1,8 @@
 package http_widget
 
 import (
-	CommonWidgets "API-Client/common-widgets"
-	"API-Client/icons"
+	CommonWidgets "Zbolt/common-widgets"
+	"Zbolt/icons"
 	"image"
 	"log"
 

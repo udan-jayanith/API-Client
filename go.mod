@@ -1,4 +1,4 @@
-module API-Client
+module Zbolt
 
 go 1.26.1
 
