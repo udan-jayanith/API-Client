@@ -3,7 +3,6 @@ package CommonWidgets
 import (
 	"Zbolt/basic"
 	"Zbolt/icons"
-	draw_color "Zbolt/internal/draw"
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	"image"
 	"slices"
@@ -11,8 +10,6 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type table_row_widget struct {
@@ -28,6 +25,10 @@ type table_row_widget struct {
 
 func (w *table_row_widget) gap(ctx *gui.Context) int {
 	return basic.Gap(ctx)
+}
+
+func (w *table_row_widget) padding(ctx *gui.Context) gui.Padding {
+	return basic.NewPadding(widget.UnitSize(ctx) / 8)
 }
 
 func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -76,8 +77,12 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 
 func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	gap := w.gap(ctx)
-
+	padding := w.padding(ctx)
 	b1 := widgetBounds.Bounds()
+	b1.Min.X += padding.Start
+	b1.Max.X -= padding.End
+	b1.Min.Y += padding.Top
+	b1.Max.Y -= padding.Bottom
 
 	if !w.table.checkbox_disabled {
 		size := w.checkbox.Measure(ctx, gui.Constraints{})
@@ -112,6 +117,7 @@ func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 
 func (row_widget *table_row_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	var point image.Point
+	padding := row_widget.padding(ctx)
 
 	if w, ok := constraints.FixedWidth(); ok {
 		point.X = w
@@ -120,7 +126,7 @@ func (row_widget *table_row_widget) Measure(ctx *gui.Context, constraints gui.Co
 	}
 
 	constraints = gui.FixedWidthConstraints(point.X)
-	y := max(row_widget.key_cell.Measure(ctx, constraints).Y, row_widget.value_cell.Measure(ctx, constraints).Y)
+	y := max(row_widget.key_cell.Measure(ctx, constraints).Y, row_widget.value_cell.Measure(ctx, constraints).Y) + padding.Top + padding.Bottom
 	point.Y += y
 	return point
 }
@@ -135,25 +141,31 @@ type table_header struct {
 	gui.DefaultWidget
 
 	key, value widget.Text
+	vr         VerticalLine
 }
 
 func (t *table_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	t.key.SetValue("Key")
 	t.value.SetValue("Value")
 	adder.AddWidget(&t.key)
+	adder.AddWidget(&t.vr)
 	adder.AddWidget(&t.value)
 	return nil
 }
 
 func (t *table_header) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	padding := widget.UnitSize(ctx) / 8
 	layout := gui.LinearLayout{
 		Direction: gui.LayoutDirectionHorizontal,
-		Gap:       basic.Gap(ctx) * 2,
-		Padding:   basic.NewPadding(0, widget.UnitSize(ctx)/6),
+		Gap:       basic.Gap(ctx),
+		Padding:   basic.NewPadding(0, padding),
 		Items: []gui.LinearLayoutItem{
 			{
 				Widget: &t.key,
 				Size:   gui.FlexibleSize(1),
+			},
+			{
+				Widget: &t.vr,
 			},
 			{
 				Widget: &t.value,
@@ -162,17 +174,6 @@ func (t *table_header) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, 
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
-}
-
-func (t *table_header) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
-	b := widgetBounds.Bounds()
-	middle := float32(b.Min.X+b.Dx()/2) - float32(ctx.Scale()/2)
-
-	clr := draw_color.Color2(ctx.ColorMode(), draw_color.ColorTypeBase, 0.9, 0.4)
-	if !ctx.IsEnabled(t) {
-		clr = draw_color.Color2(ctx.ColorMode(), draw_color.ColorTypeBase, 0.8, 0.3)
-	}
-	vector.StrokeLine(dst, middle, float32(b.Min.Y+basic.Gap(ctx)/2), middle, float32(b.Max.Y-basic.Gap(ctx)/2), float32(ctx.Scale()), clr, false)
 }
 
 func (t *table_header) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
@@ -227,7 +228,6 @@ func (at *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	}
 
 	list_items := make([]widget.ListItem[struct{}], len(at.rows))
-	padding := basic.NewPadding(widget.UnitSize(ctx) / 8)
 	for i, _ := range at.rows {
 		row_widget := at.rows[i]
 		if !at.delete_disabled {
@@ -235,16 +235,17 @@ func (at *AttributeTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		}
 		row_widget.index = i
 		list_items[i].Content = row_widget
-		list_items[i].Padding = padding
 	}
 	list_items = append([]widget.ListItem[struct{}]{
 		{
 			Content:      &at.header,
 			Unselectable: true,
+			Header:       true,
 		},
 		{
 			Content:      &at.hr,
 			Unselectable: true,
+			Padding:      basic.NewPadding(widget.UnitSize(ctx)/8, 0),
 		},
 	}, list_items...)
 	at.list.SetItems(list_items)
