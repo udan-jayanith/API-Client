@@ -14,6 +14,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+//TODO: Close the response body when closing.
+
 type sidebar_item struct {
 	IsFolder bool
 	Data     requests_handler.FolderOrFile

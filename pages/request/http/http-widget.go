@@ -286,7 +286,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if brp.data.HeadersChanged() {
 		brp.setup_response_widget()
 	}
-	//TODO: Close the response body when closing.
 
 	select {
 	case err, ok := <-brp.data.OnComplete():
