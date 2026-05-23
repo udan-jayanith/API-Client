@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-// 5MB
-var DefualtSize int = 5 * 1024 * 1024
+// 10MB
+var DefualtSize int = 10 * 1024 * 1024
 
 // ReadReader should be closed regurdless of error.
 type ReadReader struct {
