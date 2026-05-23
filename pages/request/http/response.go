@@ -102,7 +102,13 @@ func (rw *response_widget) SetHeaders(headers []attr.AttrCheck) {
 
 func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
 	// TODO: handle this so that images and large files can render.
-	rw.tab_content.response_body.SetBody(string(body.Content()), body.ContentType)
+	// TODO: handle the error
+	if body.Content != nil {
+		content, _ := body.Content.Content()
+		rw.tab_content.response_body.SetBody(string(content), body.ContentType)
+	}else{
+		rw.tab_content.response_body.SetBody("", body.ContentType)
+	}
 	rw.tab_content.response_body.SetContentType(body.ContentType)
 
 	// If file is not nil and the content type is jpg, png or a text format show it in the response body widget.

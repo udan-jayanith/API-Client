@@ -1,6 +1,7 @@
 package requests_handler
 
 import (
+	"Zbolt/internal/readreader"
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	"errors"
 	"io"
@@ -80,10 +81,8 @@ func (data *HTTP_Data) Do() bool {
 	return true
 }
 
+// TODO: make a function to check is the headers have recived.
 func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
-	body_content_copied := make([]byte, len(res_data.Body.content))
-	copy(body_content_copied, res_data.Body.content)
-
 	headers_copied := make([]attr.AttrCheck, len(res_data.Headers))
 	copy(headers_copied, res_data.Headers)
 
@@ -91,7 +90,7 @@ func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 		*value = res_data
 		res_data.SelectedResponseTab = value.SelectedResponseTab
 		value.Headers = headers_copied
-		value.Body.content = body_content_copied
+		value.Body.Content = res_data.Body.Content
 	})
 
 	data.request.headers_changed.Store(true)
@@ -118,13 +117,18 @@ func (data *HTTP_Data) do(req *http.Request) {
 	res_data.ResponseTime = time.Since(response_time)
 	data.set_response_data(res_data)
 
-	body_content := make([]byte, 0, 2048)
+	body_content := readreader.NewReadReader(readreader.DefualtSize, make([]byte, 0, 2048))
 	buffer := make([]byte, 1024)
 	update_time := time.Now()
 
 loop:
 	for {
 		n, e := res.Body.Read(buffer)
+
+		body_content.Write(buffer[:n])
+		res_data.ContentLenght += n
+		res_data.ResponseTime = time.Since(response_time)
+
 		if e != nil && e != io.EOF && n == 0 {
 			err = e
 			break
@@ -138,18 +142,13 @@ loop:
 		default:
 		}
 
-		body_content = append(body_content, buffer[:n]...)
-		res_data.ContentLenght = len(body_content)
-		res_data.ResponseTime = time.Since(response_time)
 		if time.Since(update_time).Milliseconds() >= 500 {
 			data.set_response_data(res_data)
 		}
 	}
-	res_data.ContentLenght = len(body_content)
-	res_data.ResponseTime = time.Since(response_time)
 
-	// TODO: decode the body content if it uses some kind of encription
-	res_data.Body.content = body_content
+	// TODO: decode the body content if it uses some kind of encoding
+	res_data.Body.Content = body_content
 	data.set_response_data(res_data)
 	data.close_request(err)
 }

@@ -1,11 +1,11 @@
 package requests_handler
 
 import (
+	"Zbolt/internal/readreader"
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	lazy_atomic "Zbolt/pages/request/requests-handler/internal/lazy-atomic"
 	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"net/url"
-	"os"
 	"sync/atomic"
 	"time"
 )
@@ -121,14 +121,8 @@ func (data *HTTP_Data) ResponseData(fn func(value *HTTP_Response_Data)) {
 }
 
 type HTTP_Response_Body struct {
-	File *os.File
-
 	ContentType ContentType
-	content     []byte
-}
-
-func (b *HTTP_Response_Body) Content() []byte {
-	return b.content
+	Content     *readreader.ReadReader
 }
 
 type Version struct {

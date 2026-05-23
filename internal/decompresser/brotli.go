@@ -27,5 +27,6 @@ func DecodeReadReader(rr *readreader.ReadReader, close_rr bool) (*readreader.Rea
 			break
 		}
 	}
+
 	return rr2, nil
 }

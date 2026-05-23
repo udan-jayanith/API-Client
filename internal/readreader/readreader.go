@@ -104,6 +104,28 @@ func (r *ReadReader) NewReader() io.ReadCloser {
 	}
 }
 
+/*
+func (r *ReadReader) CloneReadReader() (*ReadReader, error) {
+	if r.file != nil {
+		rr := NewReadReader(r.size, nil)
+		r := r.NewReader()
+		p := make([]byte, 2048)
+		for {
+			n, err := r.Read(p)
+			rr.Write(p[:n])
+			
+			if err == io.EOF {
+				break
+			}else if err != nil {
+				return rr, err
+			}
+		}
+	}
+	// TODO: copy the r.buf
+	return NewReadReader(r.size, r.buf), nil
+}
+ */
+
 // NewReadReader returns a reader that stores p, If size of p is greate then 19. p's content is stored to a file in the OS's tempory folder.
 func NewReadReader(size int, p []byte) *ReadReader {
 	rr := ReadReader{}

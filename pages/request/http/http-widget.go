@@ -89,7 +89,7 @@ func (brp *HTTP_Widget) setup_response_widget() {
 	data := brp.data
 	data.ResponseData(func(res_data *requests_handler.HTTP_Response_Data) {
 		if brp.is_fetching {
-			brp.response_widget.SetLazyLoading(len(res_data.Body.Content()) == 0, len(res_data.Headers) == 0)
+			brp.response_widget.SetLazyLoading(true, len(res_data.Headers) == 0)
 		} else {
 			brp.response_widget.SetLazyLoading(false, false)
 		}
@@ -286,11 +286,15 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if brp.data.HeadersChanged() {
 		brp.setup_response_widget()
 	}
+	//TODO: Close the response body when closing.
 
 	select {
-	case err := <-brp.data.OnComplete():
-		brp.setup_response_widget()
+	case err, ok := <-brp.data.OnComplete():
+		if !ok {
+			break
+		}
 		brp.is_fetching = false
+		brp.setup_response_widget()
 		if err != nil {
 			message_model.Show(err.Error(), message_model.Alert, nil)
 		}
@@ -332,11 +336,4 @@ func (brp *HTTP_Widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds,
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
-}
-
-func (brp *HTTP_Widget) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
-	//b := widgetBounds.Bounds()
-	//width := basic.LineWidth(ctx)
-	//middle := float32(b.Min.X + b.Dx()/2)
-	//vector.StrokeLine(dst, middle, float32(b.Min.Y), middle, float32(b.Max.Y), width, basic.LineColor(ctx), false)
 }
