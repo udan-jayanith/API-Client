@@ -78,6 +78,9 @@ func (r *reader) Read(p []byte) (n int, err error) {
 		return n, err
 	}
 
+	if len(p) == 0 {
+		return 0, nil
+	}
 	buf := r.rr.buf
 	if len(buf) == r.r {
 		return 0, io.EOF

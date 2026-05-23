@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+	"testing/iotest"
 )
 
 func TestReadReader(t *testing.T) {
@@ -30,7 +31,7 @@ func TestReadReader(t *testing.T) {
 
 	// ----------------------------------------------------------------------------
 	file_path := filepath.Join("./sample", "file")
-	_, err = os.Stat("./"+file_path)
+	_, err = os.Stat("./" + file_path)
 	if err != nil {
 		t.Fatalf("Error %s\n\nbuffer file file is missing\nRun:\n\t%s\n", err.Error(), "go run ./"+filepath.Join("./internal/readreader/sample/gen.go"))
 		return
@@ -72,6 +73,31 @@ func TestReadReader(t *testing.T) {
 }
 
 func TestReader(t *testing.T) {
-	// Test:
-	// * io.Reader
+	// Large content
+	content := make([]byte, 1024*5)
+	rr := readreader.NewReadReader(readreader.DefualtSize, content)
+
+	for range 2 {
+		r := rr.NewReader()
+		err := iotest.TestReader(r, content)
+		if err != nil {
+			t.Fatal(err.Error())
+		}
+	}
+
+	// Small content
+	content = []byte("Hello world")
+	rr = readreader.NewReadReader(readreader.DefualtSize, content)
+	r := rr.NewReader()
+	err := iotest.TestReader(r, content)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	rr = readreader.NewReadReader(readreader.DefualtSize, nil)
+	r = rr.NewReader()
+	err = iotest.TestReader(r, nil)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
 }
