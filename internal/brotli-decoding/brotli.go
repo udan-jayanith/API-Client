@@ -16,7 +16,7 @@ func DecodeReadReader(rr *readreader.ReadReader, close_rr bool) (*readreader.Rea
 	defer r.Close()
 	defer brr.Close()
 
-	rr2 := readreader.NewReadReader(nil)
+	rr2 := readreader.NewReadReader(readreader.DefualtSize, nil)
 	buf := make([]byte, 2048)
 	for {
 		n, err := brr.Read(buf)

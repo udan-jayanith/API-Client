@@ -7,13 +7,15 @@ import (
 	"os"
 )
 
-var size int = 5 * 1024 * 1024 // 5MB
+// 5MB
+var DefualtSize int = 5 * 1024 * 1024
 
 // ReadReader should be closed regurdless of error.
 type ReadReader struct {
 	buf        []byte
 	file       *os.File
 	write_lock bool
+	size       int
 }
 
 func temp_file() (*os.File, error) {
@@ -26,7 +28,7 @@ func (r *ReadReader) Write(b []byte) (int, error) {
 	if r.write_lock {
 		panic("Write lock")
 	}
-	if len(r.buf)+len(b) >= size {
+	if len(r.buf)+len(b) >= r.size {
 		file, err := temp_file()
 		if err != nil {
 			return 0, err
@@ -70,7 +72,7 @@ type reader struct {
 func (r *reader) Read(p []byte) (n int, err error) {
 	if r.rr.file != nil {
 		file := r.rr.file
-		file.Seek(0, 0)
+		file.Seek(int64(r.r), 0)
 		n, err = file.Read(p)
 		r.r += n
 		return n, err
@@ -100,8 +102,9 @@ func (r *ReadReader) NewReader() io.ReadCloser {
 }
 
 // NewReadReader returns a reader that stores p, If size of p is greate then 19. p's content is stored to a file in the OS's tempory folder.
-func NewReadReader(p []byte) *ReadReader {
+func NewReadReader(size int, p []byte) *ReadReader {
 	rr := ReadReader{}
+	rr.size = size
 	rr.Write(p)
 	return &rr
 }
