@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 )
 
+// TODO: This is stupid remove this later
 func main() {
 	fmt.Println("Genrating the file")
 	path := filepath.Join("./internal/readreader/sample", "file")
