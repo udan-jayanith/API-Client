@@ -1,32 +1,17 @@
-package decompressor
+package readreader
 
 // See: https://pkg.go.dev/encoding/csv
 
 import (
-	"bytes"
 	"io"
 	"os"
-	// "compress/gzip" // Has a read closer
-	// "compress/flate" // Also has a read closer
-	// "github.com/andybalholm/brotli" // br // has a reader
-	// "github.com/klauspost/compress/zstd" // has a reader, reader should be closed but dosen't implement io.Closer
 )
 
-type closer interface {
-	Close()
-}
+var size int = 5 * 1024 * 1024 // 5MB
 
-// r_heandler is returned by ReadReader's NewReader. If r hasn't read fully
-// this stores content from r into appropriate buffers. If buf of ReadReader is not empty NewReader must store a copy of bytes.Buffer.
-// If the buufer buffer is a file pointer to the file must store as well.
-type read_handler struct {
-}
-
-var count int = 0
-
-// This implements Io.ReadCloser. This should be closed regurdless of errors.
+// ReadReader should be closed regurdless of error.
 type ReadReader struct {
-	buf  *bytes.Buffer
+	buf  []byte
 	file *os.File
 }
 
@@ -34,52 +19,49 @@ func temp_file() (*os.File, error) {
 	return os.CreateTemp(os.TempDir(), "api-client-*")
 }
 
-// Write writes to the underlying bytes buffer if it's size exceed 2m underlying buffer becomes the file.
+// Write writes to the underlying bytes buffer if it's size exceed 5MB underlying buffer becomes the file.
 func (r *ReadReader) Write(b []byte) (int, error) {
+	if len(r.buf)+len(b) >= size {
+		file, err := temp_file()
+		if err != nil {
+			return 0, err
+		}
+		r.file = file
+		r.file.Write(r.buf)
+		r.buf = nil
+	}
 	if r.file != nil {
 		return r.file.Write(b)
 	} else {
-		return r.buf.Write(b)
+		r.buf = append(r.buf, b...)
+		return len(b), nil
 	}
 }
 
 // Close should be used to free up space
 func (r *ReadReader) Close() error {
-	r.buf.Truncate(0)
-	r.buf = bytes.NewBuffer(nil)
 	if r.file != nil {
-		err := r.file.Close()
-		if err != nil {
-			return err
-		}
-		return os.Remove(r.file.Name())
+		// TODO: consider deleting the file.
+		return r.file.Close()
 	}
+	r.buf = nil
 	return nil
 }
 
 func (r *ReadReader) Content() ([]byte, error) {
 	if r.file != nil {
-		//stat, err := r.file.Stat()
-		//if err != nil {
-		//	return nil, err
-		//}
-		//content := make([]byte, stat.Size())
 		r.file.Seek(0, 0)
+		return  io.ReadAll(r.file)
 	}
-	return nil, nil
-}
-
-// Decode uncompreses the current underlying buffers content using given compressions formats.
-func (r *ReadReader) Decode(compressions []string) error {
-	return nil
+	return r.buf, nil
 }
 
 // NewReader returns a new io.Reader that reads from r's internal buffer. This does not clear the internal buffer from r
 func (r *ReadReader) NewReader() io.ReadCloser {
-	return nil
+	panic("Not implemented")
 }
 
 // NewReadReader returns a reader that stores p, If size of p is greate then 19. p's content is stored to a file in the OS's tempory folder.
 func NewReadReader(p []byte) *ReadReader {
-	return nil
+	panic("Not implemented")
 }

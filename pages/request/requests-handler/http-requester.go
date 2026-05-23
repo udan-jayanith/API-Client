@@ -125,7 +125,7 @@ func (data *HTTP_Data) do(req *http.Request) {
 loop:
 	for {
 		n, e := res.Body.Read(buffer)
-		if e != nil && e != io.EOF {
+		if e != nil && e != io.EOF && n == 0 {
 			err = e
 			break
 		} else if e == io.EOF && n == 0 {
