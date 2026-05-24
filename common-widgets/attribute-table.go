@@ -290,13 +290,11 @@ func (t *AttributeTable) SetRows(rows []attr.Attribute) {
 
 func (t *AttributeTable) SetRowsCheck(rows []attr.AttrCheck) {
 	table_rows := t.rows
-	//TODO: BUG: optimizations doesn't work figure out what is happening.
-
-	//if len(table_rows) > len(rows) {
-	//table_rows = table_rows[:len(rows)]
-	//} else if len(table_rows) != len(rows) {
-	table_rows = make([]*table_row_widget, len(rows))
-	//}
+	if len(table_rows) > len(rows) {
+		table_rows = table_rows[:len(rows)]
+	} else if len(table_rows) != len(rows) {
+		table_rows = make([]*table_row_widget, len(rows))
+	}
 	table := t
 
 	for i, row := range rows {
