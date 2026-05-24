@@ -66,8 +66,7 @@ type HTTP_Data struct {
 
 	Parameters []attr.AttrCheck `json:"parameters"`
 	Headers    []attr.AttrCheck `json:"headers"`
-	Body       string           `json:"body"` // TODO: change this to a ReadReader
-
+	Body       string           `json:"body"`
 	RequestConfig struct {
 		AutoWrap bool `json:"auto-wrap"`
 		Formate  bool `json:"formate"`
@@ -101,7 +100,6 @@ func (data *HTTP_Data) SelectedRequestTab() int {
 Adapted from Golang net/http package.
 example: username=edger&age=20
 */
-// TODO: Make this a separate public function
 func (data *HTTP_Data) EncodedParameters() string {
 	return url_utils.EncodeParameters(data.Parameters)
 }

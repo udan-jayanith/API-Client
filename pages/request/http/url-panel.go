@@ -32,7 +32,6 @@ type url_panel_content struct {
 	host_text, path_text CommonWidgets.TextWithInfoHint
 	scheme               widget.Select[struct{}]
 	host, path           long_text_input_widget
-	// TODO: make the scheme a select to select between http and https
 
 	query_header      widget.Text
 	query_description CommonWidgets.Description

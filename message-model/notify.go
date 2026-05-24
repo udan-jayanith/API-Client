@@ -43,7 +43,6 @@ func (w *notify_widget) Tick(ctx *gui.Context, widgetBounds *gui.WidgetBounds) e
 	return nil
 }
 
-// TODO: close the notify_widget after X amount of time
 func (notify_widget *notify_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	text_widget := &notify_widget.text_widget
 	text_widget.SetVerticalAlign(widget.VerticalAlignMiddle)

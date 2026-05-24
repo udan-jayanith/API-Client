@@ -234,7 +234,6 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		} else if to.Item.Value == "headers" {
 			rw.tab_content.table.SetRowsCheck(rw.tab_content.header)
 		}
-		// TODO: This runs every time when the build runs
 	})
 
 	_, selected_tab := rw.tab.SelectedTab()
@@ -250,7 +249,6 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(rw.tab_content.selected_widget)
 	adder.AddWidget(&rw.tab)
 
-	// TODO: implement a method on the input bar widget which returns whether the input bar widget is focused or not.
 	if time.Since(rw.t).Seconds() >= 1 && !ctx.IsFocused(&rw.input_bar_widget) {
 		rw.update_url_preview()
 		rw.t = time.Now()

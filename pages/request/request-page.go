@@ -61,7 +61,7 @@ func (rp *RequestPage) create_sidebar_item(request *requests_handler.Request) {
 		Value:    request_container,
 	})
 
-	//TODO: Open the the sidebar item if there were no items before on creation.
+	//TODO: Open a the sidebar item if there were no items before on creation.
 }
 
 func (rp *RequestPage) create_folder(path string, name string) {

@@ -89,7 +89,6 @@ func (rib *request_input_bar_widget) on_url_input_value_changed(fn func(context 
 
 func (rib *request_input_bar_widget) init_request_button_text() {
 	if rib.request_button_text == "" {
-		// TODO: Set a icon
 		rib.request_button_text = RequestButton
 	}
 }

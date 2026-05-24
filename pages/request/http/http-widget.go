@@ -74,7 +74,6 @@ func (brp *HTTP_Widget) setup_request_widget() {
 
 	u, err := url.Parse(data.URL.BaseURL)
 	if err != nil {
-		// TODO: Make message model widgets handle nil function
 		message_model.Show(err.Error(), message_model.Alert, nil)
 		return
 	}
@@ -119,7 +118,6 @@ func (brp *HTTP_Widget) SyncData() {
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
-	// TODO: HTTP response data is synced in when request is finished
 }
 
 func (brp *HTTP_Widget) url_panel_bounds(ctx *gui.Context, widgetBounds *gui.WidgetBounds) image.Rectangle {
