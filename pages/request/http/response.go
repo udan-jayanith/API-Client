@@ -32,7 +32,7 @@ func (rw *response_widget) SetLazyLoading(body, headers bool) {
 func (rw *response_widget) Clear() {
 	rw.header_widget.clear()
 	rw.tab_content.response_header.Widget().SetItems([]widget.TableRow[struct{}]{})
-	rw.tab_content.response_body.SetBody("", "")
+	rw.tab_content.response_body.SetBody(nil)
 	rw.tab_content.response_body.SetContentType("")
 }
 
@@ -104,10 +104,9 @@ func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_
 	// TODO: handle this so that images and large files can render.
 	// TODO: handle the error
 	if body.Content != nil {
-		content, _ := body.Content.Content()
-		rw.tab_content.response_body.SetBody(string(content), body.ContentType)
+		rw.tab_content.response_body.SetBody(body)
 	}else{
-		rw.tab_content.response_body.SetBody("", body.ContentType)
+		rw.tab_content.response_body.SetBody(body)
 	}
 	rw.tab_content.response_body.SetContentType(body.ContentType)
 

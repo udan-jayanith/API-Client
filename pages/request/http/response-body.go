@@ -3,6 +3,7 @@ package http_widget
 import (
 	CommonWidgets "Zbolt/common-widgets"
 	requests_handler "Zbolt/pages/request/requests-handler"
+	"fmt"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
@@ -12,7 +13,7 @@ import (
 type response_body_header struct {
 	gui.DefaultWidget
 
-	content_type widget.Text
+	content_type CommonWidgets.TextWithTooltip
 
 	options struct {
 		auto_wrap struct {
@@ -30,6 +31,7 @@ type response_body_header struct {
 
 func (w *response_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	w.content_type.SetVerticalAlign(widget.VerticalAlignMiddle)
+	w.content_type.SetEllipsisString("...")
 	adder.AddWidget(&w.content_type)
 
 	w.options.open.SetText("Open with")
@@ -185,10 +187,17 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 	return point
 }
 
-func (body *response_body_widget) SetBody(content string, content_type requests_handler.ContentType) {
-	t, sub_t := content_type.Parse()
-	if t == "text" || (t == "application" && sub_t == "json") || content_type == "" {
-		body.body.Widget().ForceSetValue(content)
+func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
+	if b == nil || b.Content == nil {
+		body.body.Widget().ForceSetValue("")
+		return
+	}
+
+	t, sub_t := b.ContentType.Parse()
+	if t == "text" || (t == "application" && sub_t == "json") || b.ContentType == "" {
+		r := b.Content.NewReader()
+		body.body.Widget().ReadValueFrom(r)
+		r.Close()
 	} else {
 		// TODO: handle images
 		body.body.Widget().ForceSetValue("")
@@ -204,7 +213,9 @@ func (body *response_body_widget) ContentType() requests_handler.ContentType {
 }
 
 func (body *response_body_widget) SetContentType(content_type requests_handler.ContentType) {
-	body.header.content_type.SetValue(string(content_type))
+	ex := content_type.Extension()
+	body.header.content_type.SetValue(ex)
+	body.header.content_type.SetTooltip(fmt.Sprintf("Content Type: %s", content_type))
 }
 
 func (body *response_body_widget) OnAutowrapToggle(fn func(ctx *gui.Context, value bool)) {
