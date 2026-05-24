@@ -318,7 +318,7 @@ func (t *AttributeTable) RowsCheck() []attr.AttrCheck {
 	rows := make([]attr.AttrCheck, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
-		if strings.TrimSpace(table_row.key_cell.Value()) == "" {
+		if strings.TrimSpace(table_row.key_cell.Value()) == "" && strings.TrimSpace(table_row.value_cell.Value()) == "" {
 			continue
 		}
 		rows = append(rows, attr.AttrCheck{
@@ -336,7 +336,7 @@ func (t *AttributeTable) Rows() []attr.Attribute {
 	rows := make([]attr.Attribute, 0, len(table_rows))
 
 	for _, table_row := range table_rows {
-		if strings.TrimSpace(table_row.key_cell.Value()) == "" {
+		if strings.TrimSpace(table_row.key_cell.Value()) == "" && strings.TrimSpace(table_row.value_cell.Value()) == "" {
 			continue
 		}
 		rows = append(rows, attr.Attribute{
