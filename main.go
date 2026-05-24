@@ -80,6 +80,7 @@ func main() {
 	//f, _ := os.Create("cpu.prof")
 	//pprof.StartCPUProfile(f)
 	//defer pprof.StopCPUProfile()
+	//https://free-apis.github.io/#/categories
 	//go tool pprof -http=:8080 cpu.prof
 
 	zebolt_icon, _, err := image.Decode(bytes.NewReader(zbolt_icon_bytes))
