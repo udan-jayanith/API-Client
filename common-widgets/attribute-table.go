@@ -58,12 +58,12 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	value_cell.SetWrapMode(widget.WrapModeAnywhere)
 	if w.table.on_type != nil {
 		w.value_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
-			w.table.on_type(ctx, "value", &w.key_cell, widget_bounds)
+			w.table.on_type(ctx, "value", &w.value_cell, widget_bounds)
 		})
 	}
 	if w.table.on_hover != nil {
 		w.value_cell.OnHover(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
-			w.table.on_hover(ctx, "value", &w.key_cell, widget_bounds)
+			w.table.on_hover(ctx, "value", &w.value_cell, widget_bounds)
 		})
 	}
 	adder.AddWidget(&w.value_cell)

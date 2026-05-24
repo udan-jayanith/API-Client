@@ -32,7 +32,7 @@ func (et *EditableText) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.
 
 func (et *EditableText) HandleButtonInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
 	handle := et.Text.HandleButtonInput(ctx, widgetBounds)
-	if et.on_type != nil {
+	if et.on_type != nil && et.Text.IsEditable(){
 		et.on_type(ctx, widgetBounds)
 	}
 	return handle

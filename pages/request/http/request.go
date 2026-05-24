@@ -26,7 +26,7 @@ type request_widget struct {
 	tab         CommonWidgets.Tab
 	tab_content struct {
 		params, header  []attr.AttrCheck
-		table           CommonWidgets.AttributeTable
+		table           HttpHeaderTable//CommonWidgets.AttributeTable
 		body            request_body_widget
 		selected_widget gui.Widget
 	}
