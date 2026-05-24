@@ -350,27 +350,22 @@ func (t *AttributeTable) Rows() []attr.Attribute {
 
 func (t *AttributeTable) DisableCheckbox(disable bool) {
 	t.checkbox_disabled = disable
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) DisableDelete(disable bool) {
 	t.delete_disabled = disable
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) KeyEditable(editable bool) {
 	t.key_not_editable = !editable
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) ValueEditable(editable bool) {
 	t.value_not_editable = !editable
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) AutoAddRow(auto_add bool) {
 	t.disable_auto_add = !auto_add
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) Count() int {
@@ -379,7 +374,6 @@ func (t *AttributeTable) Count() int {
 
 func (t *AttributeTable) PushRow(row attr.AttrCheck) {
 	t.push_row(row)
-	gui.RequestRebuild(&t.list)
 }
 
 func (t *AttributeTable) OnHover(fn func(ctx *gui.Context, t string, widget *EditableText, widget_bounds *gui.WidgetBounds)) {
