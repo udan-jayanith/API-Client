@@ -10,6 +10,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260524052219-2fd42e56f99d
 	github.com/hajimehoshi/iro v0.2.0
 	github.com/molecule-man/go-brrr v0.4.0
+	gitlab.com/j.udanjayanith/http-headers v0.0.0
 )
 
 require (
@@ -17,6 +18,7 @@ require (
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.11.0-alpha.2 // indirect
 	github.com/go-text/typesetting v0.3.5-0.20260505125104-04e4e76f9371 // indirect
+	github.com/hbollon/go-edlib v1.7.0 // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade // indirect
 	github.com/jezek/xgb v1.3.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect

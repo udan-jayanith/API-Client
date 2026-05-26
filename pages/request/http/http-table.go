@@ -3,11 +3,11 @@ package http_widget
 import (
 	"Zbolt/basic"
 	CommonWidgets "Zbolt/common-widgets"
-	"fmt"
 	"image"
 
 	gui "github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
+	httpheaders "gitlab.com/j.udanjayanith/http-headers"
 )
 
 type http_header_description struct {
@@ -94,8 +94,9 @@ func (w *http_header_description) Set(heading, description string) {
 }
 
 type HttpHeaderTable struct {
-	tooltip         basicwidget.TooltipArea
-	header_name     string
+	tooltip basicwidget.TooltipArea
+	header  *httpheaders.Header
+
 	tooltip_content http_header_description
 	hover_bounds    *gui.WidgetBounds
 	CommonWidgets.AttributeTable
@@ -106,12 +107,19 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		if t == "value" {
 			return
 		}
-		w.header_name = widget.Value()
 		w.hover_bounds = widget_bounds
+
+		h_name := widget.Value()
+		h := httpheaders.Search(h_name)
+		if h == nil || h.HeaderName != h_name {
+			w.header = nil
+			return
+		}
+		w.header = h
 	})
 	w.AttributeTable.Build(ctx, adder)
-	if w.header_name != "" {
-		w.tooltip_content.Set(w.header_name, fmt.Sprintf("Makes the request conditional, and expects the resource to be transmitted"))
+	if w.header != nil {
+		w.tooltip_content.Set(w.header.HeaderName, string(w.header.Description))
 		w.tooltip.SetContent(&w.tooltip_content)
 		adder.AddWidget(&w.tooltip)
 	}
@@ -120,7 +128,7 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 func (w *HttpHeaderTable) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	w.AttributeTable.Layout(ctx, widgetBounds, layouter)
-	if w.hover_bounds != nil && w.header_name != "" {
+	if w.hover_bounds != nil && w.header != nil {
 		layouter.LayoutWidget(&w.tooltip, w.hover_bounds.Bounds())
 	}
 }
