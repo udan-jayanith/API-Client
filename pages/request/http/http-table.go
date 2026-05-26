@@ -108,7 +108,7 @@ type HttpHeaderTable struct {
 	header  *httpheaders.Header
 
 	tooltip_content http_header_description
-	hover_bounds    *gui.WidgetBounds
+	hover_bounds    image.Rectangle
 	CommonWidgets.AttributeTable
 }
 
@@ -117,7 +117,6 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		if t == "value" {
 			return
 		}
-		w.hover_bounds = widget_bounds
 
 		h_name := widget.Value()
 		h := httpheaders.Search(h_name)
@@ -126,6 +125,7 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			return
 		}
 		w.header = h
+		w.hover_bounds = widget_bounds.Bounds()
 	})
 	w.AttributeTable.Build(ctx, adder)
 	if w.header != nil {
@@ -138,7 +138,7 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 func (w *HttpHeaderTable) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	w.AttributeTable.Layout(ctx, widgetBounds, layouter)
-	if w.hover_bounds != nil && w.header != nil {
-		layouter.LayoutWidget(&w.tooltip, w.hover_bounds.Bounds())
+	if w.header != nil {
+		layouter.LayoutWidget(&w.tooltip, w.hover_bounds)
 	}
 }

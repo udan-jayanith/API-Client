@@ -43,13 +43,15 @@ func (h *Hyperlink) SetRefrence(url string) {
 
 func (h *Hyperlink) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
 	handle := h.Text.HandlePointingInput(ctx, widgetBounds)
-	is_hovering := widgetBounds.IsHitAtCursor()
-
-	if is_hovering {
-		ebiten.SetCursorShape(ebiten.CursorShapePointer)
-	}
-	if is_hovering && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		opener.Open(h.url)
 	}
 	return handle
+}
+
+func (h *Hyperlink) CursorShape(ctx *gui.Context, widgetBounds *gui.WidgetBounds) (ebiten.CursorShapeType, bool) {
+	if widgetBounds.IsHitAtCursor() {
+		return ebiten.CursorShapePointer, true
+	}
+	return 0, true
 }
