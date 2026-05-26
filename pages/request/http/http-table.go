@@ -17,6 +17,7 @@ type http_header_description struct {
 	hr                CommonWidgets.HorizontalLine
 	description_panel basicwidget.Panel
 	description       gui.WidgetWithPadding[*basicwidget.Text]
+	refrence          CommonWidgets.Hyperlink
 }
 
 func (w *http_header_description) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -35,6 +36,10 @@ func (w *http_header_description) Build(ctx *gui.Context, adder *gui.ChildAdder)
 	w.description_panel.SetStyle(basicwidget.PanelStyleDefault)
 	w.description_panel.SetContent(&w.description)
 	adder.AddWidget(&w.description_panel)
+
+	w.refrence.SetMultiline(true)
+	w.refrence.SetWrapMode(basicwidget.WrapModeAnywhere)
+	adder.AddWidget(&w.refrence)
 	return nil
 }
 
@@ -62,6 +67,9 @@ func (w *http_header_description) Layout(ctx *gui.Context, widgetBounds *gui.Wid
 				Widget: &w.description_panel,
 				Size:   gui.FlexibleSize(1),
 			},
+			{
+				Widget: &w.refrence,
+			},
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
@@ -77,10 +85,11 @@ func (w *http_header_description) Measure(ctx *gui.Context, constraints gui.Cons
 	size.Y += w.heading.Measure(ctx, constraints).Y
 	size.Y += w.hr.Measure(ctx, constraints).Y
 	size.Y += w.description.Measure(ctx, constraints).Y
+	size.Y += w.refrence.Measure(ctx, constraints).Y
 
 	padding := w.padding(ctx)
 	size.Y += padding.Top + padding.Bottom
-	size.Y += w.gap(ctx) * 2
+	size.Y += w.gap(ctx) * 3
 
 	if size.Y >= max_size.Y {
 		return max_size
@@ -88,9 +97,10 @@ func (w *http_header_description) Measure(ctx *gui.Context, constraints gui.Cons
 	return size
 }
 
-func (w *http_header_description) Set(heading, description string) {
+func (w *http_header_description) Set(heading, description, refrence string) {
 	w.heading.SetValue(heading)
 	w.description.Widget().SetValue(description)
+	w.refrence.SetRefrence(refrence)
 }
 
 type HttpHeaderTable struct {
@@ -119,7 +129,7 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	})
 	w.AttributeTable.Build(ctx, adder)
 	if w.header != nil {
-		w.tooltip_content.Set(w.header.HeaderName, string(w.header.Description))
+		w.tooltip_content.Set(w.header.HeaderName, string(w.header.Description), w.header.Reference)
 		w.tooltip.SetContent(&w.tooltip_content)
 		adder.AddWidget(&w.tooltip)
 	}
