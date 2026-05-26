@@ -18,10 +18,14 @@ github.com/golang-ds/queue v1.0.0 h1:hqcXLnt7tAZLWv3t5Dfh6y1gIgy0KCW/viiKSUG55cM
 github.com/golang-ds/queue v1.0.0/go.mod h1:0wfhzQPWD2kZRXcDIBwEe490RcBoXdcHuUiJVYgf3vU=
 github.com/guigui-gui/guigui v0.0.0-20260523161033-81fac085345c h1:+bV+T+Ra3IpcnPWtUozAgjT5frUtZgkSmndURwmpaSk=
 github.com/guigui-gui/guigui v0.0.0-20260523161033-81fac085345c/go.mod h1:D8GUpvdCzJgbheabQtUuP+wohna/TGgQgSyjIf/WmcQ=
+github.com/guigui-gui/guigui v0.0.0-20260525180523-9c344678a767 h1:gYzLPMXwwGe72fh/DdmcU7QWAxVXepzLPZNPQUtcnI0=
+github.com/guigui-gui/guigui v0.0.0-20260525180523-9c344678a767/go.mod h1:hSS6idcyyKN1crRmyeipcsuigxuC58DLIHKf6n7IP7Q=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1 h1:5FNENqs0QbURnFG8HeDJuPl/FIjU4tNesm4suKJfIwY=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1/go.mod h1:/PD+aLjAJ0F2UoQx6hkOfXqWN7BkroDUMr5W+IT1dpE=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260520024410-d93501f4134b h1:xpbWXzwbQ1Wim4H4NxklCFwRlzbL6U7XNGTUErSClPY=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260520024410-d93501f4134b/go.mod h1:YxatHYuzf4QChYExalNBw+NnCU7dVEDZQCF2225DZ7s=
+github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260524052219-2fd42e56f99d h1:f9t4tUtud74mMLRrKwdev7wancvPWD3ZEkuBs78lKSo=
+github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260524052219-2fd42e56f99d/go.mod h1:zx3n9Ulcr+apsQh7WeLpgV/Xje1Sg8XEE/3Gk09ppFc=
 github.com/hajimehoshi/iro v0.2.0 h1:7RFpvbI9Cvdna445mF4uJGsGSVwnqh1uK/j/GKUfYpY=
 github.com/hajimehoshi/iro v0.2.0/go.mod h1:gfbDojwwKcq04DipcwqdW35ooEStXByUF3JanzJG5Ks=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=
