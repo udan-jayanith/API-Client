@@ -146,10 +146,12 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		adder.AddWidget(&rp.request_widget)
 	}
 
-	rp.popup_widget.SetBackgroundDark(true)
-	rp.popup_widget.SetCloseByClickingOutside(true)
-	rp.popup_widget.SetBackgroundBlurred(true)
-	adder.AddWidget(&rp.popup_widget)
+	if rp.popup_widget.IsOpen() {
+		rp.popup_widget.SetBackgroundDark(true)
+		rp.popup_widget.SetCloseByClickingOutside(true)
+		rp.popup_widget.SetBackgroundBlurred(true)
+		adder.AddWidget(&rp.popup_widget)
+	}
 
 	sidebar.OnRequestCreate(func(ctx *gui.Context) {
 		rp.request_create_widget.Clear()
