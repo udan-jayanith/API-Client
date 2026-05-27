@@ -6,13 +6,16 @@ import (
 	"strings"
 )
 
-func http_headers_to_attr_check(http_header http.Header) []attr.AttrCheck {
-	attrs := make([]attr.AttrCheck, 0, len(http_header))
+func http_headers_to_attr(http_header http.Header) []attr.Attribute {
+	attrs := make([]attr.Attribute, 0, len(http_header))
 	for k, v := range http_header {
-		attrs = append(attrs, attr.AttrCheck{
-			Key:     k,
-			Value:   strings.Join(v, ","),
-			Checked: true,
+		val := strings.Join(v, ",")
+		if strings.TrimSpace(k) == "" && strings.TrimSpace(val) == "" {
+			continue
+		}
+		attrs = append(attrs, attr.Attribute{
+			Key:   k,
+			Value: val,
 		})
 	}
 	return attrs

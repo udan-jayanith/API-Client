@@ -132,7 +132,7 @@ type HTTP_Response_Data struct {
 	ResponseTime  time.Duration
 	ContentLenght int // In bytes
 	Version       Version
-	Headers       []attr.AttrCheck
+	Headers       []attr.Attribute
 	Body          HTTP_Response_Body
 
 	SelectedResponseTab int

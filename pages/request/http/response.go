@@ -18,7 +18,7 @@ type response_widget struct {
 	header_widget response_header_widget
 	tab           CommonWidgets.Tab
 	tab_content   struct {
-		response_header  CommonWidgets.WidgetWithLazyLoading[*widget.Table[struct{}]]
+		response_header  CommonWidgets.WidgetWithLazyLoading[*HttpHeaderTable]
 		response_body    response_body_widget
 		selected_content gui.Widget
 	}
@@ -31,7 +31,7 @@ func (rw *response_widget) SetLazyLoading(body, headers bool) {
 
 func (rw *response_widget) Clear() {
 	rw.header_widget.clear()
-	rw.tab_content.response_header.Widget().SetItems([]widget.TableRow[struct{}]{})
+	rw.tab_content.response_header.Widget().SetRowsCheck(nil)
 	rw.tab_content.response_body.SetBody(nil)
 	rw.tab_content.response_body.SetContentType("")
 }
@@ -75,29 +75,8 @@ func (rw *response_widget) SetContentLength(lenght int) {
 	rw.header_widget.content_lenght.SetValue(units.HumanSize(float64(lenght)))
 }
 
-func (rw *response_widget) SetHeaders(headers []attr.AttrCheck) {
-	header_items := make([]widget.TableRow[struct{}], 0, len(headers))
-
-	for _, v := range headers {
-		header_items = append(header_items, widget.TableRow[struct{}]{
-			Cells: []widget.TableCell{
-				{
-					Text: v.Key,
-					TextStyle: widget.TextStyle{
-						WrapMode: widget.WrapModeAnywhere,
-					},
-				},
-				{
-					Text: v.Value,
-					TextStyle: widget.TextStyle{
-						WrapMode: widget.WrapModeAnywhere,
-					},
-				},
-			},
-		})
-	}
-
-	rw.tab_content.response_header.Widget().SetItems(header_items)
+func (rw *response_widget) SetHeaders(headers []attr.Attribute) {
+	rw.tab_content.response_header.Widget().SetRows(headers)
 }
 
 func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
@@ -105,7 +84,7 @@ func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_
 	// TODO: handle the error
 	if body.Content != nil {
 		rw.tab_content.response_body.SetBody(body)
-	}else{
+	} else {
 		rw.tab_content.response_body.SetBody(body)
 	}
 	rw.tab_content.response_body.SetContentType(body.ContentType)
@@ -140,38 +119,26 @@ func (rw *response_widget) set_tab_items() {
 func (rw *response_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.header_widget)
 
-	u := widget.UnitSize(ctx)
 	rw.set_tab_items()
+	headers_table := rw.tab_content.response_header.Widget()
+	headers_table.DisableCheckbox(true)
+	headers_table.DisableDelete(true)
+	headers_table.KeyEditable(false)
+	headers_table.ValueEditable(false)
+	headers_table.AutoAddRow(false)
 
-	{
-		rw.tab_content.response_header.Widget().SetColumns([]widget.TableColumn{
-			{
-				HeaderText:                "Name",
-				HeaderTextHorizontalAlign: widget.HorizontalAlignLeft,
-				MinWidth:                  u * 4,
-				Width:                     gui.FlexibleSize(1),
-			},
-			{
-				HeaderText:                "Value",
-				HeaderTextHorizontalAlign: widget.HorizontalAlignLeft,
-				MinWidth:                  u * 4,
-				Width:                     gui.FlexibleSize(1),
-			},
-		})
-
-		_, selected_tab := rw.tab.SelectedTab()
-		switch selected_tab.Value {
-		case "body":
-			rw.tab_content.selected_content = &rw.tab_content.response_body
-		case "header":
-			rw.tab_content.selected_content = &rw.tab_content.response_header
-		default:
-			panic("Unknown tab selected")
-		}
-
-		adder.AddWidget(&rw.tab)
-		adder.AddWidget(rw.tab_content.selected_content)
+	_, selected_tab := rw.tab.SelectedTab()
+	switch selected_tab.Value {
+	case "body":
+		rw.tab_content.selected_content = &rw.tab_content.response_body
+	case "header":
+		rw.tab_content.selected_content = &rw.tab_content.response_header
+	default:
+		panic("Unknown tab selected")
 	}
+
+	adder.AddWidget(&rw.tab)
+	adder.AddWidget(rw.tab_content.selected_content)
 
 	return nil
 }

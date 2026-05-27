@@ -83,7 +83,7 @@ func (data *HTTP_Data) Do() bool {
 
 // TODO: make a function to check is the headers have recived.
 func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
-	headers_copied := make([]attr.AttrCheck, len(res_data.Headers))
+	headers_copied := make([]attr.Attribute, len(res_data.Headers))
 	copy(headers_copied, res_data.Headers)
 
 	data.ResponseData(func(value *HTTP_Response_Data) {
@@ -113,7 +113,7 @@ func (data *HTTP_Data) do(req *http.Request) {
 		Minor: res.ProtoMinor,
 	}
 	res_data.Body.ContentType = ContentType(res.Header.Get("Content-Type"))
-	res_data.Headers = http_headers_to_attr_check(res.Header)
+	res_data.Headers = http_headers_to_attr(res.Header)
 	res_data.ResponseTime = time.Since(response_time)
 	data.set_response_data(res_data)
 
