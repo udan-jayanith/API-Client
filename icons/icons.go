@@ -130,6 +130,10 @@ func (icon *Icon) SetSize(size ...int) {
 	//gui.RequestRebuild(icon)
 }
 
+func (icon *Icon) Size() image.Point {
+	return icon.size
+}
+
 func (icon *Icon) SetIcon(icon_name string) {
 	if icon.icon_name == icon_name {
 		return
