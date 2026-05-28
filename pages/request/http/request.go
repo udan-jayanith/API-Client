@@ -23,13 +23,11 @@ type request_widget struct {
 	t           time.Time
 	url_preview CommonWidgets.URLPreview
 
-	tab         CommonWidgets.Tab
-	tab_content struct {
+	tab_container CommonWidgets.TabContainer
+	tab_content   struct {
 		params_table  CommonWidgets.AttributeTable
 		headers_table HttpHeaderTable
-
-		body            request_body_widget
-		selected_widget gui.Widget
+		body          request_body_widget
 	}
 }
 
@@ -139,48 +137,49 @@ func (rw *request_widget) SetBody(body string) {
 
 func (rw *request_widget) SelectedTab() int {
 	rw.set_tab_items()
-	i, _ := rw.tab.SelectedTab()
-	return i
+	_, index := rw.tab_container.SelectedTabContainer()
+	return index
 }
 
 func (rw *request_widget) SelectTab(index int) {
 	rw.set_tab_items()
-	rw.tab.SelectTab(index)
+	rw.tab_container.SelectTab(index)
 }
 
 func (rw *request_widget) set_tab_items() {
 	method := strings.ToUpper(rw.input_bar_widget.method())
-	selected_tab, _ := rw.tab.SelectedTab()
+	_, index := rw.tab_container.SelectedTabContainer()
 
-	if method == "POST" || method == "PUT" || method == "PATCH" {
-		rw.tab.SetTabItems([]CommonWidgets.TabItem{
-			{
+	tab_containter_items := []CommonWidgets.TabContainerItem{
+		{
+			TabItem: CommonWidgets.TabItem{
 				Text:  "Parameters",
 				Value: "parameters",
 			},
-			{
+			Widget: &rw.tab_content.params_table,
+		},
+		{
+			TabItem: CommonWidgets.TabItem{
 				Text:  "Headers",
 				Value: "headers",
 			},
-			{
+			Widget: &rw.tab_content.headers_table,
+		},
+	}
+
+	if method == "POST" || method == "PUT" || method == "PATCH" {
+		tab_containter_items = append(tab_containter_items, CommonWidgets.TabContainerItem{
+			TabItem: CommonWidgets.TabItem{
 				Text:  "Body",
 				Value: "body",
 			},
+			Widget: &rw.tab_content.body,
 		})
-		rw.tab.SelectTab(selected_tab)
 	} else {
-		rw.tab.SetTabItems([]CommonWidgets.TabItem{
-			{
-				Text:  "Parameters",
-				Value: "parameters",
-			},
-			{
-				Text:  "Headers",
-				Value: "headers",
-			},
-		})
-		rw.tab.SelectTab(min(selected_tab, 1))
+		index = min(index, 1)
 	}
+	rw.tab_container.SetItems(tab_containter_items)
+	rw.tab_container.SelectTab(index)
 }
 
 func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -194,24 +193,10 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		}
 	})
 
-	if rw.tab.ItemCount() == 0 {
+	if rw.tab_container.Count() == 0 {
 		rw.set_tab_items()
 	}
-
-	_, selected_tab := rw.tab.SelectedTab()
-	switch selected_tab.Value {
-	case "parameters":
-		rw.tab_content.selected_widget = &rw.tab_content.params_table
-	case "headers":
-		rw.tab_content.selected_widget = &rw.tab_content.headers_table
-	case "body":
-		rw.tab_content.selected_widget = &rw.tab_content.body
-	default:
-		panic("Unknown tab was selected")
-	}
-
-	adder.AddWidget(rw.tab_content.selected_widget)
-	adder.AddWidget(&rw.tab)
+	adder.AddWidget(&rw.tab_container)
 
 	if time.Since(rw.t).Seconds() >= 1 && !ctx.IsFocused(&rw.input_bar_widget) {
 		rw.update_url_preview()
@@ -234,10 +219,7 @@ func (rw *request_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBound
 				Widget: &rw.url_preview,
 			},
 			{
-				Widget: &rw.tab,
-			},
-			{
-				Widget: rw.tab_content.selected_widget,
+				Widget: &rw.tab_container,
 				Size:   gui.FlexibleSize(1),
 			},
 		},
@@ -252,8 +234,7 @@ func (rw *request_widget) Measure(ctx *gui.Context, constraints gui.Constraints)
 		point.Y = h
 	} else {
 		point.Y += rw.url_preview.Measure(ctx, constraints).Y
-		point.Y += rw.tab.Measure(ctx, constraints).Y
-		point.Y += rw.tab_content.selected_widget.Measure(ctx, constraints).Y
+		point.Y += rw.tab_container.Measure(ctx, constraints).Y
 	}
 
 	if w, ok := constraints.FixedWidth(); ok {

@@ -16,22 +16,21 @@ import (
 type response_widget struct {
 	gui.DefaultWidget
 	header_widget response_header_widget
-	tab           CommonWidgets.Tab
+	tab_container CommonWidgets.TabContainer
 	tab_content   struct {
-		response_header  CommonWidgets.WidgetWithLazyLoading[*HttpHeaderTable]
+		response_headers CommonWidgets.WidgetWithLazyLoading[*HttpHeaderTable]
 		response_body    response_body_widget
-		selected_content gui.Widget
 	}
 }
 
 func (rw *response_widget) SetLazyLoading(body, headers bool) {
 	rw.tab_content.response_body.SetLazyLoad(body)
-	rw.tab_content.response_header.SetLazyLoad(headers)
+	rw.tab_content.response_headers.SetLazyLoad(headers)
 }
 
 func (rw *response_widget) Clear() {
 	rw.header_widget.clear()
-	rw.tab_content.response_header.Widget().SetRowsCheck(nil)
+	rw.tab_content.response_headers.Widget().SetRowsCheck(nil)
 	rw.tab_content.response_body.SetBody(nil)
 	rw.tab_content.response_body.SetContentType("")
 }
@@ -76,7 +75,7 @@ func (rw *response_widget) SetContentLength(lenght int) {
 }
 
 func (rw *response_widget) SetHeaders(headers []attr.Attribute) {
-	rw.tab_content.response_header.Widget().SetRows(headers)
+	rw.tab_content.response_headers.Widget().SetRows(headers)
 }
 
 func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
@@ -95,50 +94,48 @@ func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_
 
 func (rw *response_widget) SetSelectedTab(index int) {
 	rw.set_tab_items()
-	rw.tab.SelectTab(index)
+	rw.tab_container.SelectTab(index)
 }
 
 func (rw *response_widget) SelectedTab() int {
-	index, _ := rw.tab.SelectedTab()
+	_, index := rw.tab_container.SelectedTabContainer()
 	return index
 }
 
 func (rw *response_widget) set_tab_items() {
-	rw.tab.SetTabItems([]CommonWidgets.TabItem{
+	if rw.tab_container.Count() != 0 {
+		return
+	}
+	rw.tab_container.SetItems([]CommonWidgets.TabContainerItem{
 		{
-			Text:  "Body",
-			Value: "body",
+			TabItem: CommonWidgets.TabItem{
+				Text:  "Body",
+				Value: "body",
+			},
+			Widget: &rw.tab_content.response_body,
 		},
 		{
-			Text:  "Header",
-			Value: "header",
+			TabItem: CommonWidgets.TabItem{
+				Text:  "Header",
+				Value: "header",
+			},
+			Widget: &rw.tab_content.response_headers,
 		},
 	})
 }
 
 func (rw *response_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.header_widget)
-
 	rw.set_tab_items()
-	headers_table := rw.tab_content.response_header.Widget()
+
+	headers_table := rw.tab_content.response_headers.Widget()
 	headers_table.DisableCheckbox(true)
 	headers_table.DisableDelete(true)
 	headers_table.KeyEditable(false)
 	headers_table.ValueEditable(false)
 	headers_table.AutoAddRow(false)
 
-	_, selected_tab := rw.tab.SelectedTab()
-	switch selected_tab.Value {
-	case "body":
-		rw.tab_content.selected_content = &rw.tab_content.response_body
-	case "header":
-		rw.tab_content.selected_content = &rw.tab_content.response_header
-	default:
-		panic("Unknown tab selected")
-	}
-
-	adder.AddWidget(&rw.tab)
-	adder.AddWidget(rw.tab_content.selected_content)
+	adder.AddWidget(&rw.tab_container)
 
 	return nil
 }
@@ -153,10 +150,7 @@ func (rw *response_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 				Widget: &rw.header_widget,
 			},
 			{
-				Widget: &rw.tab,
-			},
-			{
-				Widget: rw.tab_content.selected_content,
+				Widget: &rw.tab_container,
 				Size:   gui.FlexibleSize(1),
 			},
 		},

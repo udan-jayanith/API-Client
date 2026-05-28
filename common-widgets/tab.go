@@ -18,7 +18,7 @@ type TabItemContainer struct {
 
 type tabs_container struct {
 	gui.DefaultWidget
-	tab_items []*tab_item
+	tab_items gui.WidgetSlice[*tab_item]
 	closable  bool
 
 	holding struct {
@@ -37,14 +37,14 @@ type tabs_container struct {
 }
 
 func (tab *tabs_container) item_count() int {
-	return len(tab.tab_items)
+	return tab.tab_items.Len()
 }
 
 func (tab *tabs_container) on_select(index int, tab_item TabItem, by_user bool) {
 	if tab.listeners.on_select != nil {
 		from := TabItemContainer{
 			Index: tab.selected_item_index,
-			Item:  tab.tab_items[tab.selected_item_index].tab_item,
+			Item:  tab.tab_items.At(tab.selected_item_index).tab_item,
 		}
 		to := TabItemContainer{
 			Index: index,
@@ -69,14 +69,14 @@ func (tab *tabs_container) on_mouse_up(index int) {
 	}
 	tab.holding.is_holding = false
 
-	if len(tab.tab_items) > 0 {
+	if tab.tab_items.Len() > 0 {
 		from := TabItemContainer{
 			Index: index,
-			Item:  tab.tab_items[index].tab_item,
+			Item:  tab.tab_items.At(index).tab_item,
 		}
 		to := TabItemContainer{
 			Index: tab.holding.closest_index,
-			Item:  tab.tab_items[tab.holding.closest_index].tab_item,
+			Item:  tab.tab_items.At(tab.holding.closest_index).tab_item,
 		}
 		tab.selected_item_index = tab.holding.closest_index
 		if tab.listeners.on_swap != nil {
@@ -98,13 +98,17 @@ func (tab *tabs_container) on_close(index int, item TabItem) {
 }
 
 func (tab *tabs_container) update_tab_items(tab_items []TabItem) {
-	for i, widget := range tab.tab_items {
+	tab.tab_items.SetLen(len(tab_items))
+	for i := range tab.tab_items.Len() {
+		widget := tab.tab_items.At(i)
 		widget.tab_item = tab_items[i]
+		widget.index = i
+		widget.tabs_container = tab
 	}
 }
 
 func (tab *tabs_container) set_tab_items(tab_items []TabItem) {
-	if len(tab.tab_items) == len(tab_items) {
+	if tab.tab_items.Len() == len(tab_items) {
 		tab.update_tab_items(tab_items)
 		return
 	}
@@ -113,37 +117,30 @@ func (tab *tabs_container) set_tab_items(tab_items []TabItem) {
 	if len(tab_items) <= tab.selected_item_index {
 		tab.selected_item_index = 0
 	}
-	tab.tab_items = make([]*tab_item, 0, len(tab_items))
-	for i, item := range tab_items {
-		tab_item_widget := tab_item{}
-		tab_item_widget.index = i
-		tab_item_widget.tabs_container = tab
-		tab_item_widget.tab_item = item
-		tab.tab_items = append(tab.tab_items, &tab_item_widget)
-	}
-
+	tab.update_tab_items(tab_items)
 	if len(tab_items) > 0 {
 		tab.on_select(0, tab_items[0], false)
 	}
 }
 
 func (tab *tabs_container) select_tab(index int, by_user bool) {
-	if index >= len(tab.tab_items) {
+	if index >= tab.tab_items.Len() {
 		panic("Invalid index")
 	}
-	tab.on_select(index, tab.tab_items[index].tab_item, by_user)
+	tab.on_select(index, tab.tab_items.At(index).tab_item, by_user)
 }
 
 func (tab *tabs_container) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	for _, tab_item := range tab.tab_items {
-		if tab.holding.is_holding && tab.holding.tab_item_index == tab_item.index {
+	for i := range tab.tab_items.Len() {
+		widget := tab.tab_items.At(i)
+		if tab.holding.is_holding && tab.holding.tab_item_index == widget.index {
 			continue
 		}
-		adder.AddWidget(tab_item)
+		adder.AddWidget(widget)
 	}
 
 	if tab.holding.is_holding {
-		adder.AddWidget(tab.tab_items[tab.holding.tab_item_index])
+		adder.AddWidget(tab.tab_items.At(tab.holding.tab_item_index))
 	}
 	return nil
 }
@@ -157,7 +154,7 @@ func (tab *tabs_container) holding_item_bounds(ctx *gui.Context, b image.Rectang
 		},
 	}
 
-	holding_tab_item := tab.tab_items[tab.holding.tab_item_index]
+	holding_tab_item := tab.tab_items.At(tab.holding.tab_item_index)
 	tab_item_bounds.Max.X = tab_item_bounds.Min.X + holding_tab_item.Measure(ctx, gui.Constraints{}).X
 	tab_item_bounds.Max.Y = b.Max.Y
 	return tab_item_bounds
@@ -166,17 +163,18 @@ func (tab *tabs_container) holding_item_bounds(ctx *gui.Context, b image.Rectang
 func (tab *tabs_container) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	layout := gui.LinearLayout{
 		Direction: gui.LayoutDirectionHorizontal,
-		Items:     make([]gui.LinearLayoutItem, 0, len(tab.tab_items)),
+		Items:     make([]gui.LinearLayoutItem, 0, tab.tab_items.Len()),
 	}
 
 	if tab.holding.is_holding {
 		b := widgetBounds.Bounds()
-		layouter.LayoutWidget(tab.tab_items[tab.holding.tab_item_index], tab.holding_item_bounds(ctx, b))
+		layouter.LayoutWidget(tab.tab_items.At(tab.holding.tab_item_index), tab.holding_item_bounds(ctx, b))
 	}
 
-	for _, tab_item := range tab.tab_items {
-		if tab.holding.is_holding && tab.holding.tab_item_index == tab_item.index {
-			holding_tab_item := tab.tab_items[tab.holding.tab_item_index]
+	for i := range tab.tab_items.Len() {
+		widget := tab.tab_items.At(i)
+		if tab.holding.is_holding && tab.holding.tab_item_index == widget.index {
+			holding_tab_item := tab.tab_items.At(tab.holding.tab_item_index)
 			w := holding_tab_item.Measure(ctx, gui.Constraints{}).X
 			layout.Items = append(layout.Items, gui.LinearLayoutItem{
 				Size: gui.FixedSize(w),
@@ -185,7 +183,7 @@ func (tab *tabs_container) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 		}
 
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
-			Widget: tab_item,
+			Widget: widget,
 		})
 	}
 
@@ -193,7 +191,7 @@ func (tab *tabs_container) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 }
 
 func (tab *tabs_container) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
-	if !tab.holding.is_holding || len(tab.tab_items) == 0 {
+	if !tab.holding.is_holding || tab.tab_items.Len() == 0 {
 		return gui.HandleInputResult{}
 	}
 
@@ -201,8 +199,8 @@ func (tab *tabs_container) HandlePointingInput(ctx *gui.Context, widgetBounds *g
 	var closest_item_index int
 	cursor_x, _ := ebiten.CursorPosition()
 
-	for i, tab_item := range tab.tab_items {
-		w := tab_item.Measure(ctx, gui.Constraints{}).X
+	for i := range tab.tab_items.Len() {
+		w := tab.tab_items.At(i).Measure(ctx, gui.Constraints{}).X
 		if b.Min.X <= cursor_x && cursor_x <= b.Min.X+w {
 			closest_item_index = i
 			break
@@ -216,8 +214,8 @@ func (tab *tabs_container) HandlePointingInput(ctx *gui.Context, widgetBounds *g
 
 func (tab *tabs_container) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	var point image.Point
-	for _, tab_item := range tab.tab_items {
-		measurement := tab_item.Measure(ctx, constraints)
+	for i := range tab.tab_items.Len() {
+		measurement := tab.tab_items.At(i).Measure(ctx, constraints)
 		point.X += measurement.X
 	}
 
@@ -242,10 +240,10 @@ func (tab *Tab) SelectTab(index int) {
 }
 
 func (tab *Tab) SelectedTab() (int, TabItem) {
-	if len(tab.tab_container.tab_items) == 0 {
+	if tab.tab_container.tab_items.Len() == 0 {
 		return 0, TabItem{}
 	}
-	return tab.tab_container.selected_item_index, tab.tab_container.tab_items[tab.tab_container.selected_item_index].tab_item
+	return tab.tab_container.selected_item_index, tab.tab_container.tab_items.At(tab.tab_container.selected_item_index).tab_item
 }
 
 func (tab *Tab) ItemCount() int {
