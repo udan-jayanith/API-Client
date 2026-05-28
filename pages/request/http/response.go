@@ -103,6 +103,9 @@ func (rw *response_widget) SelectedTab() int {
 }
 
 func (rw *response_widget) set_tab_items() {
+	if rw.tab_container.Count() != 0 {
+		return
+	}
 	rw.tab_container.SetItems([]CommonWidgets.TabContainerItem{
 		{
 			TabItem: CommonWidgets.TabItem{
@@ -148,7 +151,7 @@ func (rw *response_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 			},
 			{
 				Widget: &rw.tab_container,
-				Size: gui.FlexibleSize(1),
+				Size:   gui.FlexibleSize(1),
 			},
 		},
 	}
