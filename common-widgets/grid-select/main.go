@@ -33,7 +33,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			Title:    "Item",
 		},
 		{
-			IconName: "add-box",
+			IconName: "large-icons/http",
 			Title:    "Item",
 		},
 		{

@@ -219,6 +219,41 @@ func (grid_select *grid_select_content[T]) Measure(ctx *gui.Context, constraints
 	return size
 }
 
+/*
+func (grid_select *grid_select_content[T]) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
+	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		ctx.SetFocused(grid_select, true)
+	} else {
+		ctx.SetFocused(grid_select, false)
+	}
+	return gui.HandleInputResult{}
+}
+
+func (grid_select *grid_select_content[T]) HandleButtonInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
+	if !ctx.IsFocused(grid_select) {
+		return gui.HandleInputResult{}
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+		if grid_select.selected_index == 0 {
+			index := grid_select.grid_select_items.Len() - 1
+			grid_select.on_select(index)
+		} else {
+			grid_select.on_select(grid_select.selected_index - 1)
+		}
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+		println("Pressed")
+		if grid_select.selected_index == grid_select.grid_select_items.Len()-1 {
+			grid_select.on_select(0)
+		} else {
+			grid_select.on_select(grid_select.selected_index + 1)
+		}
+	}
+
+	return gui.HandleInputResult{}
+}
+*/
+
 type GridSelect[T any] struct {
 	gui.DefaultWidget
 
