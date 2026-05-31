@@ -203,10 +203,11 @@ type GridSelect[T any] struct {
 	gui.DefaultWidget
 
 	panel   widget.Panel
-	content grid_select_content[T]
+	content gui.WidgetWithPadding[*grid_select_content[T]]
 }
 
 func (grid_select *GridSelect[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	grid_select.content.SetPadding(basic.NewPadding(basic.BorderRadius(ctx)))
 	grid_select.panel.SetContent(&grid_select.content)
 	grid_select.panel.SetContentConstraints(widget.PanelContentConstraintsFixedWidth)
 	adder.AddWidget(&grid_select.panel)
@@ -222,5 +223,5 @@ func (grid_select *GridSelect[T]) Measure(ctx *gui.Context, constraints gui.Cons
 }
 
 func (grid_select *GridSelect[T]) SetItems(items []GridSelectItem[T]) {
-	grid_select.content.SetItems(items)
+	grid_select.content.Widget().SetItems(items)
 }
