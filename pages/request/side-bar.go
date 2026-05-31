@@ -111,6 +111,25 @@ type Sidebar[T comparable] struct {
 			right_clicked_item  *sidebar_item_widget[T]
 		}
 	}
+
+	/*
+		path_widget            CommonWidgets.WidgetWithTooltip[*CommonWidgets.Path]
+		options struct{
+			create_request_button, create_folder_button, variable_panel_button CommonWidgets.ButtonWithTooltip
+
+			on_variable_panel_click 	func(ctx *gui.Context)
+			on_create_request_click		func(ctx *gui.Context)
+			on_folder_create 			func(ctx *gui.Context, folder_name, dir string)
+		}
+
+		search_bar 				   CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
+		on_search_bar_value_chaged func(ctx *gui.Context, value string)
+
+		sidebar_items gui.WidgetSlice[*sidebar_item_widget]
+		on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem)
+		on_sidebar_item_rename 	func(ctx *gui.Context, sidebar_item SidebarItem, new_name string)
+		on_sidebar_item_delete 	func(ctx *gui.Context, sidebar_item SidebarItem)
+	*/
 }
 
 func (sd *Sidebar[T]) SetItems(items []SidebarItem[T]) {
@@ -195,12 +214,14 @@ func (sd *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	search_widget.SetVerticalAlign(widget.VerticalAlignMiddle)
 	adder.AddWidget(&sd.options.search_widget)
 
-	sd.list.widget.SetItems(sd.list.items)
+	list_items := sd.list.items
+	sd.list.widget.SetItems(list_items)
 	sd.list.widget.OnItemsSelected(func(context *gui.Context, indices []int) {
 		if sd.list.on_item_clicked != nil {
 			sd.list.on_item_clicked(sd.list.items[indices[0]].Value)
 		}
 	})
+	sd.list.widget.SetStyle(widget.ListStyleSidebar)
 	adder.AddWidget(&sd.list.widget)
 
 	sd.list.path.SetTooltip("Path relative to project path")
