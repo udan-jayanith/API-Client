@@ -205,7 +205,7 @@ func (grid_select *grid_select_content[T]) RecommendedSize(ctx *gui.Context, con
 	} else {
 		item_size := grid_select.item_size(ctx)
 		items := grid_select.grid_select_items.Len()
-		return image.Pt(items*item_size, item_size)
+		return image.Pt((items*item_size)+((items-1)*basic.Gap(ctx)), item_size)
 	}
 }
 
@@ -258,11 +258,11 @@ type GridSelect[T any] struct {
 	gui.DefaultWidget
 
 	panel   widget.Panel
-	content gui.WidgetWithPadding[*grid_select_content[T]]
+	content grid_select_content[T]
 }
 
 func (grid_select *GridSelect[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	grid_select.content.SetPadding(basic.NewPadding(basic.BorderRadius(ctx)))
+	//grid_select.content.SetPadding(basic.NewPadding(basic.BorderRadius(ctx)))
 	grid_select.panel.SetContent(&grid_select.content)
 	grid_select.panel.SetContentConstraints(widget.PanelContentConstraintsFixedWidth)
 	adder.AddWidget(&grid_select.panel)
@@ -273,22 +273,27 @@ func (grid_select *GridSelect[T]) Layout(ctx *gui.Context, widgetBounds *gui.Wid
 	layouter.LayoutWidget(&grid_select.panel, widgetBounds.Bounds())
 }
 
+func (grid_select *GridSelect[T]) RecommendedSize(ctx *gui.Context) image.Point {
+	size := grid_select.content.RecommendedSize(ctx, gui.Constraints{})
+	return size
+}
+
 func (grid_select *GridSelect[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	return grid_select.panel.Measure(ctx, constraints)
 }
 
 func (grid_select *GridSelect[T]) SetItems(items []GridSelectItem[T]) {
-	grid_select.content.Widget().SetItems(items)
+	grid_select.content.SetItems(items)
 }
 
 func (grid_select *GridSelect[T]) SelectedItem() (T, bool) {
-	return grid_select.content.Widget().SelectedItem()
+	return grid_select.content.SelectedItem()
 }
 
 func (grid_select *GridSelect[T]) SelectedItemIndex() (int, bool) {
-	return grid_select.content.Widget().SelectedItemIndex()
+	return grid_select.content.SelectedItemIndex()
 }
 
 func (grid_select *GridSelect[T]) SelectItemByIndex(index int) {
-	grid_select.content.Widget().SelectItemByIndex(index)
+	grid_select.content.SelectItemByIndex(index)
 }

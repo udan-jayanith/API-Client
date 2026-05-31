@@ -43,7 +43,7 @@ type RequestPage struct {
 	http_widget      http_widget.HTTP_Widget
 	websocket_widget websocket_widget.WebsocketWidget
 
-	request_create_widget sidebar_item_types_panel
+	request_create_widget request_create_panel
 	variable_panel_widget variable_panel_widget
 
 	popup_content gui.Widget
@@ -112,7 +112,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	if rp.tabs_handler.IsEmpty() {
 		rp.nothing_widget.OnClick(func() {
-			rp.request_create_widget.Clear()
+			//rp.request_create_widget.Clear()
 			rp.open_popup(&rp.request_create_widget, ctx)
 		})
 		adder.AddWidget(&rp.nothing_widget)
@@ -154,14 +154,16 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	}
 
 	sidebar.OnRequestCreate(func(ctx *gui.Context) {
-		rp.request_create_widget.Clear()
+		//rp.request_create_widget.Clear()
 		rp.open_popup(&rp.request_create_widget, ctx)
 	})
 
+	/*
 	rp.request_create_widget.OnCreateButtonClicked(func(request *requests_handler.Request) {
 		rp.create_sidebar_item(request)
 		rp.popup_widget.SetOpen(false)
 	})
+	 */
 
 	rp.sidebar.Widget().OnVariableClicked(func(ctx *gui.Context) {
 		rp.open_popup(&rp.variable_panel_widget, ctx)
