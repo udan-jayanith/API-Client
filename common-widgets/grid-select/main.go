@@ -19,12 +19,14 @@ type Root struct {
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	context.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&r.background)
 
+	index, _ := r.grid_select.SelectedItemIndex()
 	r.grid_select.SetItems([]CommonWidgets.GridSelectItem[struct{}]{
 		{
-			IconName: "add-box",
-			Title:    "Item",
+			IconName: "copy",
+			Title:    "Item lore lorem f gag ag a a h hah aha h aahahahahahahaha",
 		},
 		{
 			IconName: "add-box",
@@ -55,6 +57,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			Title:    "Item",
 		},
 	})
+	r.grid_select.SelectItemByIndex(index)
 	adder.AddWidget(&r.grid_select)
 	return nil
 }

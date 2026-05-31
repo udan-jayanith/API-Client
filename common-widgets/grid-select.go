@@ -18,7 +18,7 @@ type GridSelectItem[T any] struct {
 type grid_select_item_widget[T any] struct {
 	gui.DefaultWidget
 
-	title widget.Text
+	title gui.WidgetWithPadding[*widget.Text]
 	icon  icons.Icon
 	value T
 }
@@ -28,7 +28,7 @@ func (grid_select *grid_select_item_widget[T]) SetIcon(icon_name string) {
 }
 
 func (grid_select *grid_select_item_widget[T]) SetTitle(title string) {
-	grid_select.title.SetValue(title)
+	grid_select.title.Widget().SetValue(title)
 }
 
 func (grid_select *grid_select_item_widget[T]) SetValue(val T) {
@@ -43,8 +43,9 @@ func (grid_select *grid_select_item_widget[T]) Build(ctx *gui.Context, adder *gu
 	grid_select.icon.SetSize(widget.UnitSize(ctx) * 2)
 	adder.AddWidget(&grid_select.icon)
 
-	grid_select.title.SetEllipsisString("...")
-	grid_select.title.SetHorizontalAlign(widget.HorizontalAlignCenter)
+	grid_select.title.Widget().SetEllipsisString("...")
+	grid_select.title.Widget().SetHorizontalAlign(widget.HorizontalAlignCenter)
+	grid_select.title.SetPadding(basic.NewPadding(0, basic.Gap(ctx)))
 	adder.AddWidget(&grid_select.title)
 	return nil
 }
@@ -53,16 +54,17 @@ func (grid_select *grid_select_item_widget[T]) Layout(ctx *gui.Context, widgetBo
 	b := widgetBounds.Bounds()
 
 	icon_size := grid_select.icon.Measure(ctx, gui.Constraints{})
+	title_size := grid_select.title.Measure(ctx, gui.FixedWidthConstraints(b.Dx()))
+
 	icon_b := b
-	icon_b.Min.Y += b.Dy()/2 - icon_size.Y/2
+	icon_b.Min.Y += b.Dy()/2 - (icon_size.Y/2 + title_size.Y/2)
 	icon_b.Max.Y = icon_b.Min.Y + icon_size.Y
 	icon_b.Min.X += b.Dx()/2 - icon_size.X/2
 	icon_b.Max.X = icon_b.Min.X + icon_size.X
 	layouter.LayoutWidget(&grid_select.icon, icon_b)
 
-	title_size := grid_select.title.Measure(ctx, gui.FixedWidthConstraints(b.Dx()))
 	title_bounds := b
-	title_bounds.Min.Y = icon_b.Max.Y + basic.Gap(ctx)
+	title_bounds.Min.Y = icon_b.Max.Y
 	title_bounds.Max.Y = title_bounds.Min.Y + title_size.Y
 	title_bounds.Min.X += b.Dx()/2 - title_size.X/2
 	title_bounds.Max.X = title_bounds.Min.X + title_size.X
@@ -85,6 +87,7 @@ type grid_select_content[T any] struct {
 
 	grid_select_items           gui.WidgetSlice[*grid_select_item_widget[T]]
 	grid_select_item_containers gui.WidgetSlice[*widget.Button]
+	selected_index              int
 }
 
 func (grid_select *grid_select_content[T]) SetItems(items []GridSelectItem[T]) {
@@ -101,10 +104,38 @@ func (grid_select *grid_select_content[T]) SetItems(items []GridSelectItem[T]) {
 		container := grid_select.grid_select_item_containers.At(i)
 		container.SetContent(grid_select.grid_select_items.At(i))
 	}
+	if len(items) > 0 {
+		grid_select.on_select(0)
+	}
+}
+
+func (grid_select *grid_select_content[T]) SelectedItemIndex() (int, bool) {
+	return grid_select.selected_index, grid_select.grid_select_items.Len() > 0
+}
+
+func (grid_select *grid_select_content[T]) SelectedItem() (T, bool) {
+	if grid_select.grid_select_items.Len() == 0 {
+		var t T
+		return t, false
+	}
+	return grid_select.grid_select_items.At(grid_select.selected_index).Value(), true
+}
+
+func (grid_select *grid_select_content[T]) SelectItemByIndex(index int) {
+	grid_select.on_select(index)
+}
+
+func (grid_select *grid_select_content[T]) on_select(index int) {
+	grid_select.grid_select_item_containers.At(grid_select.selected_index).SetType(widget.ButtonTypeNormal)
+	grid_select.selected_index = index
+	grid_select.grid_select_item_containers.At(index).SetType(widget.ButtonTypePrimary)
 }
 
 func (grid_select *grid_select_content[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	for i := range grid_select.grid_select_item_containers.Len() {
+		grid_select.grid_select_item_containers.At(i).OnDown(func(context *gui.Context) {
+			grid_select.on_select(i)
+		})
 		adder.AddWidget(grid_select.grid_select_item_containers.At(i))
 	}
 	return nil
@@ -115,17 +146,6 @@ func (grid_select *grid_select_content[T]) item_size(ctx *gui.Context) int {
 }
 
 func (grid_select *grid_select_content[T]) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	/*
-		layout := gui.LinearLayout{
-			Direction: gui.LayoutDirectionHorizontal,
-			Items:     make([]gui.LinearLayoutItem, grid_select.grid_select_items.Len()),
-		}
-		for i := range layout.Items {
-			layout.Items[i].Widget = grid_select.grid_select_item_containers.At(i)
-			layout.Items[i].Size=gui.FixedSize(grid_select.item_size(ctx))
-		}
-		layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
-	*/
 	b := widgetBounds.Bounds()
 	item_size := grid_select.item_size(ctx)
 	gap := basic.Gap(ctx)
@@ -224,4 +244,16 @@ func (grid_select *GridSelect[T]) Measure(ctx *gui.Context, constraints gui.Cons
 
 func (grid_select *GridSelect[T]) SetItems(items []GridSelectItem[T]) {
 	grid_select.content.Widget().SetItems(items)
+}
+
+func (grid_select *GridSelect[T]) SelectedItem() (T, bool) {
+	return grid_select.content.Widget().SelectedItem()
+}
+
+func (grid_select *GridSelect[T]) SelectedItemIndex() (int, bool) {
+	return grid_select.content.Widget().SelectedItemIndex()
+}
+
+func (grid_select *GridSelect[T]) SelectItemByIndex(index int) {
+	grid_select.content.Widget().SelectItemByIndex(index)
 }
