@@ -115,50 +115,53 @@ func (grid_select *grid_select_content[T]) item_size(ctx *gui.Context) int {
 }
 
 func (grid_select *grid_select_content[T]) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	layout := gui.LinearLayout{
-		Direction: gui.LayoutDirectionHorizontal,
-		Items:     make([]gui.LinearLayoutItem, grid_select.grid_select_items.Len()),
-	}
-	for i := range layout.Items {
-		layout.Items[i].Widget = grid_select.grid_select_item_containers.At(i)
-	}
-	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 	/*
-			b := widgetBounds.Bounds()
-			item_size := grid_select.item_size(ctx)
-			gap := basic.Gap(ctx)
-
-			item_bounds := b
-			item_bounds.Max.X = item_bounds.Min.X + item_size
-			item_bounds.Max.Y = item_bounds.Min.Y + item_size
-
-			var index int
-
-		outer_loop:
-			for {
-				for {
-					if grid_select.grid_select_items.Len() == index {
-						break outer_loop
-					} else if item_bounds.Max.X+item_size > b.Max.X {
-						break
-					}
-					layouter.LayoutWidget(grid_select.grid_select_item_containers.At(index), item_bounds)
-					item_bounds.Min.X = item_bounds.Max.X + gap
-					item_bounds.Max.X = item_bounds.Min.X + item_size
-					index++
-				}
-
-				item_bounds.Min.X = b.Min.X
-				item_bounds.Max.X = b.Min.X + item_size
-				item_bounds.Min.Y += gap
-				item_bounds.Max.Y = item_bounds.Min.Y + item_size
-			}
+		layout := gui.LinearLayout{
+			Direction: gui.LayoutDirectionHorizontal,
+			Items:     make([]gui.LinearLayoutItem, grid_select.grid_select_items.Len()),
+		}
+		for i := range layout.Items {
+			layout.Items[i].Widget = grid_select.grid_select_item_containers.At(i)
+			layout.Items[i].Size=gui.FixedSize(grid_select.item_size(ctx))
+		}
+		layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 	*/
+	b := widgetBounds.Bounds()
+	item_size := grid_select.item_size(ctx)
+	gap := basic.Gap(ctx)
+
+	item_bounds := b
+	item_bounds.Max.X = item_bounds.Min.X + item_size
+	item_bounds.Max.Y = item_bounds.Min.Y + item_size
+
+	var index int
+	items_per_row := grid_select.calculate_items_per_row(ctx, b.Dx())
+	rows := grid_select.calculate_number_of_rows(items_per_row)
+	items := grid_select.grid_select_items.Len()
+	for range rows {
+		for range items_per_row {
+			if index == items {
+				break
+			}
+			layouter.LayoutWidget(grid_select.grid_select_item_containers.At(index), item_bounds)
+			item_bounds.Min.X = item_bounds.Max.X + gap
+			item_bounds.Max.X = item_bounds.Min.X + item_size
+			index++
+		}
+		item_bounds.Min.X = b.Min.X
+		item_bounds.Max.X = b.Min.X + item_size
+		item_bounds.Min.Y = item_bounds.Max.Y + gap
+		item_bounds.Max.Y = item_bounds.Min.Y + item_size
+	}
 }
 
 func (grid_select *grid_select_content[T]) calculate_items_per_row(ctx *gui.Context, w int) int {
 	gap := basic.Gap(ctx)
-	count := (w + gap) / (grid_select.item_size(ctx) + gap)
+	item_size := grid_select.item_size(ctx)
+	count := (w + gap) / (item_size + gap)
+	for (count*(item_size+gap))+(item_size+gap) < w {
+		count++
+	}
 	return min(count, grid_select.grid_select_items.Len())
 }
 
@@ -173,22 +176,27 @@ func (grid_select *grid_select_content[T]) calculate_number_of_rows(items_per_ro
 	return rows
 }
 
-func (grid_select *grid_select_content[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+func (grid_select *grid_select_content[T]) RecommendedSize(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	if w, ok := constraints.FixedWidth(); ok {
 		items_per_row := grid_select.calculate_items_per_row(ctx, w)
 		rows := grid_select.calculate_number_of_rows(items_per_row)
 		size := grid_select.item_size(ctx)
-		return image.Pt(items_per_row*size, rows*size)
-	} else if h, ok := constraints.FixedHeight(); ok {
-		items_per_col := grid_select.calculate_items_per_row(ctx, h)
-		no_of_cols := grid_select.calculate_number_of_rows(items_per_col)
-		size := grid_select.item_size(ctx)
-		return image.Pt(no_of_cols*size, items_per_col*size)
+		return image.Pt(items_per_row*size, rows*size+(rows-1)*basic.Gap(ctx))
 	} else {
 		item_size := grid_select.item_size(ctx)
 		items := grid_select.grid_select_items.Len()
 		return image.Pt(items*item_size, item_size)
 	}
+}
+
+func (grid_select *grid_select_content[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+	size := grid_select.RecommendedSize(ctx, constraints)
+	if w, ok := constraints.FixedWidth(); ok {
+		size.X = w
+	} else if h, ok := constraints.FixedHeight(); ok {
+		size.Y = h
+	}
+	return size
 }
 
 type GridSelect[T any] struct {
@@ -210,7 +218,7 @@ func (grid_select *GridSelect[T]) Layout(ctx *gui.Context, widgetBounds *gui.Wid
 }
 
 func (grid_select *GridSelect[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	return grid_select.Measure(ctx, constraints)
+	return grid_select.panel.Measure(ctx, constraints)
 }
 
 func (grid_select *GridSelect[T]) SetItems(items []GridSelectItem[T]) {
