@@ -21,7 +21,8 @@ type SidebarItem[T any] struct {
 }
 
 var (
-	sidebar_item_contextmenu_env gui.EnvKey = gui.GenerateEnvKey()
+	sidebar_item_contextmenu_env  gui.EnvKey = gui.GenerateEnvKey()
+	sidebar_item_rename_popup_env gui.EnvKey = gui.GenerateEnvKey()
 )
 
 type sidebar_item_widget[T any] struct {
@@ -138,8 +139,8 @@ func (sd *sidebar_item_widget[T]) Measure(ctx *gui.Context, constraints gui.Cons
 func (sd *sidebar_item_widget[T]) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
 	result := sd.contextmenu_area(ctx).HandlePointingInput(ctx, widgetBounds)
 	if result.IsHandled() {
-		gui.RequestRebuild(sd)
 		sd.contextmenu_open = true
+		gui.RequestRebuild(sd)
 	}
 	return result
 }
@@ -294,10 +295,14 @@ func (header *sidebar_header_widget) OnVariableButtonClicked(fn func(context *gu
 type Sidebar[T any] struct {
 	gui.DefaultWidget
 
-	sidebar_header            sidebar_header_widget
-	sidebar_items             []widget.ListItem[struct{}]
+	add_folder_menu           widget.PopupMenu[struct{}]
 	sidebar_item_context_menu widget.ContextMenuArea[struct{}]
-	list_widget               widget.List[struct{}]
+	rename_item_menu          widget.PopupMenu[struct{}]
+
+	sidebar_header sidebar_header_widget
+	sidebar_items  []widget.ListItem[struct{}]
+	list_widget    widget.List[struct{}]
+	item sidebar_item_widget[struct{}]
 
 	on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem[T])
 	on_sidebar_item_rename  func(ctx *gui.Context, sidebar_item SidebarItem[T], new_name string)
@@ -314,6 +319,10 @@ func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.Env
 func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	sidebar.list_widget.SetStyle(widget.ListStyleSidebar)
 	if len(sidebar.sidebar_items) == 0 {
+		sidebar.item.SetSideBarItem(SidebarItem[struct{}]{
+			IconName: "search",
+			Text: "Item",
+		})
 		sidebar.list_widget.SetItems([]widget.ListItem[struct{}]{
 			{
 				Header:       true,
@@ -324,7 +333,8 @@ func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 				Border: true,
 			},
 			{
-				Text: "Item",
+				Content: &sidebar.item,
+				Padding: basic.NewPadding(0),
 			},
 		})
 	} else {
