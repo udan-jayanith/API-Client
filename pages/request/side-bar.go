@@ -10,6 +10,7 @@ import (
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type SidebarItem[T any] struct {
@@ -117,7 +118,7 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 	header.options.create_folder_button.SetIcon(header.options.folder_icon)
 	adder.AddWidget(&header.options.create_folder_button)
 
-	header.options.variable_panel_button.SetTooltip("Open variables panel")
+	header.options.variable_panel_button.SetTooltip("Open variable panel")
 	header.options.variable_panel_button.SetIcon(header.options.variable_icon)
 	adder.AddWidget(&header.options.variable_panel_button)
 
@@ -269,7 +270,10 @@ func (sidebar *Sidebar[T]) Measure(ctx *gui.Context, constraints gui.Constraints
 	return sidebar.list_widget.Measure(ctx, constraints)
 }
 
-func (sidebar *Sidebar[T]) Draw(context *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+func (sidebar *Sidebar[T]) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+	b := widgetBounds.Bounds()
+
+	vector.StrokeLine(dst, float32(b.Max.X), float32(b.Min.Y), float32(b.Max.X), float32(b.Max.Y), basic.LineWidth(ctx), basic.LineColor(ctx), false)
 }
 
 func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
