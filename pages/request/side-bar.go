@@ -1,44 +1,43 @@
 package request_page
 
 import (
+	"Zbolt/basic"
 	CommonWidgets "Zbolt/common-widgets"
 	"Zbolt/icons"
-	"fmt"
 	"image"
 	"log"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type SidebarItem[T comparable] struct {
+type SidebarItem[T any] struct {
 	Text, IconName string
 	Value          T
 }
 
-type sidebar_item_widget[T comparable] struct {
+type sidebar_item_widget[T any] struct {
 	gui.DefaultWidget
 
 	icon_widget icons.Icon
+	text_widget widget.Text
+}
 
-	text_widget    widget.Text
-	sidebar_item   SidebarItem[T]
-	sidebar_widget *Sidebar[T]
+func (sd *sidebar_item_widget[T]) SetSideBarItem(sidebar_item SidebarItem[T]) {
+	if sidebar_item.IconName == "" {
+		log.Fatalln("Sidebar item dosen't have a icon")
+	} else {
+		sd.icon_widget.SetIcon(sidebar_item.IconName)
+	}
+
+	sd.text_widget.SetEllipsisString("...")
+	sd.text_widget.SetValue(sidebar_item.Text)
 }
 
 func (sd *sidebar_item_widget[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	line_height := widget.LineHeight(ctx)
-	if sd.sidebar_item.IconName == "" {
-		log.Fatalln("Sidebar item dosen't have a icon")
-	} else {
-		sd.icon_widget.SetIcon(sd.sidebar_item.IconName)
-		sd.icon_widget.SetSize(line_height)
-	}
+	sd.icon_widget.SetSize(widget.LineHeight(ctx))
 	adder.AddWidget(&sd.icon_widget)
-
-	sd.text_widget.SetValue(sd.sidebar_item.Text)
 	adder.AddWidget(&sd.text_widget)
 
 	return nil
@@ -46,37 +45,38 @@ func (sd *sidebar_item_widget[T]) Build(ctx *gui.Context, adder *gui.ChildAdder)
 
 func (sd *sidebar_item_widget[T]) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	u := widget.UnitSize(ctx)
+	gap := u / 6
+	b := widgetBounds.Bounds()
 
-	layout := gui.LinearLayout{
-		Direction: gui.LayoutDirectionHorizontal,
-		Gap:       u / 6,
-		Items: []gui.LinearLayoutItem{
-			{},
-			{
-				Widget: &sd.icon_widget,
-			},
-			{
-				Widget: &sd.text_widget,
-			},
-		},
-	}
-	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+	icon_size := sd.icon_widget.Measure(ctx, gui.Constraints{})
+	icon_bounds := b
+	icon_bounds.Max.X = b.Min.X + icon_size.X
+	layouter.LayoutWidget(&sd.icon_widget, icon_bounds)
+
+	text_bounds := b
+	text_bounds.Min.X = icon_bounds.Max.X + gap
+	layouter.LayoutWidget(&sd.text_widget, text_bounds)
 }
 
 func (sd *sidebar_item_widget[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	point := sd.text_widget.Measure(ctx, constraints)
-	point.X += widget.UnitSize(ctx) / 4
-	point.X += sd.icon_widget.Measure(ctx, constraints).X
-	return point
-}
-func (sd *sidebar_item_widget[T]) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
-	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton2) {
-		sd.sidebar_widget.list.contextmenu.right_clicked_item = sd
+	var size image.Point
+	u := widget.UnitSize(ctx)
+
+	if w, ok := constraints.FixedWidth(); ok {
+		size.X = w
+	} else {
+		size.X = u * 6
 	}
 
-	return gui.HandleInputResult{}
+	if h, ok := constraints.FixedHeight(); ok {
+		size.Y = h
+	} else {
+		size.Y = widget.LineHeight(ctx)
+	}
+	return size
 }
 
+/*
 type Sidebar[T comparable] struct {
 	gui.DefaultWidget
 
@@ -113,211 +113,137 @@ type Sidebar[T comparable] struct {
 	}
 
 	/*
-		path_widget            CommonWidgets.WidgetWithTooltip[*CommonWidgets.Path]
-		options struct{
-			create_request_button, create_folder_button, variable_panel_button CommonWidgets.ButtonWithTooltip
 
-			on_variable_panel_click 	func(ctx *gui.Context)
-			on_create_request_click		func(ctx *gui.Context)
-			on_folder_create 			func(ctx *gui.Context, folder_name, dir string)
-		}
+} */
 
-		search_bar 				   CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
-		on_search_bar_value_chaged func(ctx *gui.Context, value string)
+type sidebar_header_widget struct {
+	gui.DefaultWidget
 
-		sidebar_items gui.WidgetSlice[*sidebar_item_widget]
-		on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem)
-		on_sidebar_item_rename 	func(ctx *gui.Context, sidebar_item SidebarItem, new_name string)
-		on_sidebar_item_delete 	func(ctx *gui.Context, sidebar_item SidebarItem)
-	*/
-}
+	path_widget           CommonWidgets.WidgetWithTooltip[*CommonWidgets.Path]
+	on_path_value_changed func(ctx *gui.Context, path string)
+	options               struct {
+		create_request_button, create_folder_button, variable_panel_button CommonWidgets.ButtonWithTooltip
+		request_icon, folder_icon, variable_icon                           *ebiten.Image
 
-func (sd *Sidebar[T]) SetItems(items []SidebarItem[T]) {
-	sd.list.items = make([]widget.ListItem[T], 0, len(items))
-	for _, item := range items {
-		content_widget := sidebar_item_widget[T]{
-			sidebar_widget: sd,
-			sidebar_item:   item,
-		}
-		sd.list.items = append(sd.list.items, widget.ListItem[T]{
-			Content: &content_widget,
-			Value:   item.Value,
-			Movable: false,
-		})
-	}
-}
-
-func (sd *Sidebar[T]) OnRequestCreate(callback func(ctx *gui.Context)) {
-	sd.options.add.on_request_create = callback
-}
-
-func (sd *Sidebar[T]) OnFolderCreate(fn func(ctx *gui.Context, folder_name string)) {
-	sd.options.add.on_folder_create = fn
-}
-
-func (sd *Sidebar[T]) OnItemClicked(fn func(item T)) {
-	sd.list.on_item_clicked = fn
-}
-
-func (sd *Sidebar[T]) OnVariableClicked(fn func(ctx *gui.Context)) {
-	sd.options.add.on_variable_clicked = fn
-}
-
-func (sd *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	if sd.options.add.create_request_icon == nil {
-		sd.options.add.create_request_icon = icons.Store.Open("add-box")
-	}
-	if sd.options.add.create_folder_icon == nil {
-		sd.options.add.create_folder_icon = icons.Store.Open("create-new-folder")
-	}
-	if sd.options.add.variable_icon == nil {
-		sd.options.add.variable_icon = icons.Store.Open("variable")
+		on_variable_panel_click func(ctx *gui.Context)
+		on_create_request_click func(ctx *gui.Context)
+		on_folder_create_click  func(ctx *gui.Context, folder_name, dir string)
 	}
 
-	sd.options.add.create_request_button.SetTooltip("Create a new request")
-	sd.options.add.create_request_button.SetIcon(sd.options.add.create_request_icon)
-	sd.options.add.create_request_button.OnDown(func(context *gui.Context) {
-		sd.options.add.on_request_create(ctx)
-	})
-	adder.AddWidget(&sd.options.add.create_request_button)
+	search_bar                  CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
+	search_icon                 *ebiten.Image
+	on_search_bar_value_changed func(ctx *gui.Context, value string)
+}
 
-	sd.options.add.create_folder_button.SetTooltip("Create a new folder")
-	sd.options.add.create_folder_button.SetIcon(sd.options.add.create_folder_icon)
-	sd.options.add.create_folder_button.OnDown(func(context *gui.Context) {
-		sd.options.add.folder_popup_position = image.Pt(ebiten.CursorPosition())
-		sd.options.add.folder_popup.SetOpen(true)
-	})
-	adder.AddWidget(&sd.options.add.create_folder_button)
+func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	adder.AddWidget(&header.path_widget)
 
-	sd.options.add.variable_button.SetTooltip("Open project variables panel")
-	sd.options.add.variable_button.SetIcon(sd.options.add.variable_icon)
-	if sd.options.add.on_variable_clicked != nil {
-		sd.options.add.variable_button.OnDown(sd.options.add.on_variable_clicked)
+	if header.options.request_icon == nil {
+		header.options.request_icon = icons.Store.Open("add-box")
+		header.options.folder_icon = icons.Store.Open("create-new-folder")
+		header.options.variable_icon = icons.Store.Open("variable")
 	}
-	adder.AddWidget(&sd.options.add.variable_button)
 
-	sd.options.add.folder_popup.SetButtonText("Create")
-	sd.options.add.folder_popup.SetFieldValue("Enter folder name")
-	sd.options.add.folder_popup.OnButtonClicked(func(ctx *gui.Context, value string) {
-		if sd.options.add.on_request_create != nil {
-			sd.options.add.on_folder_create(ctx, value)
-		}
-		sd.options.add.folder_popup.ClearInput()
-	})
+	header.options.create_request_button.SetTooltip("Create new request")
+	header.options.create_request_button.SetIcon(header.options.request_icon)
+	adder.AddWidget(&header.options.create_request_button)
 
-	if sd.options.search_icon == nil {
-		sd.options.search_icon = icons.Store.Open("search")
+	header.options.create_folder_button.SetTooltip("Create new folder")
+	header.options.create_folder_button.SetIcon(header.options.folder_icon)
+	adder.AddWidget(&header.options.create_folder_button)
+
+	header.options.variable_panel_button.SetTooltip("Open variables panel")
+	header.options.variable_panel_button.SetIcon(header.options.variable_icon)
+	adder.AddWidget(&header.options.variable_panel_button)
+
+	header.search_bar.SetTooltip("Search bar")
+	if header.search_icon == nil {
+		header.options.variable_icon = icons.Store.Open("search")
 	}
-	sd.options.search_widget.SetTooltip("Search bar")
-	search_widget := sd.options.search_widget.Widget()
-	search_widget.SetIcon(sd.options.search_icon)
-	search_widget.SetVerticalAlign(widget.VerticalAlignMiddle)
-	adder.AddWidget(&sd.options.search_widget)
-
-	list_items := sd.list.items
-	sd.list.widget.SetItems(list_items)
-	sd.list.widget.OnItemsSelected(func(context *gui.Context, indices []int) {
-		if sd.list.on_item_clicked != nil {
-			sd.list.on_item_clicked(sd.list.items[indices[0]].Value)
-		}
-	})
-	sd.list.widget.SetStyle(widget.ListStyleSidebar)
-	adder.AddWidget(&sd.list.widget)
-
-	sd.list.path.SetTooltip("Path relative to project path")
-	path_wdiget := sd.list.path.Widget()
-	path_wdiget.SetPath(`Root/zed/extensions/work/codebook`)
-	path_wdiget.OnSelect(func(ctx *gui.Context, path string) {
-		println(path)
-	})
-	adder.AddWidget(&sd.list.path)
-
-	sd.list.contextmenu.menu.SetItemsByStrings([]string{"Rename", "Delete"})
-	sd.list.contextmenu.menu.OnItemSelected(func(context *gui.Context, index int) {
-		if index == 0 {
-			sd.list.contextmenu.rename_popup_widget.SetOpen(true)
-		}
-	})
-
-	sd.list.contextmenu.rename_popup_widget.SetButtonText("Rename")
-	sd.list.contextmenu.rename_popup_widget.SetFieldValue("Set new name")
-
-	adder.AddWidget(&sd.list.contextmenu.rename_popup_widget)
-	adder.AddWidget(&sd.list.contextmenu.menu)
-	adder.AddWidget(&sd.options.add.folder_popup)
+	header.search_bar.Widget().SetIcon(header.search_icon)
+	adder.AddWidget(&header.search_bar)
 	return nil
 }
 
-func (sd *Sidebar[T]) gap(ctx *gui.Context) int {
-	return widget.UnitSize(ctx) / 4
-}
-
-func (sd *Sidebar[T]) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	layouter.LayoutWidget(&sd.list.contextmenu.menu, image.Rectangle{
-		Min: sd.list.contextmenu.position,
-	})
-
-	folder_popup_measurements := sd.options.add.folder_popup.Measure(ctx, gui.Constraints{})
-	layouter.LayoutWidget(&sd.options.add.folder_popup, image.Rectangle{
-		Min: sd.options.add.folder_popup_position,
-		Max: sd.options.add.folder_popup_position.Add(folder_popup_measurements),
-	})
-
-	rename_measurements := sd.list.contextmenu.rename_popup_widget.Measure(ctx, gui.Constraints{})
-	layouter.LayoutWidget(&sd.list.contextmenu.rename_popup_widget, image.Rectangle{
-		Min: sd.list.contextmenu.position,
-		Max: sd.list.contextmenu.position.Add(rename_measurements),
-	})
-
+func (header *sidebar_header_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	layout := gui.LinearLayout{
+		Gap:       basic.Gap(ctx),
 		Direction: gui.LayoutDirectionVertical,
-		Gap:       sd.gap(ctx),
 		Items: []gui.LinearLayoutItem{
 			{
-				Widget: &sd.list.path,
-				//Size: gui.FixedSize(widget.UnitSize(ctx)),
+				Widget: &header.path_widget,
 			},
 			{
 				Layout: gui.LinearLayout{
 					Direction: gui.LayoutDirectionHorizontal,
-					Gap:       sd.gap(ctx),
+					Gap:       basic.Gap(ctx),
 					Items: []gui.LinearLayoutItem{
 						{
-							Widget: &sd.options.add.create_request_button,
+							Widget: &header.options.create_request_button,
 						},
 						{
-							Widget: &sd.options.add.create_folder_button,
+							Widget: &header.options.create_folder_button,
 						},
 						{
-							Widget: &sd.options.add.variable_button,
+							Widget: &header.options.variable_panel_button,
 						},
 					},
 				},
 			},
 			{
-				Widget: &sd.options.search_widget,
-			},
-			{
-				Widget: &sd.list.widget,
-				Size:   gui.FlexibleSize(1),
+				Widget: &header.search_bar,
 			},
 		},
 	}
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
-func (sd *Sidebar[T]) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
-	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustReleased(ebiten.MouseButton2) && sd.list.contextmenu.right_clicked_item != nil {
-		sd.list.contextmenu.position = image.Pt(ebiten.CursorPosition())
-		sd.list.contextmenu.menu.SetOpen(true)
+func (header *sidebar_header_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+	var size image.Point
 
-		fmt.Println("right clicked", sd.list.contextmenu.right_clicked_item.text_widget.Value())
-
-		sd.list.contextmenu.right_clicked_item = nil
+	if w, ok := constraints.FixedWidth(); ok {
+		size.X = w
+	} else {
+		size.X = widget.UnitSize(ctx) * 6
 	}
-	return gui.HandleInputResult{}
+
+	if h, ok := constraints.FixedHeight(); ok {
+		size.Y= h
+	} else {
+		// TODO:
+	}
+	return size
 }
 
-func (sd *Sidebar[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	return sd.list.widget.Measure(ctx, constraints)
+func (header *sidebar_header_widget) SetPath(path string) {
+	header.path_widget.Widget().SetPath(path)
+}
+
+func (header *sidebar_header_widget) Path() string {
+	return header.path_widget.Widget().Path()
+}
+
+type Sidebar[T any] struct {
+	gui.DefaultWidget
+
+	sidebar_items           gui.WidgetSlice[*sidebar_item_widget[T]]
+	on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem[T])
+	on_sidebar_item_rename  func(ctx *gui.Context, sidebar_item SidebarItem[T], new_name string)
+	on_sidebar_item_delete  func(ctx *gui.Context, sidebar_item SidebarItem[T])
+}
+
+func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	return nil
+}
+
+func (sidebar *Sidebar[T]) Layout(context *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+}
+
+func (sidebar *Sidebar[T]) SetSidebarItems(items SidebarItem[T]) {
+	// TODO: Finish this
+}
+
+func (sidebar *Sidebar[T]) SetPath(path string) {
+	sidebar.path_widget.SetTooltip("Path")
+	sidebar.path_widget.Widget().SetPath(path)
 }

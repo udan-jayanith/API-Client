@@ -213,6 +213,9 @@ func (path *Path) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *eb
 }
 
 func (path_widget *Path) SetPath(directory_path string) {
+	if directory_path == path_widget.Path() {
+		return
+	}
 	directory_path = filepath.Clean(directory_path)
 	list := strings.Split(filepath.ToSlash(directory_path), string(filepath.Separator))
 	l := len(list)
