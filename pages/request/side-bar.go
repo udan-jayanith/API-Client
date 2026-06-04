@@ -22,6 +22,7 @@ type sidebar_item_widget[T any] struct {
 
 	icon_widget icons.Icon
 	text_widget widget.Text
+	val         T
 }
 
 func (sd *sidebar_item_widget[T]) SetSideBarItem(sidebar_item SidebarItem[T]) {
@@ -33,6 +34,8 @@ func (sd *sidebar_item_widget[T]) SetSideBarItem(sidebar_item SidebarItem[T]) {
 
 	sd.text_widget.SetEllipsisString("...")
 	sd.text_widget.SetValue(sidebar_item.Text)
+
+	sd.val = sidebar_item.Value
 }
 
 func (sd *sidebar_item_widget[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -76,46 +79,6 @@ func (sd *sidebar_item_widget[T]) Measure(ctx *gui.Context, constraints gui.Cons
 	return size
 }
 
-/*
-type Sidebar[T comparable] struct {
-	gui.DefaultWidget
-
-	options struct {
-		search_icon   *ebiten.Image
-		search_widget CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
-		add           struct {
-			create_request_button, create_folder_button, variable_button CommonWidgets.ButtonWithTooltip
-			create_request_icon, create_folder_icon, variable_icon       *ebiten.Image
-
-			on_variable_clicked func(ctx *gui.Context)
-			on_request_create   func(ctx *gui.Context)
-
-			folder_popup          folder_create_popup
-			folder_popup_position image.Point
-			on_folder_create      func(ctx *gui.Context, folder_name string)
-		}
-	}
-
-	list struct {
-		path            CommonWidgets.WidgetWithTooltip[*CommonWidgets.Path]
-		widget          widget.List[T]
-		items           []widget.ListItem[T]
-		on_item_clicked func(value T)
-
-		// TODO: use context menu area
-		contextmenu struct {
-			menu     widget.PopupMenu[struct{}]
-			position image.Point
-
-			rename_popup_widget folder_create_popup
-			right_clicked_item  *sidebar_item_widget[T]
-		}
-	}
-
-	/*
-
-} */
-
 type sidebar_header_widget struct {
 	gui.DefaultWidget
 
@@ -127,7 +90,7 @@ type sidebar_header_widget struct {
 
 		on_variable_panel_click func(ctx *gui.Context)
 		on_create_request_click func(ctx *gui.Context)
-		on_folder_create_click  func(ctx *gui.Context, folder_name, dir string)
+		on_folder_create        func(ctx *gui.Context, folder_name, dir string)
 	}
 
 	search_bar                  CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
@@ -136,6 +99,8 @@ type sidebar_header_widget struct {
 }
 
 func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	header.path_widget.SetTooltip("Path")
+	header.path_widget.Widget().SetPath("/home/udan/Documents")
 	adder.AddWidget(&header.path_widget)
 
 	if header.options.request_icon == nil {
@@ -158,7 +123,7 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 
 	header.search_bar.SetTooltip("Search bar")
 	if header.search_icon == nil {
-		header.options.variable_icon = icons.Store.Open("search")
+		header.search_icon = icons.Store.Open("search")
 	}
 	header.search_bar.Widget().SetIcon(header.search_icon)
 	adder.AddWidget(&header.search_bar)
@@ -208,9 +173,13 @@ func (header *sidebar_header_widget) Measure(ctx *gui.Context, constraints gui.C
 	}
 
 	if h, ok := constraints.FixedHeight(); ok {
-		size.Y= h
+		size.Y = h
 	} else {
-		// TODO:
+		constaints := gui.FixedWidthConstraints(size.X)
+		size.Y = header.path_widget.Measure(ctx, constaints).Y
+		size.Y += header.search_bar.Measure(ctx, constaints).Y
+		size.Y += widget.UnitSize(ctx)
+		size.Y += basic.Gap(ctx) * 2
 	}
 	return size
 }
@@ -223,27 +192,86 @@ func (header *sidebar_header_widget) Path() string {
 	return header.path_widget.Widget().Path()
 }
 
+func (header *sidebar_header_widget) OnPathChanged(fn func(ctx *gui.Context, path string)) {
+	header.path_widget.Widget().OnSelect(fn)
+}
+
+func (header *sidebar_header_widget) OnSearchBarValueChanged(fn func(context *gui.Context, text string, committed bool)) {
+	header.search_bar.Widget().OnValueChanged(fn)
+}
+
+func (header *sidebar_header_widget) SetSearchBarValue(value string) {
+	header.search_bar.Widget().SetValue(value)
+}
+
+func (header *sidebar_header_widget) SearchBarValue() string {
+	return header.search_bar.Widget().Value()
+}
+
+func (header *sidebar_header_widget) OnRequestButtonClicked(fn func(context *gui.Context)) {
+	header.options.create_request_button.OnDown(fn)
+}
+
+func (header *sidebar_header_widget) OnFolderButtonClicked(fn func(context *gui.Context)) {
+	header.options.create_folder_button.OnDown(fn)
+}
+
+func (header *sidebar_header_widget) OnVariableButtonClicked(fn func(context *gui.Context)) {
+	header.options.variable_panel_button.OnDown(fn)
+}
+
 type Sidebar[T any] struct {
 	gui.DefaultWidget
 
-	sidebar_items           gui.WidgetSlice[*sidebar_item_widget[T]]
+	sidebar_header sidebar_header_widget
+	sidebar_items  []widget.ListItem[struct{}]
+	list_widget    widget.List[struct{}]
+
 	on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem[T])
 	on_sidebar_item_rename  func(ctx *gui.Context, sidebar_item SidebarItem[T], new_name string)
 	on_sidebar_item_delete  func(ctx *gui.Context, sidebar_item SidebarItem[T])
 }
 
 func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	sidebar.list_widget.SetStyle(widget.ListStyleSidebar)
+	if len(sidebar.sidebar_items) == 0 {
+		sidebar.list_widget.SetItems([]widget.ListItem[struct{}]{
+			{
+				Header:       true,
+				Content:      &sidebar.sidebar_header,
+				Unselectable: true,
+			},
+			{
+				Border: true,
+			},
+			{
+				Text: "Item",
+			},
+			{
+				Text: "Item",
+			},
+			{
+				Text: "Item",
+			},
+		})
+	} else {
+		sidebar.list_widget.SetItems(sidebar.sidebar_items)
+	}
+	adder.AddWidget(&sidebar.list_widget)
 	return nil
 }
 
 func (sidebar *Sidebar[T]) Layout(context *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	layouter.LayoutWidget(&sidebar.list_widget, widgetBounds.Bounds())
 }
 
-func (sidebar *Sidebar[T]) SetSidebarItems(items SidebarItem[T]) {
+func (sidebar *Sidebar[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+	return sidebar.list_widget.Measure(ctx, constraints)
+}
+
+func (sidebar *Sidebar[T]) Draw(context *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+}
+
+func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
 	// TODO: Finish this
-}
-
-func (sidebar *Sidebar[T]) SetPath(path string) {
-	sidebar.path_widget.SetTooltip("Path")
-	sidebar.path_widget.Widget().SetPath(path)
 }

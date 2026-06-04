@@ -92,22 +92,23 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rp.background)
 	padding := basic.NewPadding(basic.Gap(ctx), 0)
 
-	sidebar := rp.sidebar.Widget()
-	sidebar.SetItems(rp.sidebar_items)
+	//sidebar.SetItems(rp.sidebar_items)
 	rp.sidebar.SetPadding(padding)
 
-	sidebar.OnFolderCreate(func(ctx *gui.Context, folder_name string) {
-		rp.create_folder(rp.current_directory, folder_name)
-	})
+	/*
+		sidebar.OnFolderCreate(func(ctx *gui.Context, folder_name string) {
+			rp.create_folder(rp.current_directory, folder_name)
+		})
 
-	sidebar.OnItemClicked(func(item sidebar_item) {
-		if item.IsFolder {
-			return
-		}
+		sidebar.OnItemClicked(func(item sidebar_item) {
+			if item.IsFolder {
+				return
+			}
 
-		request := item.Data.(*requests_handler.Request)
-		rp.tabs_handler.Open(request, ctx)
-	})
+			request := item.Data.(*requests_handler.Request)
+			rp.tabs_handler.Open(request, ctx)
+		})
+	*/
 	adder.AddWidget(&rp.sidebar)
 
 	if rp.tabs_handler.IsEmpty() {
@@ -153,21 +154,23 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		adder.AddWidget(&rp.popup_widget)
 	}
 
-	sidebar.OnRequestCreate(func(ctx *gui.Context) {
-		//rp.request_create_widget.Clear()
-		rp.open_popup(&rp.request_create_widget, ctx)
-	})
-
 	/*
-	rp.request_create_widget.OnCreateButtonClicked(func(request *requests_handler.Request) {
-		rp.create_sidebar_item(request)
-		rp.popup_widget.SetOpen(false)
-	})
-	 */
+		sidebar.OnRequestCreate(func(ctx *gui.Context) {
+			//rp.request_create_widget.Clear()
+			rp.open_popup(&rp.request_create_widget, ctx)
+		})
+	*/
+	/*
+			rp.request_create_widget.OnCreateButtonClicked(func(request *requests_handler.Request) {
+				rp.create_sidebar_item(request)
+				rp.popup_widget.SetOpen(false)
+			})
 
-	rp.sidebar.Widget().OnVariableClicked(func(ctx *gui.Context) {
-		rp.open_popup(&rp.variable_panel_widget, ctx)
-	})
+
+		rp.sidebar.Widget().OnVariableClicked(func(ctx *gui.Context) {
+			rp.open_popup(&rp.variable_panel_widget, ctx)
+		})
+	*/
 	return nil
 }
 

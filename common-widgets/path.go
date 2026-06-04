@@ -224,6 +224,9 @@ func (path_widget *Path) SetPath(directory_path string) {
 	path_widget.path_widget.separator = make([]*icons.Icon, 0, l-1)
 
 	for i, path_name := range list {
+		if path_name == "" {
+			continue
+		}
 		path_widget.path_widget.segments = append(path_widget.path_widget.segments, path_segment_widget{
 			path_name:   path_name,
 			path_widget: &path_widget.path_widget,
