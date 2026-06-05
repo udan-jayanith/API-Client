@@ -41,7 +41,13 @@ func (r *Root) Build(context *gui.Context, adder *gui.ChildAdder) error {
 		{
 			Text: "Logs",
 		},
+		{
+			Text: "Dev",
+		},
 	})
+	popup := r.menubar_widget.PopupMenuAt(3)
+	popup.SetItemsByStrings([]string{"Start/End pprofing"})
+
 	adder.AddWidget(&r.menubar_widget)
 	adder.AddWidget(&r.request_page_widget)
 	adder.AddWidget(&message_model.MessageModel)
