@@ -124,3 +124,19 @@ func LineWidth(ctx *gui.Context) float32 {
 func LineColor(ctx *gui.Context) color.Color {
 	return draw_color.ScaleAlpha(draw_color.Color(ctx.ColorMode(), draw_color.ColorTypeBase, 0), 6/32.0)
 }
+
+func GetEnvMust[T any](ctx *gui.Context, widget gui.Widget, key gui.EnvKey) (T, bool) {
+	val, ok := ctx.Env(widget, key)
+	if !ok {
+		panic("Env value not found")
+	} else if val == nil {
+		var t T
+		return t, true
+	}
+	t, ok := val.(T)
+	if !ok {
+		var t T
+		return t, false
+	}
+	return t, true
+}

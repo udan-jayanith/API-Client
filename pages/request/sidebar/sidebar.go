@@ -17,7 +17,19 @@ type SidebarItem[T any] struct {
 
 var (
 	sidebar_item_contextmenu_env  gui.EnvKey = gui.GenerateEnvKey()
-	sidebar_item_rename_popup_env gui.EnvKey = gui.GenerateEnvKey()
+	sidebar_item_rename_popup_env            = gui.GenerateEnvKey()
+
+	on_item_rename_env = gui.GenerateEnvKey()
+	on_item_delete_env = gui.GenerateEnvKey()
+	path_env           = gui.GenerateEnvKey()
+)
+
+type (
+	OnItemRenameFunc[T any]  = func(ctx *gui.Context, path string, item SidebarItem[T], new_name string)
+	OnItemDeleteFunc[T any]  = func(ctx *gui.Context, path string, item SidebarItem[T])
+	OnFolderCreateFunc       = func(ctx *gui.Context, path string, folder_name string)
+	OnOpenVariablePanelFunc  = func(ctx *gui.Context)
+	OnCreateRequestPanelFunc = func(ctx *gui.Context, path string)
 )
 
 type Sidebar[T any] struct {
@@ -30,18 +42,27 @@ type Sidebar[T any] struct {
 	sidebar_header sidebar_header_widget
 	sidebar_items  []widget.ListItem[struct{}]
 	list_widget    widget.List[struct{}]
-	item           sidebar_item_widget[struct{}]
+	item           sidebar_item_widget[T]
 
-	on_sidebar_item_clicked func(ctx *gui.Context, sidebar_item SidebarItem[T])
-	on_sidebar_item_rename  func(ctx *gui.Context, sidebar_item SidebarItem[T], new_name string)
-	on_sidebar_item_delete  func(ctx *gui.Context, sidebar_item SidebarItem[T])
+	on_item_rename          OnItemRenameFunc[T]
+	on_item_delete          OnItemDeleteFunc[T]
+	on_folder_create        OnFolderCreateFunc
+	on_open_variable_panel  OnOpenVariablePanelFunc
+	on_create_request_panel OnCreateRequestPanelFunc
 }
 
 func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSource) (any, bool) {
-	if key == sidebar_item_contextmenu_env {
+	switch key {
+	case sidebar_item_contextmenu_env:
 		return &sidebar.sidebar_item_context_menu, true
-	} else if key == sidebar_item_rename_popup_env {
+	case sidebar_item_rename_popup_env:
 		return &sidebar.rename_item_menu, true
+	case on_item_rename_env:
+		return sidebar.on_item_rename, true
+	case on_item_delete_env:
+		return sidebar.on_item_delete, true
+	case path_env:
+		return sidebar.sidebar_header.Path(), true
 	}
 	return nil, false
 }
@@ -49,7 +70,7 @@ func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.Env
 func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	sidebar.list_widget.SetStyle(widget.ListStyleSidebar)
 	if len(sidebar.sidebar_items) == 0 {
-		sidebar.item.SetSideBarItem(SidebarItem[struct{}]{
+		sidebar.item.SetSideBarItem(SidebarItem[T]{
 			IconName: "search",
 			Text:     "Item",
 		})
@@ -92,10 +113,24 @@ func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
 	// TODO: Finish this
 }
 
-// OnItemRename
-// OnItemDelete
-// OnSearch
-// OnFolderCreate
-// on_variable_panel_click func(ctx *gui.Context)
-// on_create_request_click func(ctx *gui.Context)
-// on_folder_create
+func (sidebar *Sidebar[T]) OnItemRename(fn OnItemRenameFunc[T]) {
+	sidebar.on_item_rename = fn
+}
+
+func (sidebar *Sidebar[T]) OnItemDelete(fn OnItemDeleteFunc[T]) {
+	sidebar.on_item_delete = fn
+}
+
+func (sidebar *Sidebar[T]) OnFolderCreate(fn OnFolderCreateFunc) {
+	sidebar.on_folder_create = fn
+}
+
+func (sidebar *Sidebar[T]) OnOpenVariablePanel(fn OnOpenVariablePanelFunc) {
+	sidebar.on_open_variable_panel = fn
+}
+
+func (sidebar *Sidebar[T]) OnCreateRequestPanel(fn OnCreateRequestPanelFunc) {
+	sidebar.on_create_request_panel = fn
+}
+
+// TODO: add OnSearch

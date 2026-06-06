@@ -110,6 +110,9 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			rp.tabs_handler.Open(request, ctx)
 		})
 	*/
+	rp.sidebar.Widget().OnItemDelete(func(ctx *gui.Context, path string, item sidebar.SidebarItem[sidebar_item]) {
+		println(path, item.Text)
+	})
 	adder.AddWidget(&rp.sidebar)
 
 	if rp.tabs_handler.IsEmpty() {

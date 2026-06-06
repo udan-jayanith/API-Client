@@ -68,15 +68,21 @@ func (sd *sidebar_item_widget[T]) build_context_menu(ctx *gui.Context, adder *gu
 		sd.contextmenu_open = false
 	})
 	contextmenu_area.PopupMenu().OnItemSelected(func(ctx *gui.Context, index int) {
-		if index == 0 {
+		switch index {
+		case 0:
 			sd.rename_popup_open = true
 			popup := sd.rename_popup(ctx)
 			popup.SetOpen(true)
 			popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
 				sd.rename_popup_open = false
 			})
-			gui.RequestRedraw(sd)
 			popup.FocusInput(ctx)
+			gui.RequestRedraw(sd)
+		case 1:
+			on_delete, ok := basic.GetEnvMust[OnItemDeleteFunc[T]](ctx, sd, on_item_delete_env)
+			if ok && on_delete != nil {
+				on_delete(ctx, sd.path(ctx), sd.item())
+			}
 		}
 	})
 	adder.AddWidget(contextmenu_area)
@@ -99,6 +105,22 @@ func (sd *sidebar_item_widget[T]) rename_popup(ctx *gui.Context) *popup_skeleton
 	return popup
 }
 
+func (sd *sidebar_item_widget[T]) path(ctx *gui.Context) string {
+	path, ok := basic.GetEnvMust[string](ctx, sd, path_env)
+	if !ok {
+		panic("path_env failed")
+	}
+	return path
+}
+
+func (sd *sidebar_item_widget[T]) item() SidebarItem[T] {
+	return SidebarItem[T]{
+		Text:     sd.text_widget.Value(),
+		IconName: sd.icon_widget.IconName(),
+		Value:    sd.val,
+	}
+}
+
 func (sd *sidebar_item_widget[T]) build_rename_menu(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if !sd.rename_popup_open {
 		return nil
@@ -107,8 +129,11 @@ func (sd *sidebar_item_widget[T]) build_rename_menu(ctx *gui.Context, adder *gui
 	popup := sd.rename_popup(ctx)
 	popup.SetButtonText("Rename")
 	popup.SetHeading(fmt.Sprintf("Rename %s to:", sd.text_widget.Value()))
-	popup.OnResult(func(value string) {
-
+	popup.OnResult(func(new_name string) {
+		on_item_rename, ok := basic.GetEnvMust[OnItemRenameFunc[T]](ctx, sd, on_item_rename_env)
+		if ok && on_item_rename != nil {
+			on_item_rename(ctx, sd.path(ctx), sd.item(), new_name)
+		}
 	})
 	adder.AddWidget(popup)
 	return nil

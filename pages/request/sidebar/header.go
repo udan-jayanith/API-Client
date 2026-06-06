@@ -19,10 +19,6 @@ type sidebar_header_widget struct {
 	options               struct {
 		create_request_button, create_folder_button, variable_panel_button CommonWidgets.ButtonWithTooltip
 		request_icon, folder_icon, variable_icon                           *ebiten.Image
-
-		on_variable_panel_click func(ctx *gui.Context)
-		on_create_request_click func(ctx *gui.Context)
-		on_folder_create        func(ctx *gui.Context, folder_name, dir string)
 	}
 
 	search_bar                  CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
