@@ -42,7 +42,7 @@ func (content *popup_content) layout(ctx *gui.Context) gui.LinearLayout {
 					Items: []gui.LinearLayoutItem{
 						{
 							Widget: &content.input_widget,
-							Size:   gui.FlexibleSize(1),
+							Size:   gui.FixedSize(widget.UnitSize(ctx) * 8),
 						},
 						{
 							Widget: &content.button,
@@ -78,6 +78,9 @@ func (content *popup_content) SetHeading(heading string) {
 func (content *popup_content) Value() string {
 	return content.input_widget.Value()
 }
+func (content *popup_content) FocusInput(ctx *gui.Context) {
+	ctx.SetFocused(&content.input_widget, true)
+}
 
 // Adapted from gui ContextMenuArea
 type popup_skeleton_area struct {
@@ -96,6 +99,7 @@ func (c *popup_skeleton_area) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 				c.on_result(c.content.Value())
 			}
 		})
+		c.popup.SetCloseByClickingOutside(true)
 		c.popup.SetContent(&c.content)
 		adder.AddWidget(&c.popup)
 	}
@@ -105,7 +109,7 @@ func (c *popup_skeleton_area) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 }
 
 func (c *popup_skeleton_area) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	popup_size := c.popup.Measure(ctx, gui.Constraints{})
+	popup_size := c.content.Measure(ctx, gui.Constraints{})
 	b := widgetBounds.Bounds()
 	position := image.Pt(b.Min.X, b.Max.Y+basic.Gap(ctx))
 	layouter.LayoutWidget(&c.popup, image.Rectangle{
@@ -118,6 +122,10 @@ func (c *popup_skeleton_area) Measure(ctx *gui.Context, constraints gui.Constrai
 	// Returning zero keeps a ContextMenuArea from contributing an unexpected size when used as an item
 	// in a layout such as LinearLayout, which would otherwise pick up the inherited DefaultWidget size.
 	return image.Point{}
+}
+
+func (c *popup_skeleton_area) FocusInput(ctx *gui.Context) {
+	c.content.FocusInput(ctx)
 }
 
 func (c *popup_skeleton_area) SetOpen(open bool) {
@@ -134,6 +142,10 @@ func (c *popup_skeleton_area) SetHeading(heading string) {
 
 func (c *popup_skeleton_area) SetButtonText(text string) {
 	c.content.SetButtonText(text)
+}
+
+func (c *popup_skeleton_area) OnClose(f func(context *gui.Context, reason widget.PopupCloseReason)) {
+	c.popup.OnClose(f)
 }
 
 func (c *popup_skeleton_area) OnResult(fn func(value string)) {

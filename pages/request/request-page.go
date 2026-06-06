@@ -5,6 +5,7 @@ import (
 	CommonWidgets "Zbolt/common-widgets"
 	http_widget "Zbolt/pages/request/http"
 	requests_handler "Zbolt/pages/request/requests-handler"
+	"Zbolt/pages/request/sidebar"
 	websocket_widget "Zbolt/pages/request/websocket"
 
 	"image"
@@ -30,11 +31,11 @@ type RequestPage struct {
 
 	background widget.Background
 
-	sidebar gui.WidgetWithPadding[*Sidebar[sidebar_item]]
+	sidebar gui.WidgetWithPadding[*sidebar.Sidebar[sidebar_item]]
 
 	// made sidebar_items map[string][]SidebarItem[sidebar_item]
 	current_directory string
-	sidebar_items     []SidebarItem[sidebar_item]
+	sidebar_items     []sidebar.SidebarItem[sidebar_item]
 
 	tabs_handler   TabsHandler
 	nothing_widget nothing_widget
@@ -55,7 +56,7 @@ func (rp *RequestPage) create_sidebar_item(request *requests_handler.Request) {
 	request_container := sidebar_item{
 		Data: request,
 	}
-	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[sidebar_item]{
+	rp.sidebar_items = append(rp.sidebar_items, sidebar.SidebarItem[sidebar_item]{
 		IconName: request.Type.IconName(),
 		Text:     request.Name(),
 		Value:    request_container,
@@ -70,7 +71,7 @@ func (rp *RequestPage) create_folder(path string, name string) {
 		IsFolder: true,
 		Data:     &folder,
 	}
-	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[sidebar_item]{
+	rp.sidebar_items = append(rp.sidebar_items, sidebar.SidebarItem[sidebar_item]{
 		IconName: "folder",
 		Text:     folder.Name(),
 		Value:    request_container,

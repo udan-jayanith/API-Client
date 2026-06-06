@@ -25,7 +25,7 @@ type Sidebar[T any] struct {
 
 	add_folder_menu           widget.PopupMenu[struct{}]
 	sidebar_item_context_menu widget.ContextMenuArea[struct{}]
-	rename_item_menu          widget.PopupMenu[struct{}]
+	rename_item_menu          popup_skeleton_area
 
 	sidebar_header sidebar_header_widget
 	sidebar_items  []widget.ListItem[struct{}]
@@ -91,3 +91,11 @@ func (sidebar *Sidebar[T]) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds
 func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
 	// TODO: Finish this
 }
+
+// OnItemRename
+// OnItemDelete
+// OnSearch
+// OnFolderCreate
+// on_variable_panel_click func(ctx *gui.Context)
+// on_create_request_click func(ctx *gui.Context)
+// on_folder_create

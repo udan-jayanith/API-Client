@@ -3,6 +3,7 @@ package sidebar
 import (
 	"Zbolt/basic"
 	"Zbolt/icons"
+	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -24,7 +25,7 @@ type sidebar_item_widget[T any] struct {
 	contextmenu_area_cached *widget.ContextMenuArea[struct{}]
 
 	rename_popup_open   bool
-	rename_popup_cached *widget.Popup
+	rename_popup_cached *popup_skeleton_area
 }
 
 func (sd *sidebar_item_widget[T]) SetSideBarItem(sidebar_item SidebarItem[T]) {
@@ -69,14 +70,20 @@ func (sd *sidebar_item_widget[T]) build_context_menu(ctx *gui.Context, adder *gu
 	contextmenu_area.PopupMenu().OnItemSelected(func(ctx *gui.Context, index int) {
 		if index == 0 {
 			sd.rename_popup_open = true
+			popup := sd.rename_popup(ctx)
+			popup.SetOpen(true)
+			popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
+				sd.rename_popup_open = false
+			})
 			gui.RequestRedraw(sd)
+			popup.FocusInput(ctx)
 		}
 	})
 	adder.AddWidget(contextmenu_area)
 	return nil
 }
 
-func (sd *sidebar_item_widget[T]) rename_popup(ctx *gui.Context) *widget.Popup {
+func (sd *sidebar_item_widget[T]) rename_popup(ctx *gui.Context) *popup_skeleton_area {
 	if sd.rename_popup_cached != nil {
 		return sd.rename_popup_cached
 	}
@@ -84,7 +91,7 @@ func (sd *sidebar_item_widget[T]) rename_popup(ctx *gui.Context) *widget.Popup {
 	if !ok {
 		panic("Sitebar item rename popup not found")
 	}
-	popup, ok := val.(*widget.Popup)
+	popup, ok := val.(*popup_skeleton_area)
 	if !ok {
 		panic("Expected *widget.Popup\nBut got somthing else")
 	}
@@ -98,6 +105,11 @@ func (sd *sidebar_item_widget[T]) build_rename_menu(ctx *gui.Context, adder *gui
 	}
 
 	popup := sd.rename_popup(ctx)
+	popup.SetButtonText("Rename")
+	popup.SetHeading(fmt.Sprintf("Rename %s to:", sd.text_widget.Value()))
+	popup.OnResult(func(value string) {
+
+	})
 	adder.AddWidget(popup)
 	return nil
 }
@@ -125,6 +137,9 @@ func (sd *sidebar_item_widget[T]) Layout(ctx *gui.Context, widgetBounds *gui.Wid
 	b := widgetBounds.Bounds()
 	if sd.contextmenu_open {
 		layouter.LayoutWidget(sd.contextmenu_area(ctx), b)
+	}
+	if sd.rename_popup_open {
+		layouter.LayoutWidget(sd.rename_popup(ctx), b.Add(image.Pt(widget.UnitSize(ctx), 0)))
 	}
 
 	padding := sd.padding(ctx)
@@ -177,3 +192,7 @@ func (sd *sidebar_item_widget[T]) Draw(ctx *gui.Context, widgetBounds *gui.Widge
 		basicwidgetdraw.DrawRoundedRect(ctx, dst, widgetBounds.Bounds(), color.Alpha16{2505}, basic.BorderRadius(ctx))
 	}
 }
+
+// SidebarItem
+// call OnRename
+// call OnDelete
