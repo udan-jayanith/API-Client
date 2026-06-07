@@ -28,8 +28,7 @@ type (
 	OnItemRenameFunc[T any] = func(ctx *gui.Context, path string, item SidebarItem[T], new_name string)
 	OnItemDeleteFunc[T any] = func(ctx *gui.Context, path string, item SidebarItem[T])
 	OnFolderCreateFunc      = func(ctx *gui.Context, path string, folder_name string)
-	OnVariablePanelOpenFunc = func(ctx *gui.Context)
-	OnRequestPanelOpenFunc  = func(ctx *gui.Context, path string)
+	OnRequestItemCreateFunc = func(ctx *gui.Context, path string)
 )
 
 type Sidebar[T any] struct {
@@ -44,8 +43,8 @@ type Sidebar[T any] struct {
 	list_widget    widget.List[struct{}]
 	item           sidebar_item_widget[T]
 
-	on_item_rename          OnItemRenameFunc[T]
-	on_item_delete          OnItemDeleteFunc[T]
+	on_item_rename OnItemRenameFunc[T]
+	on_item_delete OnItemDeleteFunc[T]
 }
 
 func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSource) (any, bool) {
@@ -122,12 +121,8 @@ func (sidebar *Sidebar[T]) OnFolderCreate(fn OnFolderCreateFunc) {
 	sidebar.sidebar_header.OnFolderCreate(fn)
 }
 
-func (sidebar *Sidebar[T]) OnVariablePanelOpen(fn OnVariablePanelOpenFunc) {
-	sidebar.sidebar_header.OnVariableButtonClicked(fn)
-}
-
-func (sidebar *Sidebar[T]) OnRequestPanelOpen(fn OnRequestPanelOpenFunc) {
-	sidebar.sidebar_header.OnRequestPanelOpen(fn)
+func (sidebar *Sidebar[T]) OnRequestItemCreate(fn OnRequestItemCreateFunc) {
+	sidebar.sidebar_header.OnRequestItemCreate(fn)
 }
 
 // TODO: add OnSearch

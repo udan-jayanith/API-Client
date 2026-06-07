@@ -23,7 +23,7 @@ type sidebar_header_widget struct {
 		folder_create_popup popup_skeleton_area
 		on_folder_create    OnFolderCreateFunc
 
-		on_request_panel_open OnRequestPanelOpenFunc
+		on_request_item_create OnRequestItemCreateFunc
 	}
 
 	search_bar                  CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
@@ -167,14 +167,10 @@ func (header *sidebar_header_widget) SearchBarValue() string {
 	return header.search_bar.Widget().Value()
 }
 
-func (header *sidebar_header_widget) OnRequestPanelOpen(fn OnRequestPanelOpenFunc) {
-	header.options.on_request_panel_open = fn
+func (header *sidebar_header_widget) OnRequestItemCreate(fn OnRequestItemCreateFunc) {
+	header.options.on_request_item_create = fn
 }
 
 func (header *sidebar_header_widget) OnFolderCreate(fn OnFolderCreateFunc) {
 	header.options.on_folder_create = fn
-}
-
-func (header *sidebar_header_widget) OnVariableButtonClicked(fn OnVariablePanelOpenFunc) {
-	header.options.variable_panel_button.OnDown(fn)
 }
