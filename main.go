@@ -13,6 +13,7 @@ import (
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
 
+	globleenv "Zbolt/globle-env"
 	message_model "Zbolt/message-model"
 	home "Zbolt/pages/home"
 	request_page "Zbolt/pages/request"
@@ -24,8 +25,16 @@ type Root struct {
 	background     basicwidget.Background
 	menubar_widget basicwidget.Menubar[struct{}]
 
+	popup               basicwidget.Popup
 	welcome_page_widget home.HomePage
 	request_page_widget request_page.RequestPage
+}
+
+func (r *Root) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSource) (any, bool) {
+	if key == globleenv.Popup {
+		return &r.popup, true
+	}
+	return nil, false
 }
 
 func (r *Root) Build(context *gui.Context, adder *gui.ChildAdder) error {

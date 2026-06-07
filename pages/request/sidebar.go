@@ -38,7 +38,7 @@ type Sidebar[T any] struct {
 	sidebar_item_context_menu widget.ContextMenuArea[struct{}]
 	rename_item_menu          popup_skeleton_area
 
-	sidebar_header sidebar_header_widget
+	header sidebar_header_widget
 	sidebar_items  []widget.ListItem[struct{}]
 	list_widget    widget.List[struct{}]
 	item           sidebar_item_widget[T]
@@ -58,7 +58,7 @@ func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.Env
 	case on_item_delete_env:
 		return sidebar.on_item_delete, true
 	case path_env:
-		return sidebar.sidebar_header.Path(), true
+		return sidebar.header.Path(), true
 	}
 	return nil, false
 }
@@ -73,7 +73,7 @@ func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 		sidebar.list_widget.SetItems([]widget.ListItem[struct{}]{
 			{
 				Header:       true,
-				Content:      &sidebar.sidebar_header,
+				Content:      &sidebar.header,
 				Unselectable: true,
 			},
 			{
@@ -118,11 +118,11 @@ func (sidebar *Sidebar[T]) OnItemDelete(fn OnItemDeleteFunc[T]) {
 }
 
 func (sidebar *Sidebar[T]) OnFolderCreate(fn OnFolderCreateFunc) {
-	sidebar.sidebar_header.OnFolderCreate(fn)
+	sidebar.header.OnFolderCreate(fn)
 }
 
 func (sidebar *Sidebar[T]) OnRequestItemCreate(fn OnRequestItemCreateFunc) {
-	sidebar.sidebar_header.OnRequestItemCreate(fn)
+	sidebar.header.OnRequestItemCreate(fn)
 }
 
 // TODO: add OnSearch
