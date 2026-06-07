@@ -1,4 +1,4 @@
-package sidebar
+package request_page
 
 import (
 	"Zbolt/basic"
