@@ -59,6 +59,7 @@ func (u *URL) SetPath(path string) {
 	u.Path.Pattern.Attributes = []attr.Attribute{}
 }
 
+// TODO: Implement Io.Closer
 type HTTP_Data struct {
 	Method string `json:"method"` // HTTP method
 

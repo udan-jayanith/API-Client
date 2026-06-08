@@ -19,8 +19,7 @@ type sidebar_item struct {
 	item_type requests_handler.RequestType
 }
 
-//TODO: Close the response body of http when closing
-
+// TODO: Close the HTTP_Data.
 type RequestPage struct {
 	gui.DefaultWidget
 
@@ -40,7 +39,12 @@ type RequestPage struct {
 	}
 }
 
-// TODO: implement Env for path
+func (rp *RequestPage) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSource) (any, bool) {
+	if key == path_env {
+		return rp.sidebar.Path(), true
+	}
+	return nil, false
+}
 
 func (rp *RequestPage) on_item_create(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
 	item := sidebar_item{
@@ -79,6 +83,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	switch len(rp.tab_container_items) {
 	case 0:
+		rp.blank_widget.OnRequestItemCreate(rp.on_item_create)
 		adder.AddWidget(&rp.blank_widget)
 	default:
 		rp.tab_container.SetItems(rp.tab_container_items)

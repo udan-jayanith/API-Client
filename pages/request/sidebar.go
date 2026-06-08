@@ -147,5 +147,10 @@ func (sidebar *Sidebar[T]) OnRequestItemCreate(fn OnRequestItemCreateFunc) {
 	sidebar.header.OnRequestItemCreate(fn)
 }
 
+// Path returns the current directory path.
+func (sidebar *Sidebar[T]) Path() string {
+	return sidebar.header.Path()
+}
+
 // TODO: Hightlight sidebar item
 // TODO: add OnSearch
