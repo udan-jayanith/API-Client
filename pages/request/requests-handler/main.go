@@ -113,4 +113,5 @@ func NewFolder(path, name string) Folder {
 type FolderOrFile interface {
 	Path() string
 	Name() string
+	IsFolder() bool
 }

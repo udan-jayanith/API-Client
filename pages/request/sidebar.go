@@ -127,4 +127,5 @@ func (sidebar *Sidebar[T]) OnRequestItemCreate(fn OnRequestItemCreateFunc) {
 	sidebar.header.OnRequestItemCreate(fn)
 }
 
+// TODO: Hightlight sidebar item
 // TODO: add OnSearch
