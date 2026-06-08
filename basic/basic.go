@@ -129,9 +129,6 @@ func GetEnvMust[T any](ctx *gui.Context, widget gui.Widget, key gui.EnvKey) (T, 
 	val, ok := ctx.Env(widget, key)
 	if !ok {
 		panic("Env value not found")
-	} else if val == nil {
-		var t T
-		return t, true
 	}
 	t, ok := val.(T)
 	if !ok {

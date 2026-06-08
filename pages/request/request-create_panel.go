@@ -21,6 +21,7 @@ type request_create_panel struct {
 	enter_request_name widget.Text
 	request_name_input CommonWidgets.TextInputWithContextMenu
 	create             widget.Button
+	on_item_create     OnRequestItemCreateFunc
 }
 
 func (panel *request_create_panel) set_grid_items() {
@@ -54,6 +55,14 @@ func (panel *request_create_panel) set_grid_items() {
 	panel.grid_selector.SelectItemByIndex(index)
 }
 
+func (panel *request_create_panel) path(ctx *gui.Context) string {
+	path, ok := basic.GetEnvMust[string](ctx, panel, path_env)
+	if !ok {
+		panic("path_env failed")
+	}
+	return path
+}
+
 func (panel *request_create_panel) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	panel.select_request_type.SetValue("Select request type")
 	adder.AddWidget(&panel.select_request_type)
@@ -68,6 +77,18 @@ func (panel *request_create_panel) Build(ctx *gui.Context, adder *gui.ChildAdder
 
 	panel.create.SetText("Create")
 	panel.create.SetType(widget.ButtonTypePrimary)
+	panel.create.OnDown(func(context *gui.Context) {
+		defer panel.Clear()
+		if panel.on_item_create == nil {
+			return
+		}
+
+		item, ok := panel.grid_selector.SelectedItem()
+		if !ok {
+			panic("No items in grid select")
+		}
+		panel.on_item_create(ctx, panel.path(ctx), panel.request_name_input.Value(), item)
+	})
 	adder.AddWidget(&panel.create)
 	return nil
 }
@@ -140,16 +161,18 @@ func (panel *request_create_panel) Measure(ctx *gui.Context, constraints gui.Con
 		w -= panel.create.Measure(ctx, gui.Constraints{}).X
 		size.Y += panel.request_name_input.Measure(ctx, gui.FixedWidthConstraints(w)).Y
 		size.Y += basic.Gap(ctx) * 4
-		size.Y += padding.Bottom+padding.Top
+		size.Y += padding.Bottom + padding.Top
 	}
 
 	return size
 }
 
 func (panel *request_create_panel) Clear() {
-
+	panel.set_grid_items()
+	panel.grid_selector.SelectItemByIndex(0)
+	panel.request_name_input.SetValue("")
 }
 
-func (panel *request_create_panel) OnCreate(fn func(ctx *gui.Context, request_name string, request_type requests_handler.RequestType)) {
-	// TODO: also clear the content of this
+func (panel *request_create_panel) OnCreate(fn OnRequestItemCreateFunc) {
+	panel.on_item_create = fn
 }

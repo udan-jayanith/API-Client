@@ -4,6 +4,8 @@ import (
 	"Zbolt/basic"
 	"image"
 
+	requests_handler "Zbolt/pages/request/requests-handler"
+
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,7 +30,7 @@ type (
 	OnItemRenameFunc[T any] = func(ctx *gui.Context, path string, item SidebarItem[T], new_name string)
 	OnItemDeleteFunc[T any] = func(ctx *gui.Context, path string, item SidebarItem[T])
 	OnFolderCreateFunc      = func(ctx *gui.Context, path string, folder_name string)
-	OnRequestItemCreateFunc = func(ctx *gui.Context, path string)
+	OnRequestItemCreateFunc = func(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType)
 )
 
 type Sidebar[T any] struct {
@@ -38,10 +40,10 @@ type Sidebar[T any] struct {
 	sidebar_item_context_menu widget.ContextMenuArea[struct{}]
 	rename_item_menu          popup_skeleton_area
 
-	header sidebar_header_widget
-	sidebar_items  []widget.ListItem[struct{}]
-	list_widget    widget.List[struct{}]
-	item           sidebar_item_widget[T]
+	header        sidebar_header_widget
+	sidebar_items []widget.ListItem[struct{}]
+	list_widget   widget.List[struct{}]
+	item          sidebar_item_widget[T]
 
 	on_item_rename OnItemRenameFunc[T]
 	on_item_delete OnItemDeleteFunc[T]
