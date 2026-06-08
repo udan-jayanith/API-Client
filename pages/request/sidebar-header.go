@@ -107,6 +107,11 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 
 	header.options.variable_panel_button.SetTooltip("Open variable panel")
 	header.options.variable_panel_button.SetIcon(header.options.variable_icon)
+	header.options.variable_panel_button.OnDown(func(context *gui.Context) {
+		header.setup_popup()
+		header.set_popup_content(&header.options.variable_panel)
+		header.popup.SetOpen(true)
+	})
 	adder.AddWidget(&header.options.variable_panel_button)
 
 	header.search_bar.SetTooltip("Search bar")
