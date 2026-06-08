@@ -27,7 +27,7 @@ type tab_item struct {
 
 	index          int
 	tab_item       TabItem
-	tabs_container *tabs_container // tabs_container is the tab container
+	tabs_container *tab_bar // tabs_container is the tab container
 
 	text_widget widget.Text
 	close_icon  icons.Icon

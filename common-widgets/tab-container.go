@@ -40,20 +40,20 @@ func (widget *TabContainer) SelectTab(index int) {
 	widget.tab.SelectTab(index)
 }
 
-func (widget *TabContainer) SelectTabByValue(value string) bool {
-	panic("Not implemented")
-}
-
 func (widget *TabContainer) OnSelect(fn func(item TabItem, index int)) {
 	widget.on_select = fn
 }
 
-func (widget *TabContainer) OnClose() {
-	panic("Not implemented")
+func (widget *TabContainer) OnClose(fn func(closed TabItemContainer)) {
+	widget.tab.OnClose(fn)
 }
 
-func (widget *TabContainer) Closable(closable bool) {
-	panic("Not implemented")
+func (widget *TabContainer) SetClosable(closable bool) {
+	widget.tab.SetClosable(closable)
+}
+
+func (widget *TabContainer) OnSwap(fn func(from TabItemContainer, to TabItemContainer)) {
+	widget.tab.OnSwap(fn)
 }
 
 func (widget *TabContainer) SetItems(items []TabContainerItem) {

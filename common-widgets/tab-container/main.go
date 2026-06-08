@@ -21,6 +21,8 @@ type Root struct {
 	text   basicwidget.Text
 	button basicwidget.Button
 	toggle basicwidget.Toggle
+
+	is_set bool
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
@@ -29,28 +31,38 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 	r.text.SetValue("Hello world")
 	r.button.SetText("Button")
-	r.tab_container.SetItems([]CommonWidgets.TabContainerItem{
-		{
-			TabItem: CommonWidgets.TabItem{
-				Text:  "text",
-				Value: "text",
+	if !r.is_set {
+		r.tab_container.SetItems([]CommonWidgets.TabContainerItem{
+			{
+				TabItem: CommonWidgets.TabItem{
+					Text:  "text",
+					Value: "text",
+				},
+				Widget: &r.text,
 			},
-			Widget: &r.text,
-		},
-		{
-			TabItem: CommonWidgets.TabItem{
-				Text:  "button",
-				Value: "btn",
+			{
+				TabItem: CommonWidgets.TabItem{
+					Text:  "button",
+					Value: "btn",
+				},
+				Widget: &r.button,
 			},
-			Widget: &r.button,
-		},
-		{
-			TabItem: CommonWidgets.TabItem{
-				Text:  "toggle",
-				Value: "toggle",
+			{
+				TabItem: CommonWidgets.TabItem{
+					Text:  "toggle",
+					Value: "toggle",
+				},
+				Widget: &r.toggle,
 			},
-			Widget: &r.toggle,
-		},
+		})
+		r.is_set = true
+	}
+	r.tab_container.SetClosable(true)
+	r.tab_container.OnClose(func(closed CommonWidgets.TabItemContainer) {
+		println("closed", closed.Item.Text)
+	})
+	r.tab_container.OnSwap(func(from, to CommonWidgets.TabItemContainer) {
+		println("swaped")
 	})
 	adder.AddWidget(&r.tab_container)
 	return nil
