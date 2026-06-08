@@ -9,6 +9,7 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 //TODO: Close the response body when closing
@@ -35,6 +36,7 @@ type RequestPage struct {
 // TODO: implement Env for path
 
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&rp.background)
 
 	rp.sidebar.SetSidebarItems(rp.sidebar_items)
@@ -64,6 +66,15 @@ func (rp *RequestPage) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, 
 		},
 	}
 
+	w := ctx.AppBounds().Dx()
+	if w > 1200 {
+		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 10)
+	}else if w > 1400 {
+		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 12)
+	}else if w > 1500 {
+		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 14)
+	}
+
 	switch len(rp.tab_container_items) {
 	case 0:
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
@@ -76,4 +87,5 @@ func (rp *RequestPage) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, 
 			Size:   gui.FlexibleSize(1),
 		})
 	}
+	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
