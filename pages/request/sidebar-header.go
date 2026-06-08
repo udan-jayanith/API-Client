@@ -31,7 +31,7 @@ type sidebar_header_widget struct {
 		variable_panel variable_panel_widget
 	}
 
-	search_bar                  CommonWidgets.WidgetWithTooltip[*CommonWidgets.TextInputWithContextMenu]
+	search_bar                  CommonWidgets.TextInputWithContextMenu
 	search_icon                 *ebiten.Image
 	on_search_bar_value_changed func(ctx *gui.Context, value string)
 
@@ -114,11 +114,11 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 	})
 	adder.AddWidget(&header.options.variable_panel_button)
 
-	header.search_bar.SetTooltip("Search bar")
 	if header.search_icon == nil {
 		header.search_icon = icons.Store.Open("search")
 	}
-	header.search_bar.Widget().SetIcon(header.search_icon)
+	header.search_bar.SetIcon(header.search_icon)
+	header.search_bar.SetPlaceholder("Search")
 	adder.AddWidget(&header.search_bar)
 
 	if header.popup.IsOpen() {
@@ -221,15 +221,15 @@ func (header *sidebar_header_widget) OnPathChanged(fn func(ctx *gui.Context, pat
 }
 
 func (header *sidebar_header_widget) OnSearchBarValueChanged(fn func(context *gui.Context, text string, committed bool)) {
-	header.search_bar.Widget().OnValueChanged(fn)
+	header.search_bar.OnValueChanged(fn)
 }
 
 func (header *sidebar_header_widget) SetSearchBarValue(value string) {
-	header.search_bar.Widget().SetValue(value)
+	header.search_bar.SetValue(value)
 }
 
 func (header *sidebar_header_widget) SearchBarValue() string {
-	return header.search_bar.Widget().Value()
+	return header.search_bar.Value()
 }
 
 func (header *sidebar_header_widget) OnRequestItemCreate(fn OnRequestItemCreateFunc) {

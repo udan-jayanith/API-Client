@@ -35,7 +35,7 @@ func (nw *nothing_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 func (nw *nothing_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	icon_size := nw.icon.Size()
-	b := ctx.AppBounds()
+	b := widgetBounds.Bounds()
 	b.Min.Y = (b.Min.Y + b.Dy()/2) - (icon_size.Y / 2)
 	b.Max.Y = b.Min.Y + icon_size.Y
 
