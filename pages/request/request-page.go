@@ -37,7 +37,7 @@ type RequestPage struct {
 	sidebar_items     []SidebarItem[sidebar_item]
 
 	tabs_handler   TabsHandler
-	nothing_widget nothing_widget
+	nothing_widget blank_widget
 
 	request_widget   CommonWidgets.WidgetWithPadding[requests_handler.RequestWidget]
 	http_widget      http_widget.HTTP_Widget
@@ -115,10 +115,6 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rp.sidebar)
 
 	if rp.tabs_handler.IsEmpty() {
-		rp.nothing_widget.OnClick(func() {
-			//rp.request_create_widget.Clear()
-			rp.open_popup(&rp.request_create_widget, ctx)
-		})
 		adder.AddWidget(&rp.nothing_widget)
 	} else {
 		rp.tabs_handler.Add(adder)

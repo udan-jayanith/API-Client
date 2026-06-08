@@ -67,9 +67,6 @@ func (header *sidebar_header_widget) set_popup_content(content gui.Widget) {
 
 func (header *sidebar_header_widget) on_request_panel_btn_clicked(ctx *gui.Context) {
 	header.setup_popup()
-	header.popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
-		header.options.request_create_panel.Clear()
-	})
 	header.options.request_create_panel.OnCreate(func(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
 		println(request_name, path)
 		if header.options.on_request_item_create != nil {
@@ -122,6 +119,9 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 	adder.AddWidget(&header.search_bar)
 
 	if header.popup.IsOpen() {
+		header.popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
+			header.options.request_create_panel.Clear()
+		})
 		adder.AddWidget(&header.popup)
 	}
 	return nil
