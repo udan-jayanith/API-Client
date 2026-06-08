@@ -49,6 +49,7 @@ func (header *sidebar_header_widget) on_folder_create_btn_clicked(ctx *gui.Conte
 	})
 	header.options.folder_create_popup.SetButtonText("Create")
 	header.options.folder_create_popup.SetHeading("Enter the folder name:")
+	header.options.folder_create_popup.SetValue("")
 }
 
 func (header *sidebar_header_widget) setup_popup() {
@@ -68,7 +69,6 @@ func (header *sidebar_header_widget) set_popup_content(content gui.Widget) {
 func (header *sidebar_header_widget) on_request_panel_btn_clicked(ctx *gui.Context) {
 	header.setup_popup()
 	header.options.request_create_panel.OnCreate(func(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
-		println(request_name, path)
 		if header.options.on_request_item_create != nil {
 			header.options.on_request_item_create(ctx, path, request_name, request_type)
 		}
@@ -121,6 +121,9 @@ func (header *sidebar_header_widget) Build(ctx *gui.Context, adder *gui.ChildAdd
 	if header.popup.IsOpen() {
 		header.popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
 			header.options.request_create_panel.Clear()
+		})
+		header.options.folder_create_popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
+			header.options.folder_create_popup.SetValue("")
 		})
 		adder.AddWidget(&header.popup)
 	}

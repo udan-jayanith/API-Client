@@ -40,10 +40,9 @@ type Sidebar[T any] struct {
 	sidebar_item_context_menu widget.ContextMenuArea[struct{}]
 	rename_item_menu          popup_skeleton_area
 
-	header        sidebar_header_widget
-	sidebar_items []widget.ListItem[struct{}]
-	list_widget   widget.List[struct{}]
-	item          sidebar_item_widget[T]
+	header      sidebar_header_widget
+	items       []widget.ListItem[struct{}]
+	list_widget widget.List[struct{}]
 
 	on_item_rename OnItemRenameFunc[T]
 	on_item_delete OnItemDeleteFunc[T]
@@ -65,30 +64,14 @@ func (sidebar *Sidebar[T]) Env(ctx *gui.Context, key gui.EnvKey, source *gui.Env
 	return nil, false
 }
 
+func (sidebar *Sidebar[T]) list_items() []widget.ListItem[struct{}] {
+	sidebar.sidebar_items()
+	return sidebar.items
+}
+
 func (sidebar *Sidebar[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	sidebar.list_widget.SetStyle(widget.ListStyleSidebar)
-	if len(sidebar.sidebar_items) == 0 {
-		sidebar.item.SetSideBarItem(SidebarItem[T]{
-			IconName: "search",
-			Text:     "Item",
-		})
-		sidebar.list_widget.SetItems([]widget.ListItem[struct{}]{
-			{
-				Header:       true,
-				Content:      &sidebar.header,
-				Unselectable: true,
-			},
-			{
-				Border: true,
-			},
-			{
-				Content: &sidebar.item,
-				Padding: basic.NewPadding(0),
-			},
-		})
-	} else {
-		sidebar.list_widget.SetItems(sidebar.sidebar_items)
-	}
+	sidebar.list_widget.SetItems(sidebar.list_items())
 	adder.AddWidget(&sidebar.list_widget)
 	return nil
 }
@@ -107,8 +90,45 @@ func (sidebar *Sidebar[T]) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds
 	vector.StrokeLine(dst, float32(b.Max.X), float32(b.Min.Y), float32(b.Max.X), float32(b.Max.Y), basic.LineWidth(ctx), basic.LineColor(ctx), false)
 }
 
+func (sidebar *Sidebar[T]) sidebar_items() []widget.ListItem[struct{}] {
+	if len(sidebar.items) == 0 {
+		sidebar.items = []widget.ListItem[struct{}]{
+			{
+				Header:       true,
+				Content:      &sidebar.header,
+				Unselectable: true,
+			},
+			{
+				Border: true,
+			},
+		}
+	}
+	return sidebar.items[2:]
+}
+
+func (sidebar *Sidebar[T]) update_sidebar_items(items []SidebarItem[T]) {
+	sidebar_items := sidebar.sidebar_items()
+	for i := range sidebar_items {
+		if sidebar_items[i].Content == nil {
+			sidebar_items[i].Content = &sidebar_item_widget[T]{}
+		}
+
+		item_widget := sidebar_items[i].Content.(*sidebar_item_widget[T])
+		item_widget.SetSideBarItem(items[i])
+	}
+}
+
 func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
-	// TODO: Finish this
+	sidebar_items := sidebar.sidebar_items()
+	l := len(sidebar_items)
+	if l > len(items) {
+		sidebar_items = sidebar_items[:len(items)]
+	} else if l < len(items) {
+		diff := len(items) - l
+		list := make([]widget.ListItem[struct{}], diff)
+		sidebar.items = append(sidebar.items, list...)
+	}
+	sidebar.update_sidebar_items(items)
 }
 
 func (sidebar *Sidebar[T]) OnItemRename(fn OnItemRenameFunc[T]) {

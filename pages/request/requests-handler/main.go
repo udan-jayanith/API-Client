@@ -109,9 +109,3 @@ func NewFolder(path, name string) Folder {
 		path: filepath.Join(path, name),
 	}
 }
-
-type FolderOrFile interface {
-	Path() string
-	Name() string
-	IsFolder() bool
-}

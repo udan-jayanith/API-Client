@@ -82,6 +82,10 @@ func (content *popup_content) FocusInput(ctx *gui.Context) {
 	ctx.SetFocused(&content.input_widget, true)
 }
 
+func (content *popup_content) SetValue(text string) {
+	content.input_widget.SetValue(text)
+}
+
 // Adapted from gui ContextMenuArea
 type popup_skeleton_area struct {
 	gui.DefaultWidget
@@ -100,10 +104,10 @@ func (c *popup_skeleton_area) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 			}
 		})
 		c.popup.SetCloseByClickingOutside(true)
+		c.popup.SetModal(false)
 		c.popup.SetContent(&c.content)
 		adder.AddWidget(&c.popup)
 	}
-	c.popup.SetModal(false)
 	ctx.SetButtonInputReceptive(c, c.popup.IsOpen())
 	return nil
 }
@@ -150,4 +154,8 @@ func (c *popup_skeleton_area) OnClose(f func(context *gui.Context, reason widget
 
 func (c *popup_skeleton_area) OnResult(fn func(value string)) {
 	c.on_result = fn
+}
+
+func (c *popup_skeleton_area) SetValue(text string) {
+	c.content.SetValue(text)
 }
