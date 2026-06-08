@@ -20,7 +20,7 @@ type TabContainer struct {
 	selected_widget gui.Widget
 	tab_items       []TabItem
 	on_select       func(item TabItem, index int)
-	widgets         map[string]gui.Widget
+	widgets         []gui.Widget
 }
 
 func (widget *TabContainer) Count() int {
@@ -32,7 +32,7 @@ func (widget *TabContainer) SelectedTabContainer() (TabContainerItem, int) {
 
 	index, item := widget.tab.SelectedTab()
 	container.TabItem = item
-	container.Widget = widget.widgets[item.Value]
+	container.Widget = widget.widgets[index]
 	return container, index
 }
 
@@ -58,15 +58,15 @@ func (widget *TabContainer) Closable(closable bool) {
 
 func (widget *TabContainer) SetItems(items []TabContainerItem) {
 	widget.tab_items = make([]TabItem, 0, len(items))
-	widget.widgets = make(map[string]gui.Widget, len(items))
+	widget.widgets = make([]gui.Widget, 0, len(items))
 
 	for _, item := range items {
 		widget.tab_items = append(widget.tab_items, item.TabItem)
-		widget.widgets[item.TabItem.Value] = item.Widget
+		widget.widgets = append(widget.widgets, item.Widget)
 	}
 
 	widget.tab.OnSelect(func(from, to TabItemContainer, by_user bool) {
-		widget.selected_widget = widget.widgets[to.Item.Value]
+		widget.selected_widget = widget.widgets[to.Index]
 		if widget.on_select != nil {
 			widget.on_select(to.Item, to.Index)
 		}
@@ -107,7 +107,7 @@ func (widget *TabContainer) get_selected_widget() gui.Widget {
 		panic("Tab items must be set")
 	}
 
-	return widget.widgets[widget.tab_items[0].Value]
+	return widget.widgets[0]
 }
 
 func (widget *TabContainer) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
