@@ -73,9 +73,7 @@ func (sd *sidebar_item_widget[T]) build_context_menu(ctx *gui.Context, adder *gu
 			sd.rename_popup_open = true
 			popup := sd.rename_popup(ctx)
 			popup.SetOpen(true)
-			popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
-				sd.rename_popup_open = false
-			})
+			popup.SetValue("")
 			popup.FocusInput(ctx)
 			gui.RequestRedraw(sd)
 		case 1:
@@ -134,6 +132,9 @@ func (sd *sidebar_item_widget[T]) build_rename_menu(ctx *gui.Context, adder *gui
 		if ok && on_item_rename != nil {
 			on_item_rename(ctx, sd.path(ctx), sd.item(), new_name)
 		}
+	})
+	popup.OnClose(func(context *gui.Context, reason widget.PopupCloseReason) {
+		sd.rename_popup_open = false
 	})
 	adder.AddWidget(popup)
 	return nil

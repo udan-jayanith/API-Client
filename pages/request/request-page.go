@@ -6,7 +6,6 @@ import (
 	http_widget "Zbolt/pages/request/http"
 	requests_handler "Zbolt/pages/request/requests-handler"
 	websocket_widget "Zbolt/pages/request/websocket"
-	"path/filepath"
 	"slices"
 
 	gui "github.com/guigui-gui/guigui"
@@ -42,7 +41,7 @@ func (rp *RequestPage) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSour
 }
 
 func (rp *RequestPage) on_item_create(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
-	item := requests_handler.NewRequest(request_type, filepath.Join(path, request_name))
+	item := requests_handler.NewRequest(request_type, path, request_name)
 	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[requests_handler.Item]{
 		Text:     item.Name(),
 		IconName: request_type.IconName(),
@@ -59,7 +58,7 @@ func (rp *RequestPage) on_folder_create(ctx *gui.Context, path string, folder_na
 	})
 }
 
-func (rp *RequestPage) on_item_delete(ctx *gui.Context, path string, item SidebarItem[requests_handler.Item]) {
+func (rp *RequestPage) find_item_index(item SidebarItem[requests_handler.Item]) int {
 	var index int
 	for i, sidebar_item := range rp.sidebar_items {
 		if sidebar_item.Value.Name() == item.Value.Name() {
@@ -67,7 +66,18 @@ func (rp *RequestPage) on_item_delete(ctx *gui.Context, path string, item Sideba
 			break
 		}
 	}
-	rp.sidebar_items = slices.Delete(rp.sidebar_items, index, index+1)
+	return index
+}
+
+func (rp *RequestPage) on_item_delete(ctx *gui.Context, path string, item SidebarItem[requests_handler.Item]) {
+	i := rp.find_item_index(item)
+	rp.sidebar_items = slices.Delete(rp.sidebar_items, i, i+1)
+}
+
+func (rp *RequestPage) on_item_rename(ctx *gui.Context, path string, item SidebarItem[requests_handler.Item], new_name string) {
+	i := rp.find_item_index(item)
+	rp.sidebar_items[i].Value.Rename(new_name)
+	rp.sidebar_items[i].Text = rp.sidebar_items[i].Value.Name()
 }
 
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -77,6 +87,8 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	rp.sidebar.OnRequestItemCreate(rp.on_item_create)
 	rp.sidebar.OnFolderCreate(rp.on_folder_create)
 	rp.sidebar.OnItemDelete(rp.on_item_delete)
+	rp.sidebar.OnItemRename(rp.on_item_rename)
+
 	rp.sidebar.SetSidebarItems(rp.sidebar_items)
 	adder.AddWidget(&rp.sidebar)
 

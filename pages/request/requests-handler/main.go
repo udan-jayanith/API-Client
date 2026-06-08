@@ -49,15 +49,21 @@ func (r *Request) Path() string {
 	return r.path
 }
 
+func (r *Request) Rename(name string) error {
+	path := filepath.Dir(r.path)
+	r.path = filepath.Join(path, name)
+	return nil
+}
+
 // Clear deletes the data in RAM
 func (r *Request) Close() error {
 	return nil
 }
 
-func NewRequest(t RequestType, path string) *Request {
+func NewRequest(t RequestType, path, name string) *Request {
 	req := Request{
 		Type: t,
-		path: path,
+		path: filepath.Join(path, name),
 	}
 	if t == HTTP {
 		data := HTTP_Data{}
@@ -97,6 +103,12 @@ func (r *Folder) Name() string {
 	return filepath.Base(r.path)
 }
 
+func (r *Folder) Rename(name string) error {
+	path := filepath.Dir(r.path)
+	r.path = filepath.Join(path, name)
+	return nil
+}
+
 func NewFolder(path, name string) *Folder {
 	return &Folder{
 		path: filepath.Join(path, name),
@@ -106,6 +118,7 @@ func NewFolder(path, name string) *Folder {
 type Item interface {
 	Path() string
 	Name() string
+	Rename(name string) error
 }
 
 type RequestWidget interface {
