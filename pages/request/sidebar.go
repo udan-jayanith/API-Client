@@ -122,7 +122,8 @@ func (sidebar *Sidebar[T]) SetSidebarItems(items []SidebarItem[T]) {
 	sidebar_items := sidebar.sidebar_items()
 	l := len(sidebar_items)
 	if l > len(items) {
-		sidebar_items = sidebar_items[:len(items)]
+		sidebar.items = sidebar.items[:2]
+		sidebar.items = append(sidebar.items, sidebar_items[:len(items)]...)
 	} else if l < len(items) {
 		diff := len(items) - l
 		list := make([]widget.ListItem[struct{}], diff)

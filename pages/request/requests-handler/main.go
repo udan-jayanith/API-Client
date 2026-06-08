@@ -41,20 +41,20 @@ func (r *Request) Data() any {
 	return r.data
 }
 
-func (r *Request) Path() string {
-	return r.path
-}
-
 func (r *Request) Name() string {
 	return filepath.Base(r.path)
 }
 
-// Clear deletes the data in RAM
-func (r *Request) Clear() {
-
+func (r *Request) Path() string {
+	return r.path
 }
 
-func NewRequest(t RequestType, path string) Request {
+// Clear deletes the data in RAM
+func (r *Request) Close() error {
+	return nil
+}
+
+func NewRequest(t RequestType, path string) *Request {
 	req := Request{
 		Type: t,
 		path: path,
@@ -82,14 +82,7 @@ func NewRequest(t RequestType, path string) Request {
 		}
 		req.data = &data
 	}
-	return req
-}
-
-type RequestWidget interface {
-	gui.Widget
-	RequestType() RequestType
-	SetReq(req *Request)
-	SyncData()
+	return &req
 }
 
 type Folder struct {
@@ -104,8 +97,20 @@ func (r *Folder) Name() string {
 	return filepath.Base(r.path)
 }
 
-func NewFolder(path, name string) Folder {
-	return Folder{
+func NewFolder(path, name string) *Folder {
+	return &Folder{
 		path: filepath.Join(path, name),
 	}
+}
+
+type Item interface {
+	Path() string
+	Name() string
+}
+
+type RequestWidget interface {
+	gui.Widget
+	RequestType() RequestType
+	SetReq(req *Request)
+	SyncData()
 }

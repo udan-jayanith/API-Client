@@ -6,18 +6,13 @@ import (
 	http_widget "Zbolt/pages/request/http"
 	requests_handler "Zbolt/pages/request/requests-handler"
 	websocket_widget "Zbolt/pages/request/websocket"
+	"path/filepath"
+	"slices"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
 )
-
-type sidebar_item struct {
-	path      string
-	name      string
-	is_folder bool
-	item_type requests_handler.RequestType
-}
 
 // TODO: Close the HTTP_Data.
 type RequestPage struct {
@@ -25,8 +20,8 @@ type RequestPage struct {
 
 	background widget.Background
 
-	sidebar       Sidebar[sidebar_item]
-	sidebar_items []SidebarItem[sidebar_item]
+	sidebar       Sidebar[requests_handler.Item]
+	sidebar_items []SidebarItem[requests_handler.Item]
 
 	tab_container       CommonWidgets.TabContainer
 	tab_container_items []CommonWidgets.TabContainerItem
@@ -47,29 +42,32 @@ func (rp *RequestPage) Env(ctx *gui.Context, key gui.EnvKey, source *gui.EnvSour
 }
 
 func (rp *RequestPage) on_item_create(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
-	item := sidebar_item{
-		path:      path,
-		name:      request_name,
-		item_type: request_type,
-	}
-	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[sidebar_item]{
-		Text:     item.name,
-		IconName: item.item_type.IconName(),
+	item := requests_handler.NewRequest(request_type, filepath.Join(path, request_name))
+	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[requests_handler.Item]{
+		Text:     item.Name(),
+		IconName: request_type.IconName(),
 		Value:    item,
 	})
 }
 
 func (rp *RequestPage) on_folder_create(ctx *gui.Context, path string, folder_name string) {
-	item := sidebar_item{
-		path:      path,
-		name:      folder_name,
-		is_folder: true,
-	}
-	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[sidebar_item]{
-		Text:     item.name,
+	item := requests_handler.NewFolder(path, folder_name)
+	rp.sidebar_items = append(rp.sidebar_items, SidebarItem[requests_handler.Item]{
+		Text:     item.Name(),
 		IconName: "folder",
 		Value:    item,
 	})
+}
+
+func (rp *RequestPage) on_item_delete(ctx *gui.Context, path string, item SidebarItem[requests_handler.Item]) {
+	var index int
+	for i, sidebar_item := range rp.sidebar_items {
+		if sidebar_item.Value.Name() == item.Value.Name() {
+			index = i
+			break
+		}
+	}
+	rp.sidebar_items = slices.Delete(rp.sidebar_items, index, index+1)
 }
 
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -78,6 +76,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	rp.sidebar.OnRequestItemCreate(rp.on_item_create)
 	rp.sidebar.OnFolderCreate(rp.on_folder_create)
+	rp.sidebar.OnItemDelete(rp.on_item_delete)
 	rp.sidebar.SetSidebarItems(rp.sidebar_items)
 	adder.AddWidget(&rp.sidebar)
 
@@ -106,14 +105,11 @@ func (rp *RequestPage) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, 
 		},
 	}
 
-	w := ctx.AppBounds().Dx()
-	if w > 1200 {
-		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 10)
-	} else if w > 1400 {
-		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 12)
-	} else if w > 1500 {
-		layout.Items[0].Size = gui.FixedSize(widget.UnitSize(ctx) * 14)
+	w := ctx.AppBounds().Dx() / 5
+	if w <= 260 {
+		w = widget.UnitSize(ctx) * 8
 	}
+	layout.Items[0].Size = gui.FixedSize(w)
 
 	switch len(rp.tab_container_items) {
 	case 0:
