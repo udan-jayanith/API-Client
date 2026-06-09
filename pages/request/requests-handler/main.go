@@ -126,4 +126,5 @@ type RequestWidget interface {
 	RequestType() RequestType
 	SetReq(req *Request)
 	SyncData()
+	Close() error
 }

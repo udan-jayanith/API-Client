@@ -153,5 +153,12 @@ func (sidebar *Sidebar[T]) Path() string {
 	return sidebar.header.Path()
 }
 
-// TODO: Hightlight sidebar item
-// TODO: add OnSearch
+func (sidebar *Sidebar[T]) OnItemSelect(f func(ctx *gui.Context, index int)) {
+	sidebar.list_widget.OnItemSelected(func(ctx *gui.Context, index int) {
+		f(ctx, index-2)
+	})
+}
+
+func (sidebar *Sidebar[T]) SelectItemByIndex(index int) {
+	sidebar.list_widget.SelectItemByIndex(index + 2)
+}

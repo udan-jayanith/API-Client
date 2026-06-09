@@ -3,6 +3,7 @@ package request_page
 import (
 	"Zbolt/basic"
 	CommonWidgets "Zbolt/common-widgets"
+	"Zbolt/icons"
 	http_widget "Zbolt/pages/request/http"
 	requests_handler "Zbolt/pages/request/requests-handler"
 	websocket_widget "Zbolt/pages/request/websocket"
@@ -80,6 +81,22 @@ func (rp *RequestPage) on_item_rename(ctx *gui.Context, path string, item Sideba
 	rp.sidebar_items[i].Text = rp.sidebar_items[i].Value.Name()
 }
 
+func (rp *RequestPage) on_item_select(ctx *gui.Context, index int) {
+	item := rp.sidebar_items[index]
+	_, ok := item.Value.(*requests_handler.Folder)
+	if ok {
+		return
+	}
+	icon := icons.Icon{}
+	icon.SetIcon(item.IconName)
+	rp.tab_container_items = append(rp.tab_container_items, CommonWidgets.TabContainerItem{
+		TabItem: CommonWidgets.TabItem{
+			Text: item.Value.Name(),
+			Icon: &icon,
+		},
+	})
+}
+
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&rp.background)
@@ -88,6 +105,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	rp.sidebar.OnFolderCreate(rp.on_folder_create)
 	rp.sidebar.OnItemDelete(rp.on_item_delete)
 	rp.sidebar.OnItemRename(rp.on_item_rename)
+	rp.sidebar.OnItemSelect(rp.on_item_select)
 
 	rp.sidebar.SetSidebarItems(rp.sidebar_items)
 	adder.AddWidget(&rp.sidebar)
@@ -98,6 +116,7 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		adder.AddWidget(&rp.blank_widget)
 	default:
 		rp.tab_container.SetItems(rp.tab_container_items)
+		rp.tab_container.SetClosable(true)
 		adder.AddWidget(&rp.tab_container)
 	}
 	return nil
