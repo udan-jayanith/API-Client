@@ -154,11 +154,31 @@ func (sidebar *Sidebar[T]) Path() string {
 }
 
 func (sidebar *Sidebar[T]) OnItemSelect(f func(ctx *gui.Context, index int)) {
+	sidebar.sidebar_items()
 	sidebar.list_widget.OnItemSelected(func(ctx *gui.Context, index int) {
-		f(ctx, index-2)
+		if index < 0 {
+			f(ctx, index)
+		} else {
+			f(ctx, index-2)
+		}
 	})
 }
 
 func (sidebar *Sidebar[T]) SelectItemByIndex(index int) {
-	sidebar.list_widget.SelectItemByIndex(index + 2)
+	sidebar.sidebar_items()
+	if index < 0 {
+		sidebar.list_widget.SelectItemByIndex(index)
+	} else {
+		sidebar.list_widget.SelectItemByIndex(index + 2)
+	}
+
+}
+
+func (sidebar *Sidebar[T]) SelectedItemIndex() int {
+	sidebar.sidebar_items()
+	i := sidebar.list_widget.SelectedItemIndex()
+	if i < 0 {
+		return i
+	}
+	return i - 2
 }
