@@ -2,6 +2,7 @@ package requests_handler
 
 import (
 	attr "Zbolt/pages/request/requests-handler/attributes"
+	"io"
 	"path/filepath"
 
 	gui "github.com/guigui-gui/guigui"
@@ -34,7 +35,7 @@ func (t RequestType) IconName() string {
 type Request struct {
 	Type RequestType
 	path string
-	data any // pointer to data
+	data io.Closer// pointer to data
 }
 
 func (r *Request) Data() any {

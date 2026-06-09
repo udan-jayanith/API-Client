@@ -65,9 +65,9 @@ type HTTP_Data struct {
 
 	URL URL `json:"url"`
 
-	Parameters []attr.AttrCheck `json:"parameters"`
-	Headers    []attr.AttrCheck `json:"headers"`
-	Body       string           `json:"body"`
+	Parameters    []attr.AttrCheck `json:"parameters"`
+	Headers       []attr.AttrCheck `json:"headers"`
+	Body          string           `json:"body"`
 	RequestConfig struct {
 		AutoWrap bool `json:"auto-wrap"`
 		Formate  bool `json:"formate"`
@@ -86,6 +86,8 @@ type HTTP_Data struct {
 		on_complete                            chan error
 		cancel                                 chan struct{}
 	}
+
+	// Do not use this directly use ResponseData function.
 	response_data lazy_atomic.Value[HTTP_Response_Data]
 }
 
@@ -117,6 +119,13 @@ func (data *HTTP_Data) ResponseData(fn func(value *HTTP_Response_Data)) {
 	data.response_data.Mutex.Lock()
 	defer data.response_data.Mutex.Unlock()
 	fn(data.response_data.LoadUnsafe())
+}
+
+func (data *HTTP_Data) Close() error {
+	data.ResponseData(func(value *HTTP_Response_Data) {
+		value.Body.Content.Close()
+	})
+	return nil
 }
 
 type HTTP_Response_Body struct {
