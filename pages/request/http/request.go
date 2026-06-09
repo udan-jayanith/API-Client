@@ -23,7 +23,7 @@ type request_widget struct {
 	t           time.Time
 	url_preview CommonWidgets.URLPreview
 
-	tab_container CommonWidgets.TabContainer
+	tab_container CommonWidgets.TabContainer[string]
 	tab_content   struct {
 		params_table  CommonWidgets.AttributeTable
 		headers_table HttpHeaderTable
@@ -150,16 +150,16 @@ func (rw *request_widget) set_tab_items() {
 	method := strings.ToUpper(rw.input_bar_widget.method())
 	_, index := rw.tab_container.SelectedTabContainer()
 
-	tab_containter_items := []CommonWidgets.TabContainerItem{
+	tab_containter_items := []CommonWidgets.TabContainerItem[string]{
 		{
-			TabItem: CommonWidgets.TabItem{
+			TabItem: CommonWidgets.TabItem[string]{
 				Text:  "Parameters",
 				Value: "parameters",
 			},
 			Widget: &rw.tab_content.params_table,
 		},
 		{
-			TabItem: CommonWidgets.TabItem{
+			TabItem: CommonWidgets.TabItem[string]{
 				Text:  "Headers",
 				Value: "headers",
 			},
@@ -168,8 +168,8 @@ func (rw *request_widget) set_tab_items() {
 	}
 
 	if method == "POST" || method == "PUT" || method == "PATCH" {
-		tab_containter_items = append(tab_containter_items, CommonWidgets.TabContainerItem{
-			TabItem: CommonWidgets.TabItem{
+		tab_containter_items = append(tab_containter_items, CommonWidgets.TabContainerItem[string]{
+			TabItem: CommonWidgets.TabItem[string]{
 				Text:  "Body",
 				Value: "body",
 			},

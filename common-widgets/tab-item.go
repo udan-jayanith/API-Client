@@ -16,18 +16,18 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type TabItem struct {
+type TabItem[T any] struct {
 	Text  string
-	Value string
+	Value T
 	Icon  *icons.Icon
 }
 
-type tab_item struct {
+type tab_item[T any] struct {
 	gui.DefaultWidget
 
 	index          int
-	tab_item       TabItem
-	tabs_container *tab_bar // tabs_container is the tab container
+	tab_item       TabItem[T]
+	tabs_container *tab_bar[T] // tabs_container is the tab container
 
 	text_widget widget.Text
 	close_icon  icons.Icon
@@ -35,7 +35,7 @@ type tab_item struct {
 	relative_cursor_axis int
 }
 
-func (item *tab_item) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+func (item *tab_item[T]) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if item.tab_item.Icon != nil {
 		adder.AddWidget(item.tab_item.Icon)
 	}
@@ -66,15 +66,15 @@ func (item *tab_item) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	return nil
 }
 
-func (item *tab_item) padding(ctx *gui.Context) gui.Padding {
+func (item *tab_item[T]) padding(ctx *gui.Context) gui.Padding {
 	return basic.NewPadding(0, widget.LineHeight(ctx)/2)
 }
 
-func (item *tab_item) gap(ctx *gui.Context) int {
+func (item *tab_item[T]) gap(ctx *gui.Context) int {
 	return widget.UnitSize(ctx) / 4
 }
 
-func (item *tab_item) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+func (item *tab_item[T]) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	layout := gui.LinearLayout{
 		Padding:   item.padding(ctx),
 		Gap:       item.gap(ctx),
@@ -102,7 +102,7 @@ func (item *tab_item) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, l
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
-func (item *tab_item) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
+func (item *tab_item[T]) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
 	point := item.text_widget.Measure(ctx, constraints)
 	padding := item.padding(ctx)
 
@@ -122,7 +122,7 @@ func (item *tab_item) Measure(ctx *gui.Context, constraints gui.Constraints) ima
 	return point
 }
 
-func (item *tab_item) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
+func (item *tab_item[T]) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {
 	var background_color color.Color
 	var border_type basicwidgetdraw.RoundedRectBorderType
 
@@ -148,7 +148,7 @@ func (item *tab_item) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst
 	basicwidgetdraw.DrawRoundedRectBorder(ctx, dst, widgetBounds.Bounds(), clr1, clr2, r, 1, border_type)
 }
 
-func (item *tab_item) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
+func (item *tab_item[T]) HandlePointingInput(ctx *gui.Context, widgetBounds *gui.WidgetBounds) gui.HandleInputResult {
 	b := widgetBounds.Bounds()
 	is_hovering := widgetBounds.IsHitAtCursor()
 

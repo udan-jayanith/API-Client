@@ -16,7 +16,7 @@ import (
 type response_widget struct {
 	gui.DefaultWidget
 	header_widget response_header_widget
-	tab_container CommonWidgets.TabContainer
+	tab_container CommonWidgets.TabContainer[string]
 	tab_content   struct {
 		response_headers CommonWidgets.WidgetWithLazyLoading[*HttpHeaderTable]
 		response_body    response_body_widget
@@ -106,16 +106,16 @@ func (rw *response_widget) set_tab_items() {
 	if rw.tab_container.Count() != 0 {
 		return
 	}
-	rw.tab_container.SetItems([]CommonWidgets.TabContainerItem{
+	rw.tab_container.SetItems([]CommonWidgets.TabContainerItem[string]{
 		{
-			TabItem: CommonWidgets.TabItem{
+			TabItem: CommonWidgets.TabItem[string]{
 				Text:  "Body",
 				Value: "body",
 			},
 			Widget: &rw.tab_content.response_body,
 		},
 		{
-			TabItem: CommonWidgets.TabItem{
+			TabItem: CommonWidgets.TabItem[string]{
 				Text:  "Header",
 				Value: "header",
 			},

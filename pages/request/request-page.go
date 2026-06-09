@@ -23,8 +23,8 @@ type RequestPage struct {
 	sidebar       Sidebar[requests_handler.Item]
 	sidebar_items []SidebarItem[requests_handler.Item]
 
-	tab_container       CommonWidgets.TabContainer
-	tab_container_items []CommonWidgets.TabContainerItem
+	tab_container       CommonWidgets.TabContainer[requests_handler.Item]
+	tab_container_items []CommonWidgets.TabContainerItem[requests_handler.Item]
 
 	blank_widget blank_widget
 
@@ -62,7 +62,7 @@ func (rp *RequestPage) on_folder_create(ctx *gui.Context, path string, folder_na
 func (rp *RequestPage) find_item_index(item SidebarItem[requests_handler.Item]) int {
 	var index int
 	for i, sidebar_item := range rp.sidebar_items {
-		if sidebar_item.Value.Name() == item.Value.Name() {
+		if sidebar_item.Value == item.Value {
 			index = i
 			break
 		}
@@ -89,8 +89,8 @@ func (rp *RequestPage) on_item_select(ctx *gui.Context, index int) {
 	}
 	icon := icons.Icon{}
 	icon.SetIcon(item.IconName)
-	rp.tab_container_items = append(rp.tab_container_items, CommonWidgets.TabContainerItem{
-		TabItem: CommonWidgets.TabItem{
+	rp.tab_container_items = append(rp.tab_container_items, CommonWidgets.TabContainerItem[requests_handler.Item]{
+		TabItem: CommonWidgets.TabItem[requests_handler.Item]{
 			Text: item.Value.Name(),
 			Icon: &icon,
 		},

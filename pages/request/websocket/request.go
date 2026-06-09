@@ -15,10 +15,10 @@ type request_widget struct {
 		url_input      CommonWidgets.TextInputWithContextMenu
 		connect_button widget.Button
 	}
-	
+
 	url_preview CommonWidgets.URLPreview
 
-	tab_widget CommonWidgets.Tab
+	tab_widget CommonWidgets.Tab[string]
 	content    struct {
 		params, headers CommonWidgets.AttributeTable
 		body            request_body // TODO: make a editor widget and replace with it.
@@ -34,8 +34,8 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.url_input_bar.connect_button)
 
 	adder.AddWidget(&rw.url_preview)
-	
-	rw.tab_widget.SetTabItems([]CommonWidgets.TabItem{
+
+	rw.tab_widget.SetTabItems([]CommonWidgets.TabItem[string]{
 		{
 			Text: "Parameters",
 		},
@@ -51,8 +51,6 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		rw.content.selected = &rw.content.params
 	}
 
-
-
 	adder.AddWidget(&rw.tab_widget)
 	adder.AddWidget(rw.content.selected)
 	return nil
@@ -62,16 +60,16 @@ func (rw *request_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBound
 	gap := basic.Gap(ctx)
 	layout := gui.LinearLayout{
 		Direction: gui.LayoutDirectionVertical,
-		Gap: gap,
+		Gap:       gap,
 		Items: []gui.LinearLayoutItem{
 			{
 				Layout: gui.LinearLayout{
 					Direction: gui.LayoutDirectionHorizontal,
-					Gap: gap,
+					Gap:       gap,
 					Items: []gui.LinearLayoutItem{
 						{
 							Widget: &rw.url_input_bar.url_input,
-							Size: gui.FlexibleSize(1),
+							Size:   gui.FlexibleSize(1),
 						},
 						{
 							Widget: &rw.url_input_bar.connect_button,
@@ -87,10 +85,10 @@ func (rw *request_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBound
 			},
 			{
 				Widget: rw.content.selected,
-				Size: gui.FlexibleSize(1),
+				Size:   gui.FlexibleSize(1),
 			},
 		},
 	}
-	
+
 	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }

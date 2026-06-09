@@ -11,7 +11,7 @@ type response_widget struct {
 	gui.DefaultWidget
 
 	header response_header_widget
-	tab    CommonWidgets.Tab
+	tab    CommonWidgets.Tab[string]
 
 	response_header widget.Table[struct{}]
 }
@@ -19,7 +19,7 @@ type response_widget struct {
 func (rw *response_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.header)
 
-	rw.tab.SetTabItems([]CommonWidgets.TabItem{
+	rw.tab.SetTabItems([]CommonWidgets.TabItem[string]{
 		{
 			Text: "Frames",
 		},
