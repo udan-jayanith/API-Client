@@ -213,7 +213,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	brp.request_widget.OnOpenIn(brp.on_url_panel_open)
 	adder.AddWidget(&brp.popup_widget)
 	if brp.popup_widget.IsOpen() {
-		brp.popup_widget.SetBackgroundDark(true)
 		brp.popup_widget.SetCloseByClickingOutside(true)
 		brp.popup_widget.SetContent(&brp.url_panel_widget)
 		brp.popup_widget.SetModal(true)
