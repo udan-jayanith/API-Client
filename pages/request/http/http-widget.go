@@ -42,8 +42,11 @@ func (brp *HTTP_Widget) SetReq(req *requests_handler.Request) {
 	if req.Type != requests_handler.HTTP {
 		panic("Invalid request type")
 	}
+
 	if brp.req == req {
 		return
+	} else if brp.req != nil {
+		brp.SyncData()
 	}
 	brp.req = req
 
@@ -141,7 +144,7 @@ func (brp *HTTP_Widget) on_url_panel_open(ctx *gui.Context) {
 	brp.popup_widget.SetOpen(true)
 }
 
-func (brp *HTTP_Widget) on_url_panel_close(ctx *gui.Context, reason widget.PopupCloseReason) {
+func (brp *HTTP_Widget) on_url_panel_close(_ *gui.Context, _ widget.PopupCloseReason) {
 	u, err := url.Parse(brp.url_panel_widget.URL())
 	if err != nil {
 		message_model.Show(err.Error(), message_model.Alert, nil)
@@ -178,7 +181,7 @@ func (brp *HTTP_Widget) on_request_button_clicked(ctx *gui.Context, value string
 }
 
 func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, committed bool) {
-	if !committed || brp.data.URL.IsPattern() {
+	if !committed || brp.data.URL.IsPattern() || u_str == "" {
 		return
 	}
 
@@ -210,10 +213,10 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	brp.request_widget.OnOpenIn(brp.on_url_panel_open)
 	adder.AddWidget(&brp.popup_widget)
 	if brp.popup_widget.IsOpen() {
-		brp.popup_widget.SetAnimated(true)
 		brp.popup_widget.SetBackgroundDark(true)
 		brp.popup_widget.SetCloseByClickingOutside(true)
 		brp.popup_widget.SetContent(&brp.url_panel_widget)
+		brp.popup_widget.SetModal(true)
 		brp.url_panel_widget.OnDoneButtonClicked(func(context *gui.Context) {
 			brp.popup_widget.SetOpen(false)
 		})
@@ -306,7 +309,7 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 func (brp *HTTP_Widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	if brp.popup_widget.IsOpen() {
-		brp.popup_widget.SetBackgroundBounds(widgetBounds.Bounds())
+		brp.popup_widget.SetBackgroundBounds(ctx.AppBounds())
 		layouter.LayoutWidget(&brp.popup_widget, brp.url_panel_bounds(ctx, widgetBounds))
 	}
 

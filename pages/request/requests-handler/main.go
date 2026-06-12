@@ -35,7 +35,7 @@ func (t RequestType) IconName() string {
 type Request struct {
 	Type RequestType
 	path string
-	data io.Closer// pointer to data
+	data io.Closer // pointer to data
 }
 
 func (r *Request) Data() any {
@@ -53,6 +53,10 @@ func (r *Request) Path() string {
 func (r *Request) Rename(name string) error {
 	path := filepath.Dir(r.path)
 	r.path = filepath.Join(path, name)
+	return nil
+}
+
+func (r *Request) Save() error {
 	return nil
 }
 
@@ -126,6 +130,6 @@ type RequestWidget interface {
 	gui.Widget
 	RequestType() RequestType
 	SetReq(req *Request)
+	//SyncData should be run to save data before switching tabs, closing tabs or closing the app.
 	SyncData()
-	Close() error
 }

@@ -2,8 +2,6 @@ package request_page
 
 import (
 	"Zbolt/basic"
-	CommonWidgets "Zbolt/common-widgets"
-	"Zbolt/icons"
 	http_widget "Zbolt/pages/request/http"
 	requests_handler "Zbolt/pages/request/requests-handler"
 	websocket_widget "Zbolt/pages/request/websocket"
@@ -23,12 +21,10 @@ type RequestPage struct {
 	sidebar       Sidebar[requests_handler.Item]
 	sidebar_items []SidebarItem[requests_handler.Item]
 
-	tab_container       CommonWidgets.TabContainer[requests_handler.Item]
-	tab_container_items []CommonWidgets.TabContainerItem[requests_handler.Item]
-
 	blank_widget blank_widget
 
 	tab_container_widgets struct {
+		selected  requests_handler.RequestWidget
 		HTTP      http_widget.HTTP_Widget
 		Websocket websocket_widget.WebsocketWidget
 	}
@@ -83,54 +79,26 @@ func (rp *RequestPage) on_item_rename(ctx *gui.Context, path string, item Sideba
 	// TODO: rename tab_item too.
 }
 
-func (rp *RequestPage) find_tab_item_index_by_value(value requests_handler.Item) int {
-	for i, item := range rp.tab_container_items {
-		if item.TabItem.Value == value {
-			return i
-		}
+func (rp *RequestPage) widget_for_request_type(t requests_handler.RequestType) requests_handler.RequestWidget {
+	switch t {
+	case requests_handler.HTTP:
+		return &rp.tab_container_widgets.HTTP
+	case requests_handler.Websocket:
+		return &rp.tab_container_widgets.Websocket
+	default:
+		panic("Not implemented a widget for RequestType")
 	}
-	return -1
 }
 
 func (rp *RequestPage) on_item_select(ctx *gui.Context, index int) {
 	item := rp.sidebar_items[index]
-	_, ok := item.Value.(*requests_handler.Folder)
-	if ok {
+	req, ok := item.Value.(*requests_handler.Request)
+	if !ok {
 		return
 	}
 
-	tab_item_index := rp.find_tab_item_index_by_value(item.Value)
-	if tab_item_index == -1 {
-		icon := icons.Icon{}
-		icon.SetIcon(item.IconName)
-		rp.tab_container_items = append(rp.tab_container_items, CommonWidgets.TabContainerItem[requests_handler.Item]{
-			TabItem: CommonWidgets.TabItem[requests_handler.Item]{
-				Text:  item.Value.Name(),
-				Icon:  &icon,
-				Value: item.Value,
-			},
-		})
-	} else {
-		rp.tab_container.SelectTab(tab_item_index)
-	}
-}
-
-func (rp *RequestPage) on_tab_item_close(closed CommonWidgets.TabItemContainer[requests_handler.Item]) {
-	rp.tab_container_items = slices.Delete(rp.tab_container_items, closed.Index, closed.Index+1)
-}
-
-func (rp *RequestPage) on_tab_item_swap(from CommonWidgets.TabItemContainer[requests_handler.Item], to CommonWidgets.TabItemContainer[requests_handler.Item]) {
-	temp := rp.tab_container_items[from.Index]
-	rp.tab_container_items[from.Index] = rp.tab_container_items[to.Index]
-	rp.tab_container_items[to.Index] = temp
-}
-
-func (rp *RequestPage) on_tab_item_select(item CommonWidgets.TabItem[requests_handler.Item], index int) {
-	selected_item := rp.sidebar.SelectedItemIndex()
-	if selected_item >= 0 && rp.sidebar_items[selected_item].Value != item.Value {
-		rp.sidebar.SelectItemByIndex(-1)
-	}
-	// TODO: select sidebar item.
+	rp.tab_container_widgets.selected = rp.widget_for_request_type(req.Type)
+	rp.tab_container_widgets.selected.SetReq(req)
 }
 
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -146,17 +114,11 @@ func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	rp.sidebar.SetSidebarItems(rp.sidebar_items)
 	adder.AddWidget(&rp.sidebar)
 
-	switch len(rp.tab_container_items) {
-	case 0:
+	if rp.tab_container_widgets.selected == nil {
 		rp.blank_widget.OnRequestItemCreate(rp.on_item_create)
 		adder.AddWidget(&rp.blank_widget)
-	default:
-		rp.tab_container.SetItems(rp.tab_container_items)
-		rp.tab_container.SetClosable(true)
-		rp.tab_container.OnClose(rp.on_tab_item_close)
-		rp.tab_container.OnSwap(rp.on_tab_item_swap)
-		rp.tab_container.OnSelect(rp.on_tab_item_select)
-		adder.AddWidget(&rp.tab_container)
+	} else {
+		adder.AddWidget(rp.tab_container_widgets.selected)
 	}
 	return nil
 }
@@ -181,15 +143,14 @@ func (rp *RequestPage) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, 
 	}
 	layout.Items[0].Size = gui.FixedSize(w)
 
-	switch len(rp.tab_container_items) {
-	case 0:
+	if rp.tab_container_widgets.selected == nil {
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
 			Widget: &rp.blank_widget,
 			Size:   gui.FlexibleSize(1),
 		})
-	default:
+	} else {
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
-			Widget: &rp.tab_container,
+			Widget: rp.tab_container_widgets.selected,
 			Size:   gui.FlexibleSize(1),
 		})
 	}

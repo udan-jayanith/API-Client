@@ -32,6 +32,9 @@ func (widget *TabContainer[T]) SelectedTabContainer() (TabContainerItem[T], int)
 
 	index, item := widget.tab.SelectedTab()
 	container.TabItem = item
+	if len(widget.widgets) == 0 {
+		return container, 0
+	}
 	container.Widget = widget.widgets[index]
 	return container, index
 }
