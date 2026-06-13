@@ -27,7 +27,7 @@ func (u *URL) IsPattern() bool {
 }
 
 // EncodedPath returns the encoded path
-func (u *URL) EncodedPath() string {
+func (u *URL) URL_Path() string {
 	if !u.IsPattern() {
 		return u.Path.RawPath
 	}
@@ -110,7 +110,7 @@ func (data *HTTP_Data) EncodedParameters() string {
 // GetUrl return the full url.
 func (data *HTTP_Data) FullURL() *url.URL {
 	u, _ := url.Parse(data.URL.BaseURL)
-	u.RawPath = data.URL.EncodedPath()
+	u.Path = data.URL.URL_Path()
 	u.RawQuery = data.EncodedParameters()
 	return u
 }

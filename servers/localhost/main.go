@@ -7,11 +7,11 @@ import (
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		r.Body.Close()
-		_, err := w.Write([]byte("Hello world"))
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+		fmt.Fprintf(w, `Method: %s`, r.Method)
+	})
+
+	http.HandleFunc("/{username}", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"username":"%s"}`, r.PathValue("username"))
 	})
 
 	http.ListenAndServe(":8080", nil)

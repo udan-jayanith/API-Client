@@ -78,7 +78,7 @@ func (brp *HTTP_Widget) setup_request_widget() {
 		message_model.Show(err.Error(), message_model.Alert, nil)
 		return
 	}
-	u.Path = data.URL.EncodedPath()
+	u.Path = data.URL.URL_Path()
 	brp.request_widget.SetURL(u)
 	brp.request_widget.DisableURLInput(data.URL.IsPattern())
 	// TODO: brp.request_widget.SetRequestButtonText()

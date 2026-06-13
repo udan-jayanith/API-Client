@@ -26,16 +26,16 @@ func (r *Pattern) Set(key, value string) {
 func ParsePattern(pattern string) (Pattern, error) {
 	list := make([]attr.Attribute, 0, 4)
 	value := make(map[string]int, 4)
-	
+
 	i := -1
 	var idx int
 	var attr attr.Attribute
-	
+
 	for j, char := range pattern {
 		if char == '{' && i == -1 {
 			i = j
 		} else if char == '}' && i > -1 {
-			attr.Key = pattern[i+1:j] 
+			attr.Key = pattern[i+1 : j]
 			value[attr.Key] = idx
 			list = append(list, attr)
 			idx++
@@ -46,6 +46,6 @@ func ParsePattern(pattern string) (Pattern, error) {
 	return Pattern{
 		raw_path: pattern,
 		Values:   value,
-		List: list,
+		List:     list,
 	}, nil
 }
