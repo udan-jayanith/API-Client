@@ -189,14 +189,14 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 }
 
 func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
-	if b == nil || b.Content == nil {
+	if b == nil || b.Content() == nil {
 		body.body.Widget().ForceSetValue("")
 		return
 	}
 
 	t, sub_t := b.ContentType.Parse()
 	if t == "text" || (t == "application" && sub_t == "json") || b.ContentType == "" {
-		r := b.Content.NewReader()
+		r := b.Content().NewReader()
 		body.body.Widget().ReadValueFrom(r)
 		r.Close()
 	} else {

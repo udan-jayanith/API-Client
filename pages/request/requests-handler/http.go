@@ -123,14 +123,33 @@ func (data *HTTP_Data) ResponseData(fn func(value *HTTP_Response_Data)) {
 
 func (data *HTTP_Data) Close() error {
 	data.ResponseData(func(value *HTTP_Response_Data) {
-		value.Body.Content.Close()
+		value.Body.Content().Close()
 	})
 	return nil
 }
 
 type HTTP_Response_Body struct {
-	ContentType ContentType
-	Content     *readreader.ReadReader
+	ContentType       ContentType
+	is_formated       bool
+	formattee_content *readreader.ReadReader
+	content           *readreader.ReadReader
+}
+
+func (c *HTTP_Response_Body) set_content(rr *readreader.ReadReader) {
+	if c.content != nil {
+		c.content.Close()
+	}
+	if c.formattee_content != nil {
+		c.formattee_content.Close()
+		c.formattee_content = nil
+	}
+
+	c.content = rr
+	c.is_formated = false
+}
+
+func (c *HTTP_Response_Body) Content() *readreader.ReadReader {
+	return c.content
 }
 
 type Version struct {

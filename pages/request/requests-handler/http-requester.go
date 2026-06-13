@@ -88,9 +88,7 @@ func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 
 	data.ResponseData(func(value *HTTP_Response_Data) {
 		*value = res_data
-		res_data.SelectedResponseTab = value.SelectedResponseTab
 		value.Headers = headers_copied
-		value.Body.Content = res_data.Body.Content
 	})
 
 	data.request.headers_changed.Store(true)
@@ -148,7 +146,7 @@ loop:
 	}
 
 	// TODO: decode the body content if it uses some kind of encoding
-	res_data.Body.Content = body_content
+	res_data.Body.set_content(body_content)
 	data.set_response_data(res_data)
 	data.close_request(err)
 }
