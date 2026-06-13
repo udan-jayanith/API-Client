@@ -97,6 +97,9 @@ func (rp *RequestPage) on_item_select(ctx *gui.Context, index int) {
 		return
 	}
 
+	if rp.tab_container_widgets.selected != nil {
+		rp.tab_container_widgets.selected.SyncData()
+	} 
 	rp.tab_container_widgets.selected = rp.widget_for_request_type(req.Type)
 	rp.tab_container_widgets.selected.SetReq(req)
 }

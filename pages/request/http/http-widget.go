@@ -45,8 +45,6 @@ func (brp *HTTP_Widget) SetReq(req *requests_handler.Request) {
 
 	if brp.req == req {
 		return
-	} else if brp.req != nil {
-		brp.SyncData()
 	}
 	brp.req = req
 
