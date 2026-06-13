@@ -17,10 +17,16 @@ func IsJustPortNumber(u_str string) bool {
 		return false
 	}
 	u_str = u_str[1:]
+	var i int
 	for _, char := range u_str {
 		if char < '0' || char > '9' {
-			return false
+			break
 		}
+		i++
 	}
-	return true
+	if i > 0 {
+		return true
+	}
+
+	return false
 }
