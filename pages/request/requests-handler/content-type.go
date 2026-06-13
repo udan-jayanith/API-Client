@@ -7,13 +7,41 @@ import (
 
 type ContentType string
 
+// These are common content types with thir most populer extension name.
+// This is here becuase text/html like content types returns mhtml like extension names which are not populer
+// and users wouldn't now what is the meaning with those extension name.
+var common_content_types = map[string]string{
+	"text/html":        "html",
+	"text/css":         "css",
+	"text/javascript":  "js",
+	"application/json": "json",
+	"image/png":        "png",
+	"image/jpeg":       "jpg",
+	"image/gif":        "gif",
+	"image/svg+xml":    "svg",
+	"image/webp":       "webp",
+	"application/pdf":  "pdf",
+	"text/csv":         "csv",
+	"text/plain":       "txt",
+	"application/xml":  "xml",
+	"video/mp4":        "mp4",
+	"audio/mpeg":       "mp3",
+	"application/zip":  "zip",
+}
+
 func (content_type ContentType) Extension() string {
+	c_type, _, _ := strings.Cut(string(content_type), ";")
+	c_type, ok := common_content_types[c_type]
+	if ok {
+		return c_type
+	}
+
 	ex, _ := mime.ExtensionsByType(string(content_type))
 	if len(ex) == 0 {
 		_, sub_t := content_type.Parse()
 		return strings.ToUpper(sub_t)
 	}
-	return strings.Trim(ex[0], ".")
+	return strings.TrimPrefix(ex[0], ".")
 }
 
 func (content_type ContentType) Parse() (t, sub_t string) {
