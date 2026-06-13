@@ -87,7 +87,9 @@ func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 	copy(headers_copied, res_data.Headers)
 
 	data.ResponseData(func(value *HTTP_Response_Data) {
+		selected_tab := value.SelectedResponseTab
 		*value = res_data
+		value.SelectedResponseTab=selected_tab
 		value.Headers = headers_copied
 	})
 
