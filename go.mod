@@ -6,7 +6,7 @@ require (
 	codeberg.org/udan-jayanith/Opener v0.0.3
 	github.com/docker/go-units v0.5.0
 	github.com/golang-ds/queue v1.0.0
-	github.com/guigui-gui/guigui v0.0.0-20260608082839-24329a81d884
+	github.com/guigui-gui/guigui v0.0.0-20260613105058-8692670e4ac9
 	github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260608065240-2765ca1188d3
 	github.com/hajimehoshi/iro v0.2.0
 	github.com/molecule-man/go-brrr v0.4.0
@@ -23,9 +23,9 @@ require (
 	github.com/jezek/xgb v1.3.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
-	golang.org/x/image v0.41.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/image v0.42.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
