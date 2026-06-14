@@ -81,7 +81,6 @@ func (brp *HTTP_Widget) setup_request_widget() {
 	u.Path = data.URL.URL_Path()
 	brp.request_widget.SetURL(u)
 	brp.request_widget.DisableURLInput(data.URL.IsPattern())
-	// TODO: brp.request_widget.SetRequestButtonText()
 }
 
 func (brp *HTTP_Widget) setup_response_widget() {
@@ -168,7 +167,6 @@ func (brp *HTTP_Widget) on_url_panel_close(_ *gui.Context, _ widget.PopupCloseRe
 func (brp *HTTP_Widget) on_request_button_clicked(ctx *gui.Context, value string) {
 	if value == RequestButton {
 		brp.SyncData()
-		brp.request_widget.SetRequestButtonText(CancelButton)
 		brp.data.Do()
 		brp.response_widget.Clear()
 		brp.setup_request_widget()
@@ -295,10 +293,14 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		if err != nil {
 			message_model.Show(err.Error(), message_model.Alert, nil)
 		}
-		brp.request_widget.SetRequestButtonText(RequestButton)
 	default:
 	}
 
+	if brp.is_fetching {
+		brp.request_widget.SetRequestButtonText(CancelButton)
+	}else{
+		brp.request_widget.SetRequestButtonText(RequestButton)
+	}
 	adder.AddWidget(&brp.request_widget)
 	adder.AddWidget(&brp.response_widget)
 	return nil
