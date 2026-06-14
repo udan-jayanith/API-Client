@@ -89,8 +89,9 @@ func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 	data.ResponseData(func(value *HTTP_Response_Data) {
 		selected_tab := value.SelectedResponseTab
 		*value = res_data
-		value.SelectedResponseTab=selected_tab
+		value.SelectedResponseTab = selected_tab
 		value.Headers = headers_copied
+		value.Body.format = data.ResponseConfig.Formate
 	})
 
 	data.request.headers_changed.Store(true)

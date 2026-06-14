@@ -59,6 +59,11 @@ func (u *URL) SetPath(path string) {
 	u.Path.Pattern.Attributes = []attr.Attribute{}
 }
 
+type ResponseConfig struct {
+	AutoWrap bool `json:"auto-wrap"`
+	Formate  bool `json:"formate"`
+}
+
 // TODO: Implement Io.Closer
 type HTTP_Data struct {
 	Method string `json:"method"` // HTTP method
@@ -79,7 +84,6 @@ type HTTP_Data struct {
 	} `json:"response-config"`
 
 	selected_request_tab int
-	// TODO: Store wether the url panel is opne or not
 
 	request struct {
 		is_fetching, canceled, headers_changed atomic.Bool
@@ -97,6 +101,13 @@ func (data *HTTP_Data) SetSelectedRequestTab(index int) {
 
 func (data *HTTP_Data) SelectedRequestTab() int {
 	return data.selected_request_tab
+}
+
+func (data *HTTP_Data) SetFormatResponseBody(format bool) {
+	data.ResponseConfig.Formate = format
+	data.ResponseData(func(value *HTTP_Response_Data) {
+		value.Body.format = format
+	})
 }
 
 /*
@@ -129,10 +140,10 @@ func (data *HTTP_Data) Close() error {
 }
 
 type HTTP_Response_Body struct {
-	ContentType       ContentType
-	is_formated       bool
-	formattee_content *readreader.ReadReader
-	content           *readreader.ReadReader
+	ContentType         ContentType
+	format, is_formated bool
+	formattee_content   *readreader.ReadReader
+	content             *readreader.ReadReader
 }
 
 func (c *HTTP_Response_Body) set_content(rr *readreader.ReadReader) {
