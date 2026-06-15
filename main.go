@@ -28,8 +28,6 @@ type Root struct {
 	request_page_widget request_page.RequestPage
 }
 
-
-
 func (r *Root) Build(context *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&r.background)
 
@@ -49,6 +47,19 @@ func (r *Root) Build(context *gui.Context, adder *gui.ChildAdder) error {
 	})
 	popup := r.menubar_widget.PopupMenuAt(3)
 	popup.SetItemsByStrings([]string{"Start/End pprofing"})
+	r.menubar_widget.OnItemSelected(func(context *gui.Context, menuIndex, itemIndex int) {
+		if menuIndex == 3 {
+			if is_pprofing {
+				stop_pprof()
+				message_model.Show(pp_file.Name(), message_model.Notify, nil)
+				return
+			}
+			err := start_pprof()
+			if err != nil {
+				message_model.Show(err.Error(), message_model.Alert, nil)
+			}
+		}
+	})
 
 	adder.AddWidget(&r.menubar_widget)
 	adder.AddWidget(&r.request_page_widget)
@@ -84,11 +95,6 @@ func (r *Root) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter
 var zbolt_icon_bytes []byte
 
 func main() {
-	//os.Remove("./cpu.prof")
-	//f, _ := os.Create("cpu.prof")
-	//pprof.StartCPUProfile(f)
-	//defer pprof.StopCPUProfile()
-	//https://free-apis.github.io/#/categories
 	//go tool pprof -http=:8080 cpu.prof
 
 	zebolt_icon, _, err := image.Decode(bytes.NewReader(zbolt_icon_bytes))
