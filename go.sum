@@ -24,6 +24,8 @@ github.com/guigui-gui/guigui v0.0.0-20260608082839-24329a81d884 h1:FeyHxoMvlQxYR
 github.com/guigui-gui/guigui v0.0.0-20260608082839-24329a81d884/go.mod h1:AFLpsnm0mldVagk6C1Ct+j8oRK3IIjGkTm872uGVCpQ=
 github.com/guigui-gui/guigui v0.0.0-20260613105058-8692670e4ac9 h1:pI1Wl0ku4TMX60vFKF2oO1137Ky5Y2TnxIg3kebcSyM=
 github.com/guigui-gui/guigui v0.0.0-20260613105058-8692670e4ac9/go.mod h1:W9dDs6vObqMVYAOzh02A98ssE3InmlmVS5caY8uwoyY=
+github.com/guigui-gui/guigui v0.0.0-20260615133357-37fa43f964ba h1:YFZakcBS6nWtmYERSQKvPm/xGG9QknCDz/0Zu5HpDH8=
+github.com/guigui-gui/guigui v0.0.0-20260615133357-37fa43f964ba/go.mod h1:W9dDs6vObqMVYAOzh02A98ssE3InmlmVS5caY8uwoyY=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1 h1:5FNENqs0QbURnFG8HeDJuPl/FIjU4tNesm4suKJfIwY=
 github.com/hajimehoshi/bitmapfont/v4 v4.1.1/go.mod h1:/PD+aLjAJ0F2UoQx6hkOfXqWN7BkroDUMr5W+IT1dpE=
 github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260524052219-2fd42e56f99d h1:f9t4tUtud74mMLRrKwdev7wancvPWD3ZEkuBs78lKSo=
