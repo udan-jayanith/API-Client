@@ -39,7 +39,6 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	w.key_cell.SetEditable(!w.table.key_not_editable)
 	key_cell := &w.key_cell
 	key_cell.SetWrapMode(widget.WrapModeAnywhere)
-	key_cell.SetEllipsisString("...")
 	if w.table.on_type != nil {
 		w.key_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
 			w.table.on_type(ctx, "key", &w.key_cell, widget_bounds)
@@ -54,7 +53,6 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 
 	w.value_cell.SetEditable(!w.table.value_not_editable)
 	value_cell := &w.value_cell
-	value_cell.SetEllipsisString("...")
 	value_cell.SetWrapMode(widget.WrapModeAnywhere)
 	if w.table.on_type != nil {
 		w.value_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
@@ -77,60 +75,70 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	return nil
 }
 
-func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	gap := w.gap(ctx)
-	padding := w.padding(ctx)
-	b1 := widgetBounds.Bounds()
-	b1.Min.X += padding.Start
-	b1.Max.X -= padding.End
-	b1.Min.Y += padding.Top
-	b1.Max.Y -= padding.Bottom
+func (w *table_row_widget) layout(ctx *gui.Context) gui.LinearLayout {
+	layout := gui.LinearLayout{
+		Padding: w.padding(ctx),
+		Gap:     w.gap(ctx),
+		Items:   make([]gui.LinearLayoutItem, 0, 4),
+	}
 
+	gap := w.gap(ctx)/6
 	if !w.table.checkbox_disabled {
-		size := w.checkbox.Measure(ctx, gui.Constraints{})
-		checkbox_bounds := b1
-		checkbox_bounds.Max.X = checkbox_bounds.Min.X + size.X
-		checkbox_bounds.Max.Y = checkbox_bounds.Min.Y + size.Y
-		b1.Min.X += gap + size.X
-		layouter.LayoutWidget(&w.checkbox, checkbox_bounds)
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Layout: gui.LinearLayout{
+				Gap: gap,
+				Items: []gui.LinearLayoutItem{
+					{
+						Widget: &w.checkbox,
+						Size:   gui.FixedSize(widget.UnitSize(ctx)),
+					},
+					{
+						Widget: &w.key_cell,
+						Size:   gui.FlexibleSize(1),
+					},
+				},
+			},
+			Size: gui.FlexibleSize(1),
+		})
+	} else {
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Widget: &w.key_cell,
+			Size:   gui.FlexibleSize(1),
+		})
 	}
 
 	if !w.table.delete_disabled {
-		size := w.row_delete_btn.Measure(ctx, gui.Constraints{})
-		btn_bounds := b1
-		btn_bounds.Min.X = btn_bounds.Max.X - size.X
-		btn_bounds.Min.Y += gap / 4
-		btn_bounds.Max.Y = btn_bounds.Min.Y + size.Y
-		b1.Max.X = btn_bounds.Min.X + gap/3 // Text widget containes a padding left
-		layouter.LayoutWidget(&w.row_delete_btn, btn_bounds)
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Layout: gui.LinearLayout{
+				Gap: gap,
+				Items: []gui.LinearLayoutItem{
+					{
+						Widget: &w.value_cell,
+						Size:   gui.FlexibleSize(1),
+					},
+					{
+						Widget: &w.row_delete_btn,
+						Size:   gui.FixedSize(w.row_delete_btn.Measure(ctx, gui.Constraints{}).X),
+					},
+				},
+			},
+			Size: gui.FlexibleSize(1),
+		})
+	} else {
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Widget: &w.value_cell,
+			Size:   gui.FlexibleSize(1),
+		})
 	}
+	return layout
+}
 
-	b2 := widgetBounds.Bounds()
-	middle := b2.Min.X + b2.Dx()/2
-
-	key_bounds := b1
-	key_bounds.Max.X = middle
-	layouter.LayoutWidget(&w.key_cell, key_bounds)
-
-	val_bounds := b1
-	val_bounds.Min.X = middle
-	layouter.LayoutWidget(&w.value_cell, val_bounds)
+func (w *table_row_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	w.layout(ctx).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
 func (row_widget *table_row_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	var point image.Point
-	padding := row_widget.padding(ctx)
-
-	if w, ok := constraints.FixedWidth(); ok {
-		point.X = w
-	} else {
-		point.X = widget.UnitSize(ctx) * 6
-	}
-
-	constraints = gui.FixedWidthConstraints(point.X)
-	y := max(row_widget.key_cell.Measure(ctx, constraints).Y, row_widget.value_cell.Measure(ctx, constraints).Y) + padding.Top + padding.Bottom
-	point.Y += y
-	return point
+	return row_widget.layout(ctx).Measure(ctx, constraints)
 }
 
 func (row_widget *table_row_widget) on_delete(fn func(index int)) {
