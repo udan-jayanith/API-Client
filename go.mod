@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	codeberg.org/udan-jayanith/Formatter v0.0.1 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20260211053922-3d992dae95d1 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.11.0-alpha.4 // indirect

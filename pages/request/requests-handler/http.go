@@ -5,9 +5,13 @@ import (
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	lazy_atomic "Zbolt/pages/request/requests-handler/internal/lazy-atomic"
 	url_utils "Zbolt/pages/request/requests-handler/url-utils"
+	"bufio"
+	"log"
 	"net/url"
 	"sync/atomic"
 	"time"
+
+	formatter "codeberg.org/udan-jayanith/Formatter"
 )
 
 type URL struct {
@@ -142,7 +146,7 @@ func (data *HTTP_Data) Close() error {
 type HTTP_Response_Body struct {
 	ContentType         ContentType
 	format, is_formated bool
-	formattee_content   *readreader.ReadReader
+	formated_content    *readreader.ReadReader
 	content             *readreader.ReadReader
 }
 
@@ -150,16 +154,52 @@ func (c *HTTP_Response_Body) set_content(rr *readreader.ReadReader) {
 	if c.content != nil {
 		c.content.Close()
 	}
-	if c.formattee_content != nil {
-		c.formattee_content.Close()
-		c.formattee_content = nil
+	if c.formated_content != nil {
+		c.formated_content.Close()
+		c.formated_content = nil
 	}
 
 	c.content = rr
 	c.is_formated = false
 }
 
+func (c *HTTP_Response_Body) format_content() {
+	var cf_type formatter.ContentType
+	switch c.ContentType.Extension() {
+	case "html":
+		cf_type = formatter.HTML
+	case "css":
+		cf_type = formatter.CSS
+	case "js":
+		cf_type = formatter.Javascript
+	case "json":
+		cf_type = formatter.JSON
+	case "graphql":
+		cf_type = formatter.GraphQL
+	default:
+		return
+	}
+	r, err := formatter.Format(c.content.NewReader(), cf_type)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	defer r.Close()
+
+	rr := readreader.NewReadReader(readreader.DefualtSize, make([]byte, 0, 2024))
+	m := bufio.NewReader(r)
+	m.WriteTo(rr)
+	c.formated_content = rr
+	c.is_formated = true
+}
+
 func (c *HTTP_Response_Body) Content() *readreader.ReadReader {
+	if c.format && !c.is_formated && c.content != nil {
+		c.format_content()
+	}
+
+	if c.format {
+		return c.formated_content
+	}
 	return c.content
 }
 

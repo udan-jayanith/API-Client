@@ -267,7 +267,8 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		brp.data.ResponseConfig.AutoWrap = value
 	})
 	brp.response_widget.OnFormatToggle(func(ctx *gui.Context, value bool) {
-		brp.data.ResponseConfig.Formate = value
+		brp.data.SetFormatResponseBody(value)
+		brp.setup_response_widget()
 	})
 
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
@@ -298,7 +299,7 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	if brp.is_fetching {
 		brp.request_widget.SetRequestButtonText(CancelButton)
-	}else{
+	} else {
 		brp.request_widget.SetRequestButtonText(RequestButton)
 	}
 	adder.AddWidget(&brp.request_widget)
