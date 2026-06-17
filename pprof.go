@@ -12,7 +12,7 @@ var is_pprofing bool
 var pp_file *os.File
 
 func start_pprof() error {
-	os.Mkdir("./pprof", os.ModeDir)
+	os.Mkdir("./pprof", 0777)
 
 	file_name := time.Now().String()
 	file_name = strings.Join(strings.Split(file_name, " "), "-") + ".prof"
