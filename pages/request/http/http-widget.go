@@ -265,10 +265,18 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	brp.response_widget.OnAutowrapToggle(func(ctx *gui.Context, value bool) {
 		brp.data.ResponseConfig.AutoWrap = value
+		brp.response_widget.SetAutowrap(value)
+		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+			brp.response_widget.SetResponseBody(&value.Body)
+		})
 	})
+
 	brp.response_widget.OnFormatToggle(func(ctx *gui.Context, value bool) {
 		brp.data.SetFormatResponseBody(value)
-		brp.setup_response_widget()
+		brp.response_widget.SetFormat(value)
+		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+			brp.response_widget.SetResponseBody(&value.Body)
+		})
 	})
 
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {

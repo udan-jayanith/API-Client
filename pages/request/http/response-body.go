@@ -138,9 +138,11 @@ func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 	body := w.body.Widget()
 	if w.header.options.auto_wrap.toggle.Value() {
 		body.SetWrapMode(widget.WrapModeAnywhere)
+	}else{
+		body.SetWrapMode(widget.WrapModeNone)
 	}
 	body.SetEditable(false)
-	body.SetMultiline(w.header.options.auto_wrap.toggle.Value())
+	body.SetMultiline(true)
 	adder.AddWidget(&w.body)
 	// make the view handle images and text.
 	// Show content type not supported if content type is not jpg, png or text type.
