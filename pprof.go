@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -30,4 +31,6 @@ func stop_pprof() {
 	pprof.StopCPUProfile()
 	pp_file.Close()
 	is_pprofing = false
+
+	log.Printf("go tool pprof -http=:8080 %s", pp_file.Name())
 }

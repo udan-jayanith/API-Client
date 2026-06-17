@@ -69,7 +69,7 @@ func (notify_widget *notify_widget) padding(ctx *gui.Context) gui.Padding {
 	return basic.NewPadding(line_height/3, line_height/2+line_height/3)
 }
 
-func (notify_widget *notify_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+func (notify_widget *notify_widget) layout(ctx *gui.Context) gui.LinearLayout {
 	layout := gui.LinearLayout{
 		Direction: gui.LayoutDirectionHorizontal,
 		Padding:   notify_widget.padding(ctx),
@@ -79,19 +79,15 @@ func (notify_widget *notify_widget) Layout(ctx *gui.Context, widgetBounds *gui.W
 			},
 		},
 	}
-	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+	return layout
+}
+
+func (notify_widget *notify_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	notify_widget.layout(ctx).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
 func (notify_widget *notify_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	size := notify_widget.text_widget.Measure(ctx, gui.Constraints{})
-	padding := notify_widget.padding(ctx)
-	size.X += padding.End + padding.Start
-	size.Y += padding.Top + padding.Bottom
-	max_w := widget.UnitSize(ctx) * 4
-	if size.X > max_w {
-		size.X = max_w
-	}
-	return size
+	return notify_widget.layout(ctx).Measure(ctx, constraints)
 }
 
 func (notify_widget *notify_widget) Draw(ctx *gui.Context, widgetBounds *gui.WidgetBounds, dst *ebiten.Image) {

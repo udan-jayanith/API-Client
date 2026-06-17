@@ -37,19 +37,16 @@ func (r *Root) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			Text: "Zbolt",
 		},
 		{
-			Text: "Project",
-		},
-		{
-			Text: "Logs",
+			Text: "Projects",
 		},
 		{
 			Text: "Dev",
 		},
 	})
-	popup := r.menubar_widget.PopupMenuAt(3)
+	popup := r.menubar_widget.PopupMenuAt(2)
 	popup.SetItemsByStrings([]string{"Start/End pprofing"})
 	r.menubar_widget.OnItemSelected(func(context *gui.Context, menuIndex, itemIndex int) {
-		if menuIndex == 3 {
+		if menuIndex == 2 {
 			if is_pprofing {
 				stop_pprof()
 				message_model.Show(pp_file.Name(), message_model.Notify, nil)
