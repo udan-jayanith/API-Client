@@ -28,7 +28,8 @@ type Root struct {
 	request_page_widget request_page.RequestPage
 }
 
-func (r *Root) Build(context *gui.Context, adder *gui.ChildAdder) error {
+func (r *Root) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
+	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&r.background)
 
 	r.menubar_widget.SetItems([]basicwidget.MenubarItem{
@@ -104,7 +105,8 @@ func main() {
 	ebiten.SetWindowIcon([]image.Image{zebolt_icon})
 	op := &gui.RunOptions{
 		Title:         "Zbolt",
-		WindowMinSize: image.Pt(800, 544),
+		WindowMinSize: image.Pt(500, 544),
+		WindowSize:    image.Pt(800, 544),
 		RunGameOptions: &ebiten.RunGameOptions{
 			ApplePressAndHoldEnabled: true,
 		},

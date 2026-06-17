@@ -9,7 +9,6 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // TODO: Close the HTTP_Data.
@@ -99,13 +98,12 @@ func (rp *RequestPage) on_item_select(ctx *gui.Context, index int) {
 
 	if rp.tab_container_widgets.selected != nil {
 		rp.tab_container_widgets.selected.SyncData()
-	} 
+	}
 	rp.tab_container_widgets.selected = rp.widget_for_request_type(req.Type)
 	rp.tab_container_widgets.selected.SetReq(req)
 }
 
 func (rp *RequestPage) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&rp.background)
 
 	rp.sidebar.OnRequestItemCreate(rp.on_item_create)

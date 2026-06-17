@@ -14,7 +14,6 @@ import (
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type HTTP_Widget struct {
@@ -204,8 +203,6 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, commi
 }
 
 func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
-
 	brp.request_widget.OnOpenIn(brp.on_url_panel_open)
 	adder.AddWidget(&brp.popup_widget)
 	if brp.popup_widget.IsOpen() {
