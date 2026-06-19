@@ -82,7 +82,7 @@ func (t *TooltipArea) HandlePointingInput(ctx *guigui.Context, widgetBounds *gui
 	tooltip_bounds.Max.Y += basicwidget.UnitSize(ctx) / 8 // gap
 	cursor_pos := image.Pt(ebiten.CursorPosition())
 
-	if cursor_pos.In(widgetBounds.Bounds()) || cursor_pos.In(tooltip_bounds) {
+	if cursor_pos.In(widgetBounds.Bounds()) || t.popup.IsOpen() && cursor_pos.In(tooltip_bounds) {
 		if t.t.IsZero() {
 			t.t = time.Now()
 		} else if time.Since(t.t).Milliseconds() >= 500 && !t.popup.IsOpen() {
