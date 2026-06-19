@@ -5,6 +5,8 @@ import (
 	CommonWidgets "Zbolt/common-widgets"
 	"image"
 
+	"Zbolt/pages/request/http/internal/tooltip"
+
 	gui "github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
 	httpheaders "gitlab.com/j.udanjayanith/http-headers"
@@ -104,7 +106,7 @@ func (w *http_header_description) Set(heading, description, refrence string) {
 }
 
 type HttpHeaderTable struct {
-	tooltip basicwidget.TooltipArea
+	tooltip tooltip.TooltipArea
 	header  *httpheaders.Header
 
 	tooltip_content http_header_description
@@ -126,6 +128,8 @@ func (w *HttpHeaderTable) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		}
 		w.header = h
 		w.hover_bounds = widget_bounds.Bounds()
+		size := widget.Measure(ctx, gui.FixedWidthConstraints(w.hover_bounds.Dx()))
+		w.hover_bounds.Max.X = w.hover_bounds.Min.X + size.X
 	})
 	w.AttributeTable.Build(ctx, adder)
 	if w.header != nil {

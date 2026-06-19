@@ -3,6 +3,7 @@ module Zbolt
 go 1.26.1
 
 require (
+	codeberg.org/udan-jayanith/Formatter v0.0.1
 	codeberg.org/udan-jayanith/Opener v0.0.3
 	github.com/docker/go-units v0.5.0
 	github.com/golang-ds/queue v1.0.0
@@ -14,7 +15,6 @@ require (
 )
 
 require (
-	codeberg.org/udan-jayanith/Formatter v0.0.1 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20260211053922-3d992dae95d1 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.11.0-alpha.4 // indirect
