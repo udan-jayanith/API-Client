@@ -154,8 +154,9 @@ loop:
 	if encoding != "" {
 		r := body_content.NewReader()
 		rr, e := content_encoding.Decode(r, encodings)
-		r.Close()
 		err = e
+		r.Close()
+		body_content.Close()
 		res_data.Body.set_content(rr)
 	} else {
 		res_data.Body.set_content(body_content)

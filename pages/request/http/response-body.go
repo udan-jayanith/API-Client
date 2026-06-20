@@ -5,9 +5,13 @@ import (
 	requests_handler "Zbolt/pages/request/requests-handler"
 	"fmt"
 	"image"
+	"image/jpeg"
+	"image/png"
 
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
+	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/webp"
 )
 
 type response_body_header struct {
@@ -199,25 +203,48 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 	return body.layout(ctx).Measure(ctx, constraints)
 }
 
-func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
+func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) error {
 	if b == nil || b.Content() == nil {
 		body.text_content.Widget().ForceSetValue("")
 		body.image_content.Widget().SetImage(nil)
-		return
+		return nil
 	}
 
+	r := b.Content().NewReader()
+	defer r.Close()
+
 	t, sub_t := b.ContentType.Parse()
-	if t == "text" || (t == "application" && sub_t == "json") || b.ContentType == "" {
+	if b.IsTexttual() {
 		body.image_content.Widget().SetImage(nil)
-		r := b.Content().NewReader()
 		body.text_content.Widget().ReadValueFrom(r)
 		r.Close()
 	} else if t == "image" && (sub_t == "jpeg" || sub_t == "png" || sub_t == "webp") {
 		body.text_content.Widget().ForceSetValue("")
+
+		var img image.Image
+		var err error
+		switch sub_t {
+		case "jpeg":
+			img, err = jpeg.Decode(r)
+		case "png":
+			img, err = png.Decode(r)
+		case "webp":
+			img, err = webp.Decode(r)
+		default:
+			panic("Not handled")
+		}
+
+		if err != nil {
+			body.image_content.Widget().SetImage(nil)
+			return err
+		}
+		ebit_img := ebiten.NewImageFromImage(img)
+		body.image_content.Widget().SetImage(ebit_img)
 	} else {
 		body.text_content.Widget().ForceSetValue("")
 		body.image_content.Widget().SetImage(nil)
 	}
+	return nil
 }
 
 func (body *response_body_widget) ContentType() requests_handler.ContentType {

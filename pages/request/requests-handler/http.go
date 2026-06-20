@@ -192,12 +192,17 @@ func (c *HTTP_Response_Body) format_content() {
 	c.is_formated = true
 }
 
+func (c *HTTP_Response_Body) IsTexttual() bool {
+	t, sub_t := c.ContentType.Parse()
+	return t == "text" || (t == "application" && sub_t == "json") || c.ContentType == ""
+}
+
 func (c *HTTP_Response_Body) Content() *readreader.ReadReader {
-	if c.format && !c.is_formated && c.content != nil {
+	if c.IsTexttual() && c.format && !c.is_formated && c.content != nil {
 		c.format_content()
 	}
 
-	if c.format {
+	if c.IsTexttual() && c.format {
 		return c.formated_content
 	}
 	return c.content

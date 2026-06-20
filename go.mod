@@ -13,6 +13,7 @@ require (
 	github.com/klauspost/compress v1.18.6
 	github.com/molecule-man/go-brrr v0.4.0
 	gitlab.com/j.udanjayanith/http-headers v0.0.0
+	golang.org/x/image v0.42.0
 )
 
 require (
@@ -25,7 +26,6 @@ require (
 	github.com/jezek/xgb v1.3.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
-	golang.org/x/image v0.42.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
