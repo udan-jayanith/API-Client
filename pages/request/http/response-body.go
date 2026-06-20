@@ -13,9 +13,11 @@ import (
 type response_body_header struct {
 	gui.DefaultWidget
 
-	content_type CommonWidgets.TextWithTooltip
+	content_type        requests_handler.ContentType
+	content_type_widget CommonWidgets.TextWithTooltip
 
 	options struct {
+		disable   bool
 		auto_wrap struct {
 			text   widget.Text
 			toggle widget.Toggle
@@ -24,25 +26,13 @@ type response_body_header struct {
 			text   widget.Text
 			toggle widget.Toggle
 		}
-		open    CommonWidgets.ButtonWithTooltip
-		on_open func(context *gui.Context, content_type string)
 	}
 }
 
 func (w *response_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	w.content_type.SetVerticalAlign(widget.VerticalAlignMiddle)
-	w.content_type.SetEllipsisString("...")
-	adder.AddWidget(&w.content_type)
-
-	w.options.open.SetText("Open with")
-	w.options.open.SetTooltip("Open externally")
-	if w.options.on_open != nil {
-		w.options.open.OnUp(func(ctx *gui.Context) {
-			w.options.on_open(ctx, w.content_type.Value())
-		})
-	}
-	adder.AddWidget(&w.options.open)
-	// Add open with button to the middle if the content type is unkown.
+	w.content_type_widget.SetVerticalAlign(widget.VerticalAlignMiddle)
+	w.content_type_widget.SetEllipsisString("...")
+	adder.AddWidget(&w.content_type_widget)
 
 	{
 		w.options.auto_wrap.text.SetValue("Auto wrap")
@@ -58,6 +48,11 @@ func (w *response_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 
 		adder.AddWidget(&w.options.format.toggle)
 	}
+
+	ctx.SetEnabled(&w.options.auto_wrap.text, !w.options.disable)
+	ctx.SetEnabled(&w.options.auto_wrap.toggle, !w.options.disable)
+	ctx.SetEnabled(&w.options.format.text, !w.options.disable)
+	ctx.SetEnabled(&w.options.format.toggle, !w.options.disable)
 	return nil
 }
 
@@ -86,7 +81,7 @@ func (w *response_body_header) Layout(ctx *gui.Context, widgetBounds *gui.Widget
 				Size: gui.FlexibleSize(1),
 			},
 			{
-				Widget: &w.content_type,
+				Widget: &w.content_type_widget,
 			},
 		},
 	}
@@ -106,7 +101,7 @@ func (rbh *response_body_header) Measure(ctx *gui.Context, constraints gui.Const
 		point.X += rbh.options.auto_wrap.toggle.Measure(ctx, constraints).X + gap
 		point.X += rbh.options.format.text.Measure(ctx, constraints).X + gap
 		point.X += rbh.options.format.toggle.Measure(ctx, constraints).X + gap
-		point.X += rbh.content_type.Measure(ctx, constraints).X + gap
+		point.X += rbh.content_type_widget.Measure(ctx, constraints).X + gap
 	}
 
 	if h, ok := constraints.FixedHeight(); ok {
@@ -117,11 +112,29 @@ func (rbh *response_body_header) Measure(ctx *gui.Context, constraints gui.Const
 	return point
 }
 
+func (rbh *response_body_header) SetContentType(content_type requests_handler.ContentType) {
+	rbh.content_type = content_type
+	ex := content_type.Extension()
+	rbh.content_type_widget.SetValue(ex)
+	rbh.content_type_widget.SetTooltip(fmt.Sprintf("Content Type: %s", content_type))
+}
+
+func (rbh *response_body_header) ContentType() requests_handler.ContentType {
+	return rbh.content_type
+}
+
+func (rbh *response_body_header) EnableToggles(enable bool) {
+	rbh.options.disable = !enable
+}
+
 type response_body_widget struct {
 	gui.DefaultWidget
 
 	header response_body_header
-	body   CommonWidgets.WidgetWithLazyLoading[*CommonWidgets.TextInputWithContextMenu]
+
+	text_content  widget.TextInput
+	image_content widget.Image
+	body          CommonWidgets.WidgetWithLazyLoading[*CommonWidgets.TextInputWithContextMenu]
 }
 
 func (w *response_body_widget) SetLazyLoad(lazy_load bool) {
@@ -138,7 +151,7 @@ func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 	body := w.body.Widget()
 	if w.header.options.auto_wrap.toggle.Value() {
 		body.SetWrapMode(widget.WrapModeAnywhere)
-	}else{
+	} else {
 		body.SetWrapMode(widget.WrapModeNone)
 	}
 	body.SetEditable(false)
@@ -198,11 +211,11 @@ func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body
 
 	t, sub_t := b.ContentType.Parse()
 	if t == "text" || (t == "application" && sub_t == "json") || b.ContentType == "" {
+		body.image_content.SetImage(nil)
 		r := b.Content().NewReader()
 		body.body.Widget().ReadValueFrom(r)
 		r.Close()
-	} else {
-		// TODO: handle images
+	} else if t == "image" && (sub_t == "jpeg" || sub_t == "png" || sub_t == "webp") {
 		body.body.Widget().ForceSetValue("")
 	}
 }
@@ -212,13 +225,13 @@ func (body *response_body_widget) Body() string {
 }
 
 func (body *response_body_widget) ContentType() requests_handler.ContentType {
-	return requests_handler.ContentType(body.header.content_type.Value())
+	return body.header.ContentType()
 }
 
 func (body *response_body_widget) SetContentType(content_type requests_handler.ContentType) {
-	ex := content_type.Extension()
-	body.header.content_type.SetValue(ex)
-	body.header.content_type.SetTooltip(fmt.Sprintf("Content Type: %s", content_type))
+	t, sub_t := content_type.Parse()
+	body.header.EnableToggles(t == "text" || (t == "application" && sub_t == "json") || content_type == "")
+	body.header.SetContentType(content_type)
 }
 
 func (body *response_body_widget) OnAutowrapToggle(fn func(ctx *gui.Context, value bool)) {
