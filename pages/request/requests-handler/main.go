@@ -81,7 +81,7 @@ func NewRequest(t RequestType, path, name string) *Request {
 				Value:   "*/*",
 			},
 			{
-				Checked: false,
+				Checked: true,
 				Key:     "Accept-Encoding",
 				Value:   "gzip, deflate, br, zstd",
 			},

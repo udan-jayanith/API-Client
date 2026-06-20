@@ -2,6 +2,7 @@ package requests_handler
 
 import (
 	"Zbolt/internal/readreader"
+	content_encoding "Zbolt/pages/request/internal/content-encoding"
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	"errors"
 	"io"
@@ -148,8 +149,17 @@ loop:
 		}
 	}
 
-	// TODO: decode the body content if it uses some kind of encoding
-	res_data.Body.set_content(body_content)
+	encoding := res.Header.Get("Content-Encoding")
+	encodings := strings.Split(encoding, ", ")
+	if encoding != "" {
+		r := body_content.NewReader()
+		rr, e := content_encoding.Decode(r, encodings)
+		r.Close()
+		err = e
+		res_data.Body.set_content(rr)
+	} else {
+		res_data.Body.set_content(body_content)
+	}
 	data.set_response_data(res_data)
 	data.close_request(err)
 }
