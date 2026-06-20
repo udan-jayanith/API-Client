@@ -94,6 +94,8 @@ func (brp *HTTP_Widget) setup_response_widget() {
 
 		brp.response_widget.SetHeaders(res_data.Headers)
 
+		brp.response_widget.OnAutowrapToggle(func(ctx *gui.Context, value bool) {})
+		brp.response_widget.OnFormatToggle(func(ctx *gui.Context, value bool) {})
 		brp.response_widget.SetAutowrap(data.ResponseConfig.AutoWrap)
 		brp.response_widget.SetFormat(data.ResponseConfig.Formate)
 		brp.response_widget.SetResponseBody(&res_data.Body)
