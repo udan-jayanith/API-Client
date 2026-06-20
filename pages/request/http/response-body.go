@@ -132,37 +132,39 @@ type response_body_widget struct {
 
 	header response_body_header
 
-	text_content  widget.TextInput
-	image_content widget.Image
-	body          CommonWidgets.WidgetWithLazyLoading[*CommonWidgets.TextInputWithContextMenu]
+	text_content  CommonWidgets.WidgetWithLazyLoading[*widget.TextInput]
+	image_content CommonWidgets.WidgetWithLazyLoading[*widget.Image]
 }
 
 func (w *response_body_widget) SetLazyLoad(lazy_load bool) {
-	w.body.SetLazyLoad(lazy_load)
+	w.text_content.SetLazyLoad(lazy_load)
+	w.image_content.SetLazyLoad(lazy_load)
 }
 
 func (w *response_body_widget) LazyLoad() bool {
-	return w.body.LazyLoad()
+	return w.text_content.LazyLoad() && w.image_content.LazyLoad()
 }
 
 func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&w.header)
 
-	body := w.body.Widget()
-	if w.header.options.auto_wrap.toggle.Value() {
-		body.SetWrapMode(widget.WrapModeAnywhere)
+	if w.image_content.Widget().HasImage() {
+		adder.AddWidget(&w.image_content)
 	} else {
-		body.SetWrapMode(widget.WrapModeNone)
+		body := w.text_content.Widget()
+		if w.header.options.auto_wrap.toggle.Value() {
+			body.SetWrapMode(widget.WrapModeAnywhere)
+		} else {
+			body.SetWrapMode(widget.WrapModeNone)
+		}
+		body.SetEditable(false)
+		body.SetMultiline(true)
+		adder.AddWidget(&w.text_content)
 	}
-	body.SetEditable(false)
-	body.SetMultiline(true)
-	adder.AddWidget(&w.body)
-	// make the view handle images and text.
-	// Show content type not supported if content type is not jpg, png or text type.
 	return nil
 }
 
-func (w *response_body_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+func (w *response_body_widget) layout(ctx *gui.Context) gui.LinearLayout {
 	u := widget.UnitSize(ctx)
 
 	layout := gui.LinearLayout{
@@ -172,56 +174,50 @@ func (w *response_body_widget) Layout(ctx *gui.Context, widgetBounds *gui.Widget
 			{
 				Widget: &w.header,
 			},
-			{
-				Widget: &w.body,
-				Size:   gui.FlexibleSize(1),
-			},
 		},
 	}
-	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+
+	if w.image_content.Widget().HasImage() {
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Size:   gui.FlexibleSize(1),
+			Widget: &w.image_content,
+		})
+	} else {
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Size:   gui.FlexibleSize(1),
+			Widget: &w.text_content,
+		})
+	}
+	return layout
+}
+
+func (w *response_body_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
+	w.layout(ctx).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
 func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	u := widget.UnitSize(ctx)
-	gap := u / 4
-	var point image.Point
-	point.Y = gap
-
-	if w, ok := constraints.FixedWidth(); ok {
-		point.X = w
-	} else {
-		point.X = body.header.Measure(ctx, constraints).X
-	}
-
-	if h, ok := constraints.FixedHeight(); ok {
-		point.Y = h
-	} else {
-		point.Y += body.header.Measure(ctx, constraints).Y
-		point.Y += body.body.Measure(ctx, constraints).Y
-	}
-
-	return point
+	return body.layout(ctx).Measure(ctx, constraints)
 }
 
 func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
 	if b == nil || b.Content() == nil {
-		body.body.Widget().ForceSetValue("")
+		body.text_content.Widget().ForceSetValue("")
+		body.image_content.Widget().SetImage(nil)
 		return
 	}
 
 	t, sub_t := b.ContentType.Parse()
 	if t == "text" || (t == "application" && sub_t == "json") || b.ContentType == "" {
-		body.image_content.SetImage(nil)
+		body.image_content.Widget().SetImage(nil)
 		r := b.Content().NewReader()
-		body.body.Widget().ReadValueFrom(r)
+		body.text_content.Widget().ReadValueFrom(r)
 		r.Close()
 	} else if t == "image" && (sub_t == "jpeg" || sub_t == "png" || sub_t == "webp") {
-		body.body.Widget().ForceSetValue("")
+		body.text_content.Widget().ForceSetValue("")
+	} else {
+		body.text_content.Widget().ForceSetValue("")
+		body.image_content.Widget().SetImage(nil)
 	}
-}
-
-func (body *response_body_widget) Body() string {
-	return body.body.Widget().Value()
 }
 
 func (body *response_body_widget) ContentType() requests_handler.ContentType {
