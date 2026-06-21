@@ -138,21 +138,27 @@ type response_body_widget struct {
 
 	text_content  CommonWidgets.WidgetWithLazyLoading[*widget.TextInput]
 	image_content CommonWidgets.WidgetWithLazyLoading[*widget.Image]
+
+	show_unknow_content     bool
+	unknow_response_content CommonWidgets.WidgetWithLazyLoading[*unknow_response_content]
 }
 
 func (w *response_body_widget) SetLazyLoad(lazy_load bool) {
 	w.text_content.SetLazyLoad(lazy_load)
 	w.image_content.SetLazyLoad(lazy_load)
+	w.unknow_response_content.SetLazyLoad(lazy_load)
 }
 
 func (w *response_body_widget) LazyLoad() bool {
-	return w.text_content.LazyLoad() && w.image_content.LazyLoad()
+	return w.text_content.LazyLoad() && w.image_content.LazyLoad() && w.unknow_response_content.LazyLoad()
 }
 
 func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&w.header)
 
-	if w.image_content.Widget().HasImage() {
+	if w.show_unknow_content {
+		adder.AddWidget(&w.unknow_response_content)
+	} else if w.image_content.Widget().HasImage() {
 		adder.AddWidget(&w.image_content)
 	} else {
 		body := w.text_content.Widget()
@@ -181,7 +187,12 @@ func (w *response_body_widget) layout(ctx *gui.Context) gui.LinearLayout {
 		},
 	}
 
-	if w.image_content.Widget().HasImage() {
+	if w.show_unknow_content {
+		layout.Items = append(layout.Items, gui.LinearLayoutItem{
+			Size:   gui.FlexibleSize(1),
+			Widget: &w.unknow_response_content,
+		})
+	} else if w.image_content.Widget().HasImage() {
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
 			Size:   gui.FlexibleSize(1),
 			Widget: &w.image_content,
@@ -204,15 +215,24 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 }
 
 func (body *response_body_widget) set_unknow_data(msg string) {
+	body.show_unknow_content = true
+	if msg == "" {
+		msg = "Unknown data format"
+	}
+
+	body.unknow_response_content.Widget().SetMsg(msg)
+}
+
+func (body *response_body_widget) clear_content() {
 	body.text_content.Widget().ForceSetValue("")
 	body.image_content.Widget().SetImage(nil)
+	body.show_unknow_content = false
 }
 
 // TODO: handle the error
 func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
+	body.clear_content()
 	if b == nil || b.Content() == nil {
-		body.text_content.Widget().ForceSetValue("")
-		body.image_content.Widget().SetImage(nil)
 		return
 	}
 
@@ -221,12 +241,9 @@ func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body
 
 	t, sub_t := b.ContentType.Parse()
 	if b.IsTexttual() {
-		body.image_content.Widget().SetImage(nil)
 		body.text_content.Widget().ReadValueFrom(r)
 		r.Close()
 	} else if t == "image" && (sub_t == "jpeg" || sub_t == "png" || sub_t == "webp") {
-		body.text_content.Widget().ForceSetValue("")
-
 		var img image.Image
 		var err error
 		switch sub_t {

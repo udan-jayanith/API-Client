@@ -41,7 +41,7 @@ func (content *unknow_response_content) Build(ctx *gui.Context, adder *gui.Child
 	return nil
 }
 
-func (content *unknow_response_content) layout(ctx *gui.Context) gui.LinearLayout {
+func (content *unknow_response_content) layout(ctx *gui.Context, constraints gui.Constraints) gui.LinearLayout {
 	btn_w := max(content.open_externally_btn.Measure(ctx, gui.Constraints{}).X, content.save_as_btn.Measure(ctx, gui.Constraints{}).X)
 
 	layout := gui.LinearLayout{
@@ -55,42 +55,76 @@ func (content *unknow_response_content) layout(ctx *gui.Context) gui.LinearLayou
 			{
 				Widget: &content.msg,
 			},
-			{
-				Layout: gui.LinearLayout{
-					Direction: gui.LayoutDirectionHorizontal,
-					Gap:       basic.Gap(ctx),
-					Items: []gui.LinearLayoutItem{
-						{
-							Size: gui.FlexibleSize(1),
-						},
-						{
-							Widget: &content.save_as_btn,
-							Size:   gui.FixedSize(btn_w),
-						},
-						{
-							Widget: &content.open_externally_btn,
-							Size:   gui.FixedSize(btn_w),
-						},
-						{
-							Size: gui.FlexibleSize(1),
-						},
-					},
-				},
-			},
+			{},
 			{
 				Size: gui.FlexibleSize(1),
 			},
 		},
 	}
+
+	var layout_item gui.LinearLayout
+	max_w := basic.Gap(ctx) + (btn_w * 2) + (basic.BorderRadius(ctx) * 2)
+	if w, ok := constraints.FixedWidth(); ok && max_w < w {
+		layout_item = gui.LinearLayout{
+			Direction: gui.LayoutDirectionHorizontal,
+			Gap:       basic.Gap(ctx),
+			Items: []gui.LinearLayoutItem{
+				{
+					Size: gui.FlexibleSize(1),
+				},
+				{
+					Widget: &content.save_as_btn,
+					Size:   gui.FixedSize(btn_w),
+				},
+				{
+					Widget: &content.open_externally_btn,
+					Size:   gui.FixedSize(btn_w),
+				},
+				{
+					Size: gui.FlexibleSize(1),
+				},
+			},
+		}
+	} else {
+		layout_item = gui.LinearLayout{
+			Direction: gui.LayoutDirectionVertical,
+			Gap:       basic.Gap(ctx),
+			Items: []gui.LinearLayoutItem{
+				{
+					Widget: &content.save_as_btn,
+				},
+				{
+					Widget: &content.open_externally_btn,
+				},
+			},
+		}
+
+		layout_item = gui.LinearLayout{
+			Direction: gui.LayoutDirectionHorizontal,
+			Items: []gui.LinearLayoutItem{
+				{
+					Size: gui.FlexibleSize(1),
+				},
+				{
+					Layout: layout_item,
+				},
+				{
+					Size: gui.FlexibleSize(1),
+				},
+			},
+		}
+	}
+	layout.Items[2].Layout = layout_item
+
 	return layout
 }
 
 func (content *unknow_response_content) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	content.layout(ctx).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+	content.layout(ctx, gui.FixedWidthConstraints(widgetBounds.Bounds().Dx())).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
 func (content *unknow_response_content) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	return content.layout(ctx).Measure(ctx, constraints)
+	return content.layout(ctx, constraints).Measure(ctx, constraints)
 }
 
 func (content *unknow_response_content) OnOpenExternally(f func(context *gui.Context)) {
@@ -99,4 +133,8 @@ func (content *unknow_response_content) OnOpenExternally(f func(context *gui.Con
 
 func (content *unknow_response_content) OnSaveAs(f func(context *gui.Context)) {
 	content.save_as_btn.OnDown(f)
+}
+
+func (content *unknow_response_content) SetMsg(msg string) {
+	content.msg.SetValue(msg)
 }
