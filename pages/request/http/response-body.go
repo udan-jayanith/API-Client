@@ -142,6 +142,9 @@ type response_body_widget struct {
 	show_unknow_content     bool
 	unknow_response_content CommonWidgets.WidgetWithLazyLoading[*unknow_response_content]
 
+	on_save_as_fn         func(context *gui.Context)
+	on_open_externally_fn func(context *gui.Context)
+
 	contextmenu_items []widget.PopupMenuItem[string]
 	contextmenu       widget.ContextMenuArea[string]
 }
@@ -224,7 +227,13 @@ func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 		case "select-all":
 		case "paste":
 		case "save-as":
+			if w.on_save_as_fn != nil {
+				w.on_save_as_fn(ctx)
+			}
 		case "open-externally":
+			if w.on_open_externally_fn != nil {
+				w.on_open_externally_fn(ctx)
+			}
 		}
 	})
 	adder.AddWidget(&w.contextmenu)
@@ -352,4 +361,14 @@ func (body *response_body_widget) SetAutowrap(autowrap bool) {
 
 func (body *response_body_widget) SetFormat(format bool) {
 	body.header.options.format.toggle.SetValue(format)
+}
+
+func (body *response_body_widget) OnSaveAs(fn func(context *gui.Context)) {
+	body.on_save_as_fn = fn
+	body.unknow_response_content.Widget().OnSaveAs(fn)
+}
+
+func (body *response_body_widget) OnOpenExternally(fn func(context *gui.Context)) {
+	body.on_open_externally_fn = fn
+	body.unknow_response_content.Widget().OnOpenExternally(fn)
 }

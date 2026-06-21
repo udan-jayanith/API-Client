@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	opener "codeberg.org/udan-jayanith/Opener"
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
 )
@@ -275,6 +276,21 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		brp.response_widget.SetFormat(value)
 		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 			brp.response_widget.SetResponseBody(&value.Body)
+		})
+	})
+
+	brp.response_widget.OnOpenExternally(func(context *gui.Context) {
+		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+			if value.Body.Content() == nil {
+				message_model.Show("No content found to open", message_model.Alert, nil)
+				return
+			}
+			r := value.Body.Content().NewReader()
+			defer r.Close()
+			_, err := opener.OpenStream(r, value.Body.ContentType.Extension())
+			if err != nil {
+				message_model.Show(err.Error(), message_model.Alert, nil)
+			}
 		})
 	})
 

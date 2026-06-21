@@ -23,6 +23,14 @@ type response_widget struct {
 	}
 }
 
+func (rw *response_widget) OnSaveAs(fn func(context *gui.Context)) {
+	rw.tab_content.response_body.OnSaveAs(fn)
+}
+
+func (rw *response_widget) OnOpenExternally(fn func(context *gui.Context)) {
+	rw.tab_content.response_body.OnOpenExternally(fn)
+}
+
 func (rw *response_widget) SetLazyLoading(body, headers bool) {
 	rw.tab_content.response_body.SetLazyLoad(body)
 	rw.tab_content.response_headers.SetLazyLoad(headers)
