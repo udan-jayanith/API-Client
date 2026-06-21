@@ -203,11 +203,17 @@ func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Cons
 	return body.layout(ctx).Measure(ctx, constraints)
 }
 
-func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) error {
+func (body *response_body_widget) set_unknow_data(msg string) {
+	body.text_content.Widget().ForceSetValue("")
+	body.image_content.Widget().SetImage(nil)
+}
+
+// TODO: handle the error
+func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
 	if b == nil || b.Content() == nil {
 		body.text_content.Widget().ForceSetValue("")
 		body.image_content.Widget().SetImage(nil)
-		return nil
+		return
 	}
 
 	r := b.Content().NewReader()
@@ -235,16 +241,15 @@ func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body
 		}
 
 		if err != nil {
-			body.image_content.Widget().SetImage(nil)
-			return err
+			body.set_unknow_data(err.Error())
+		} else {
+			ebit_img := ebiten.NewImageFromImage(img)
+			body.image_content.Widget().SetImage(ebit_img)
 		}
-		ebit_img := ebiten.NewImageFromImage(img)
-		body.image_content.Widget().SetImage(ebit_img)
 	} else {
-		body.text_content.Widget().ForceSetValue("")
-		body.image_content.Widget().SetImage(nil)
+		body.set_unknow_data("")
 	}
-	return nil
+	return
 }
 
 func (body *response_body_widget) ContentType() requests_handler.ContentType {
