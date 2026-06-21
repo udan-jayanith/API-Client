@@ -141,6 +141,9 @@ type response_body_widget struct {
 
 	show_unknow_content     bool
 	unknow_response_content CommonWidgets.WidgetWithLazyLoading[*unknow_response_content]
+
+	contextmenu_items []widget.PopupMenuItem[string]
+	contextmenu       widget.ContextMenuArea[string]
 }
 
 func (w *response_body_widget) SetLazyLoad(lazy_load bool) {
@@ -151,6 +154,47 @@ func (w *response_body_widget) SetLazyLoad(lazy_load bool) {
 
 func (w *response_body_widget) LazyLoad() bool {
 	return w.text_content.LazyLoad() && w.image_content.LazyLoad() && w.unknow_response_content.LazyLoad()
+}
+
+func (w *response_body_widget) set_context_menu_items() {
+	if len(w.contextmenu_items) == 0 {
+		w.contextmenu_items = []widget.PopupMenuItem[string]{
+			{
+				Text:    "Copy",
+				KeyText: "Ctrl+C",
+				Value:   "copy",
+			},
+			{
+				Text:    "Select All",
+				KeyText: "Ctrl+A",
+				Value:   "select-all",
+			},
+			{
+				Text:    "Paste",
+				KeyText: "Ctrl+V",
+				Value:   "paste",
+			},
+			{
+				Text:  "Open Externally",
+				Value: "open-externally",
+			},
+			{
+				Text:  "Save As",
+				Value: "save-as",
+			},
+		}
+	}
+
+	if w.image_content.Widget().HasImage() || w.show_unknow_content {
+		for i := range 3 {
+			w.contextmenu_items[i].Disabled = true
+		}
+	} else {
+		for i := range 3 {
+			w.contextmenu_items[i].Disabled = false
+		}
+	}
+	w.contextmenu.PopupMenu().SetItems(w.contextmenu_items)
 }
 
 func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -171,6 +215,19 @@ func (w *response_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) er
 		body.SetMultiline(true)
 		adder.AddWidget(&w.text_content)
 	}
+
+	w.set_context_menu_items()
+	w.contextmenu.PopupMenu().OnItemSelected(func(context *gui.Context, index int) {
+		selected_item := w.contextmenu_items[index]
+		switch selected_item.Value {
+		case "copy":
+		case "select-all":
+		case "paste":
+		case "save-as":
+		case "open-externally":
+		}
+	})
+	adder.AddWidget(&w.contextmenu)
 	return nil
 }
 
@@ -207,7 +264,9 @@ func (w *response_body_widget) layout(ctx *gui.Context) gui.LinearLayout {
 }
 
 func (w *response_body_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	w.layout(ctx).LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
+	layout := w.layout(ctx)
+	layouter.LayoutWidget(&w.contextmenu, layout.ItemBoundsAt(1, ctx, widgetBounds.Bounds()))
+	layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
 
 func (body *response_body_widget) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
