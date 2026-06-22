@@ -186,6 +186,7 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, commi
 		return
 	}
 
+	u_str = strings.TrimSpace(u_str)
 	if url_utils.IsJustPortNumber(u_str) {
 		u_str = "http://localhost" + u_str
 	} else if strings.HasPrefix(u_str, "localhost") {
@@ -240,7 +241,7 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 			return
 		}
 		defer r.Close()
-		
+
 		extensions := content_type.Extensions()
 		path, err := dialog.File().Title("Save As").Filter("", extensions...).Save()
 		if err != nil {
@@ -333,11 +334,6 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 
 	brp.response_widget.OnOpenExternally(brp.on_open_externally)
 	brp.response_widget.OnSaveAs(brp.on_save_as)
-
-	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
-		// TODO: update the response tab only when it changed.
-		value.SelectedResponseTab = brp.response_widget.SelectedTab()
-	})
 
 	if brp.is_fetching {
 		adder.AddWidget(&brp.loading_bar)

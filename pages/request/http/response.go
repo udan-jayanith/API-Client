@@ -157,5 +157,3 @@ func (rw *response_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBoun
 
 	main_layout.LayoutWidgets(ctx, widgetBounds.Bounds(), layouter)
 }
-
-// TODO: implement on_switch
