@@ -238,7 +238,7 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 			r = value.Body.Content().NewReader()
 		})
 		if r == nil {
-			dialog.Message("No content found to open").Info()
+			dialog.Message("No content found to save").Info()
 			return
 		}
 		defer r.Close()
