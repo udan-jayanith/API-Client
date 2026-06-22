@@ -228,6 +228,7 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 	go func() {
 		var content_type requests_handler.ContentType
 		var r io.ReadCloser
+		// TODO: use the content-disposition header to determine the defualt file name.
 
 		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 			content_type = value.Body.ContentType
@@ -237,7 +238,7 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 			r = value.Body.Content().NewReader()
 		})
 		if r == nil {
-			// TODO: show no content error
+			dialog.Message("No content found to open").Info()
 			return
 		}
 		defer r.Close()
@@ -248,7 +249,6 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 			return
 		}
 
-		//TODO: Notify whether the action succeeded or not.
 		file, err := os.Create(path)
 		if err != nil {
 			return
