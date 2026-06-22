@@ -9,12 +9,14 @@ import (
 	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"image"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	opener "codeberg.org/udan-jayanith/Opener"
 	gui "github.com/guigui-gui/guigui"
 	widget "github.com/guigui-gui/guigui/basicwidget"
+	"github.com/hajimehoshi/dialog"
 )
 
 type HTTP_Widget struct {
@@ -205,6 +207,54 @@ func (brp *HTTP_Widget) on_url_input_changed(_ *gui.Context, u_str string, commi
 	brp.data.URL.BaseURL = u.String()
 }
 
+func (brp *HTTP_Widget) on_open_externally(context *gui.Context) {
+	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+		if value.Body.Content() == nil {
+			message_model.Show("No content found to open", message_model.Alert, nil)
+			return
+		}
+		r := value.Body.Content().NewReader()
+		defer r.Close()
+		_, err := opener.OpenStream(r, value.Body.ContentType.Extension())
+		if err != nil {
+			message_model.Show(err.Error(), message_model.Alert, nil)
+		}
+	})
+}
+
+func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
+	go func() {
+		var content_type requests_handler.ContentType
+		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+			content_type = value.Body.ContentType
+		})
+		extensions := content_type.Extensions()
+
+		path, err := dialog.File().Title("Save As").Filter("", extensions...).Save()
+		if err != nil {
+			return
+		}
+
+		//TODO: Notify whether the action succeeded or not.
+		file, err := os.Create(path)
+		if err != nil {
+			return
+		}
+		defer file.Close()
+
+		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+			if value.Body.Content() == nil {
+				// TODO: Show no content error
+				return
+			}
+
+			r := value.Body.Content().NewReader()
+			defer r.Close()
+			file.ReadFrom(r)
+		})
+	}()
+}
+
 func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	brp.request_widget.OnOpenIn(brp.on_url_panel_open)
 	adder.AddWidget(&brp.popup_widget)
@@ -279,20 +329,8 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		})
 	})
 
-	brp.response_widget.OnOpenExternally(func(context *gui.Context) {
-		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
-			if value.Body.Content() == nil {
-				message_model.Show("No content found to open", message_model.Alert, nil)
-				return
-			}
-			r := value.Body.Content().NewReader()
-			defer r.Close()
-			_, err := opener.OpenStream(r, value.Body.ContentType.Extension())
-			if err != nil {
-				message_model.Show(err.Error(), message_model.Alert, nil)
-			}
-		})
-	})
+	brp.response_widget.OnOpenExternally(brp.on_open_externally)
+	brp.response_widget.OnSaveAs(brp.on_save_as)
 
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()

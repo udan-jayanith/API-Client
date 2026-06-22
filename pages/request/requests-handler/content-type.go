@@ -2,6 +2,7 @@ package requests_handler
 
 import (
 	"mime"
+	"slices"
 	"strings"
 )
 
@@ -39,9 +40,26 @@ func (content_type ContentType) Extension() string {
 	ex, _ := mime.ExtensionsByType(string(content_type))
 	if len(ex) == 0 {
 		_, sub_t := content_type.Parse()
-		return strings.ToUpper(sub_t)
+		return strings.ToLower(sub_t)
 	}
 	return strings.TrimPrefix(ex[0], ".")
+}
+
+func (content_type ContentType) Extensions() []string {
+	best_extension := content_type.Extension()
+	extensions, _ := mime.ExtensionsByType(string(content_type))
+	for i, ex := range extensions {
+		extensions[i] = strings.TrimPrefix(ex, ".")
+	}
+
+	extensions = append([]string{best_extension}, extensions...)
+
+	i := slices.Index(extensions, best_extension)
+	if i != -1 {
+		extensions = slices.Delete(extensions, i, i+1)
+	}
+
+	return extensions
 }
 
 func (content_type ContentType) Parse() (t, sub_t string) {

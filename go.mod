@@ -4,10 +4,11 @@ go 1.26.1
 
 require (
 	codeberg.org/udan-jayanith/Formatter v0.0.1
-	codeberg.org/udan-jayanith/Opener v0.0.3
+	codeberg.org/udan-jayanith/Opener v0.0.4
 	github.com/docker/go-units v0.5.0
 	github.com/golang-ds/queue v1.0.0
 	github.com/guigui-gui/guigui v0.0.0-20260615172657-a47822a9ae55
+	github.com/hajimehoshi/dialog v0.0.0-20260522164032-98e3f04ecb5c
 	github.com/hajimehoshi/ebiten/v2 v2.10.0-alpha.11.0.20260615171612-8beab7d7f810
 	github.com/hajimehoshi/iro v0.2.0
 	github.com/klauspost/compress v1.18.6
