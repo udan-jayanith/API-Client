@@ -8,6 +8,7 @@ import (
 	attr "Zbolt/pages/request/requests-handler/attributes"
 	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"image"
+	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -225,11 +226,22 @@ func (brp *HTTP_Widget) on_open_externally(context *gui.Context) {
 func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 	go func() {
 		var content_type requests_handler.ContentType
+		var r io.ReadCloser
+
 		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 			content_type = value.Body.ContentType
+			if value.Body.Content() == nil {
+				return
+			}
+			r = value.Body.Content().NewReader()
 		})
+		if r == nil {
+			// TODO: show no content error
+			return
+		}
+		defer r.Close()
+		
 		extensions := content_type.Extensions()
-
 		path, err := dialog.File().Title("Save As").Filter("", extensions...).Save()
 		if err != nil {
 			return
@@ -241,17 +253,7 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 			return
 		}
 		defer file.Close()
-
-		brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
-			if value.Body.Content() == nil {
-				// TODO: Show no content error
-				return
-			}
-
-			r := value.Body.Content().NewReader()
-			defer r.Close()
-			file.ReadFrom(r)
-		})
+		file.ReadFrom(r)
 	}()
 }
 
@@ -333,6 +335,7 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	brp.response_widget.OnSaveAs(brp.on_save_as)
 
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
+		// TODO: update the response tab only when it changed.
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
 
