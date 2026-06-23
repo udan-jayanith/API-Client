@@ -74,6 +74,13 @@ func (brp *HTTP_Widget) setup_request_widget() {
 		data.Method = "Get"
 	}
 	brp.request_widget.SetMethod(data.Method)
+	brp.request_widget.SetContentType("")
+	for _, h := range data.Headers {
+		if h.Key == "Content-Type" && h.Checked {
+			brp.request_widget.SetContentType(requests_handler.ContentType(h.Value))
+			break
+		}
+	}
 	brp.request_widget.SelectTab(data.SelectedRequestTab())
 
 	u, err := url.Parse(data.URL.BaseURL)
@@ -260,6 +267,33 @@ func (brp *HTTP_Widget) on_save_as(context *gui.Context) {
 	}()
 }
 
+func (brp *HTTP_Widget) on_request_content_type_changed(ctx *gui.Context, content_type string, committed bool) {
+	if !committed {
+		return
+	}
+
+	brp.data.Headers = brp.request_widget.Headers()
+	for i, header := range brp.data.Headers {
+		if header.Key == "Content-Type" {
+			brp.data.Headers[i].Checked = content_type != ""
+			brp.data.Headers[i].Value = content_type
+			brp.request_widget.SetHeaders(brp.data.Headers)
+			return
+		}
+	}
+
+	if content_type != "" {
+		brp.data.Headers = append([]attr.AttrCheck{
+			{
+				Checked: true,
+				Key:     "Content-Type",
+				Value:   content_type,
+			},
+		}, brp.data.Headers...)
+		brp.request_widget.SetHeaders(brp.data.Headers)
+	}
+}
+
 func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	brp.request_widget.OnOpenIn(brp.on_url_panel_open)
 	adder.AddWidget(&brp.popup_widget)
@@ -281,34 +315,14 @@ func (brp *HTTP_Widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		allowed := method == "post" || method == "put" || method == "patch"
 		for i, header := range brp.data.Headers {
 			if header.Key == "Content-Type" {
-				brp.data.Headers[i].Checked = allowed
+				brp.data.Headers[i].Checked = allowed && header.Value != ""
 				break
 			}
 		}
 		brp.request_widget.SetHeaders(brp.data.Headers)
 	})
 
-	brp.request_widget.OnContentTypeChanged(func(ctx *gui.Context, content_type string, committed bool) {
-		if !committed {
-			return
-		}
-		brp.data.Headers = brp.request_widget.Headers()
-		for i, header := range brp.data.Headers {
-			if header.Key == "Content-Type" {
-				brp.data.Headers[i].Checked = true
-				brp.data.Headers[i].Value = content_type
-				return
-			}
-		}
-		brp.data.Headers = append([]attr.AttrCheck{
-			{
-				Checked: true,
-				Key:     "Content-Type",
-				Value:   content_type,
-			},
-		}, brp.data.Headers...)
-		brp.request_widget.SetHeaders(brp.data.Headers)
-	})
+	brp.request_widget.OnContentTypeChanged(brp.on_request_content_type_changed)
 
 	brp.request_widget.OnURLInputChanged(brp.on_url_input_changed)
 

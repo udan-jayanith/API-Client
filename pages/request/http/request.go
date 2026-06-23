@@ -196,6 +196,19 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if rw.tab_container.Count() == 0 {
 		rw.set_tab_items()
 	}
+	rw.tab_container.OnSelect(func(item CommonWidgets.TabItem[string], index int) {
+		if item.Value != "body" {
+			return
+		}
+
+		rw.SetContentType(requests_handler.ContentType(""))
+		for _, h := range rw.tab_content.headers_table.Rows() {
+			if h.Key == "Content-Type" {
+				rw.SetContentType(requests_handler.ContentType(h.Value))
+				break
+			}
+		}
+	})
 	adder.AddWidget(&rw.tab_container)
 
 	if time.Since(rw.t).Seconds() >= 1 && !ctx.IsFocused(&rw.input_bar_widget) {

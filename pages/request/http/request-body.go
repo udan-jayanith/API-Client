@@ -17,14 +17,15 @@ type request_body_header struct {
 		toggle widget.Toggle
 	}
 	format       CommonWidgets.ButtonWithTooltip
-	content_type widget.Combobox
+	content_type CommonWidgets.WidgetWithTooltip[*widget.Combobox]
 }
 
 func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	input_widget := &w.content_type
+	input_widget := w.content_type.Widget()
 	input_widget.SetAllowFreeInput(true)
-	input_widget.SetItems([]string{"application/json", "application/octet-stream", "text/html", "text/plain", "image/png", "image/jpeg"})
-	adder.AddWidget(input_widget)
+	input_widget.SetItems([]string{"application/json", "text/html", "text/plain"})
+	w.content_type.SetTooltip("Content-Type")
+	adder.AddWidget(&w.content_type)
 
 	w.auto_wrap.text.SetValue("Auto wrap")
 	w.auto_wrap.text.SetVerticalAlign(widget.VerticalAlignMiddle)
@@ -94,7 +95,7 @@ type request_body_widget struct {
 	gui.DefaultWidget
 	header request_body_header
 
-	body CommonWidgets.WidgetWithLazyLoading[*CommonWidgets.TextInputWithContextMenu]
+	body CommonWidgets.WidgetWithLazyLoading[*widget.TextInput]
 }
 
 func (w *request_body_widget) SetLazyLoad(lazy_load bool) {
@@ -111,6 +112,8 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	body := w.body.Widget()
 	if w.header.auto_wrap.toggle.Value() {
 		body.SetWrapMode(widget.WrapModeAnywhere)
+	} else {
+		body.SetWrapMode(widget.WrapModeNone)
 	}
 	body.SetMultiline(true)
 	body.SetEditable(true)
@@ -176,9 +179,9 @@ func (body *request_body_widget) SetAutowrap(autowrap bool) {
 }
 
 func (body *request_body_widget) OnContentTypeChanged(fn func(context *gui.Context, value string, committed bool)) {
-	body.header.content_type.OnValueChanged(fn)
+	body.header.content_type.Widget().OnValueChanged(fn)
 }
 
 func (body *request_body_widget) SetContentType(content_type requests_handler.ContentType) {
-	body.header.content_type.SetValue(string(content_type))
+	body.header.content_type.Widget().SetValue(string(content_type))
 }
