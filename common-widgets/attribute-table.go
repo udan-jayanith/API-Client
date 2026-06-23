@@ -39,6 +39,7 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	w.key_cell.SetEditable(!w.table.key_not_editable)
 	key_cell := &w.key_cell
 	key_cell.SetWrapMode(widget.WrapModeAnywhere)
+	key_cell.SetSelectable(true)
 	if w.table.on_type != nil {
 		w.key_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
 			w.table.on_type(ctx, "key", &w.key_cell, widget_bounds)
@@ -54,6 +55,7 @@ func (w *table_row_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error 
 	w.value_cell.SetEditable(!w.table.value_not_editable)
 	value_cell := &w.value_cell
 	value_cell.SetWrapMode(widget.WrapModeAnywhere)
+	value_cell.SetSelectable(true)
 	if w.table.on_type != nil {
 		w.value_cell.OnType(func(ctx *gui.Context, widget_bounds *gui.WidgetBounds) {
 			w.table.on_type(ctx, "value", &w.value_cell, widget_bounds)
@@ -82,7 +84,7 @@ func (w *table_row_widget) layout(ctx *gui.Context) gui.LinearLayout {
 		Items:   make([]gui.LinearLayoutItem, 0, 4),
 	}
 
-	gap := w.gap(ctx)/6
+	gap := w.gap(ctx) / 6
 	if !w.table.checkbox_disabled {
 		layout.Items = append(layout.Items, gui.LinearLayoutItem{
 			Layout: gui.LinearLayout{
