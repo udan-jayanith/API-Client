@@ -10,67 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-/*
-type inline_popup_suggestions struct {
-	gui.DefaultWidget
-
-	suggestions widget.SegmentedControl[struct{}]
-	x           int
-}
-
-func (sug *inline_popup_suggestions) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
-	sug.suggestions.SetItems([]widget.SegmentedControlItem[struct{}]{
-		{
-			Text: "Hello",
-		},
-		{
-			Text: "World",
-		},
-	})
-	adder.AddWidget(&sug.suggestions)
-	return nil
-}
-
-func (sug *inline_popup_suggestions) layout(ctx *gui.Context) gui.LinearLayout {
-	// TODO: Improve mem allocation for this.
-	layout := gui.LinearLayout{
-		Direction: gui.LayoutDirectionHorizontal,
-		Gap:       basic.Gap(ctx),
-		//Padding:   basic.NewPadding(basic.BorderRadius(ctx)),
-		Items: []gui.LinearLayoutItem{
-			{
-				Widget: &sug.suggestions,
-			},
-		},
-	}
-
-	return layout
-}
-
-func (sug *inline_popup_suggestions) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
-	content_size := sug.suggestions.Measure(ctx, gui.Constraints{})
-	b := widgetBounds.Bounds()
-	gap := basic.Gap(ctx)
-
-	b.Min.Y -= content_size.Y + gap
-	b.Max.Y = b.Min.Y + content_size.Y
-	b.Min.X = sug.x - (content_size.X / 2)
-	b.Max.X = sug.x + (content_size.X / 2)
-	sug.layout(ctx).LayoutWidgets(ctx, b, layouter)
-}
-
-func (sug *inline_popup_suggestions) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
-	return image.Point{}
-}
-
-func (sug *inline_popup_suggestions) SetSuggestions(suggestions []string) {
-}
-
-func (sug *inline_popup_suggestions) SetPosition(x int) {
-	sug.x = x
-}
-*/
-
 type SearchBar struct {
 	gui.DefaultWidget
 
@@ -80,8 +19,6 @@ type SearchBar struct {
 	t               time.Time
 
 	on_search_fn func(context *gui.Context, query string)
-
-	//suggestions inline_popup_suggestions
 }
 
 func (search_bar *SearchBar) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -108,17 +45,12 @@ func (search_bar *SearchBar) Build(ctx *gui.Context, adder *gui.ChildAdder) erro
 	}
 
 	adder.AddWidget(&search_bar.search_bar)
-	//adder.AddWidget(&search_bar.suggestions)
 	return nil
 }
 
 func (search_bar *SearchBar) Layout(ctx *gui.Context, widgetBounds *gui.WidgetBounds, layouter *gui.ChildLayouter) {
 	b := widgetBounds.Bounds()
 	layouter.LayoutWidget(&search_bar.search_bar, b)
-	//	t, _, _ := search_bar.search_bar.CaretPositionAtTextIndexInBytes(ctx, len(search_bar.search_bar.Value())-1)
-	//
-	// search_bar.suggestions.SetPosition(t.X)
-	// layouter.LayoutWidget(&search_bar.suggestions, b)
 }
 
 func (search_bar *SearchBar) Measure(ctx *gui.Context, constraints gui.Constraints) image.Point {
