@@ -113,6 +113,6 @@ func (table *response_header_table) SetRows(rows []attr.Attribute) {
 	table.search_results = nil
 	table.search_query = ""
 	table.rows = rows
+	table.search_bar.SetQuery("")
 	table.table.Widget().SetRows(rows)
-	table.SetSearchQuery("")
 }

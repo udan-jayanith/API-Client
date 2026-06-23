@@ -110,6 +110,7 @@ func (brp *HTTP_Widget) setup_response_widget() {
 		brp.response_widget.SetStatus(res_data.Status_code)
 		brp.response_widget.SetContentLength(res_data.ContentLenght)
 	})
+	brp.response_widget.SearchHeaders(data.ResponseHeaderSearchQuery())
 }
 
 // TODO: SyncData should be run to save data before switching tabs, closing tabs or closing the app.
@@ -123,6 +124,7 @@ func (brp *HTTP_Widget) SyncData() {
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()
 	})
+	brp.data.SetResponseHeaderSearchQuery(brp.response_widget.HeaderSearchQuery())
 }
 
 func (brp *HTTP_Widget) url_panel_bounds(ctx *gui.Context, widgetBounds *gui.WidgetBounds) image.Rectangle {
