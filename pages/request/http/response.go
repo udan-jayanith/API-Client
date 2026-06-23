@@ -18,7 +18,7 @@ type response_widget struct {
 	header_widget response_header_widget
 	tab_container CommonWidgets.TabContainer[string]
 	tab_content   struct {
-		response_headers CommonWidgets.WidgetWithLazyLoading[*HttpHeaderTable]
+		response_headers response_header_table
 		response_body    response_body_widget
 	}
 }
@@ -38,7 +38,7 @@ func (rw *response_widget) SetLazyLoading(body, headers bool) {
 
 func (rw *response_widget) Clear() {
 	rw.header_widget.clear()
-	rw.tab_content.response_headers.Widget().SetRowsCheck(nil)
+	rw.tab_content.response_headers.SetRows(nil)
 	rw.tab_content.response_body.SetBody(nil)
 	rw.tab_content.response_body.SetContentType("")
 }
@@ -83,7 +83,7 @@ func (rw *response_widget) SetContentLength(lenght int) {
 }
 
 func (rw *response_widget) SetHeaders(headers []attr.Attribute) {
-	rw.tab_content.response_headers.Widget().SetRows(headers)
+	rw.tab_content.response_headers.SetRows(headers)
 }
 
 func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
@@ -125,15 +125,8 @@ func (rw *response_widget) set_tab_items() {
 
 func (rw *response_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&rw.header_widget)
+
 	rw.set_tab_items()
-
-	headers_table := rw.tab_content.response_headers.Widget()
-	headers_table.DisableCheckbox(true)
-	headers_table.DisableDelete(true)
-	headers_table.KeyEditable(false)
-	headers_table.ValueEditable(false)
-	headers_table.AutoAddRow(false)
-
 	adder.AddWidget(&rw.tab_container)
 
 	return nil

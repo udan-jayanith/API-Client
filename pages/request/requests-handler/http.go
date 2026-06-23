@@ -83,8 +83,9 @@ type HTTP_Data struct {
 	} `json:"request-config"`
 
 	ResponseConfig struct {
-		AutoWrap bool `json:"auto-wrap"`
-		Formate  bool `json:"formate"`
+		AutoWrap            bool `json:"auto-wrap"`
+		Formate             bool `json:"formate"`
+		header_search_query string
 	} `json:"response-config"`
 
 	selected_request_tab int
@@ -105,6 +106,14 @@ func (data *HTTP_Data) SetSelectedRequestTab(index int) {
 
 func (data *HTTP_Data) SelectedRequestTab() int {
 	return data.selected_request_tab
+}
+
+func (data *HTTP_Data) ResponseHeaderSearchQuery() string {
+	return data.ResponseConfig.header_search_query
+}
+
+func (data *HTTP_Data) SetResponseHeaderSearchQuery(query string) {
+	data.ResponseConfig.header_search_query = query
 }
 
 func (data *HTTP_Data) SetFormatResponseBody(format bool) {
