@@ -1,12 +1,11 @@
 # Zbolt
-
-![Video](zbolt-preview.mp4)
-
 A lightweight, high-performance API client built in Go that doesn't rely on Chromium.
 
 ![License](https://img.shields.io/badge/License-BSD%203--Clause-blue)
 ![Language](https://img.shields.io/badge/Language-Go-00ADD8)
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+
+https://github.com/user-attachments/assets/a7ee0ad3-2b7e-4697-8c6a-c3fe8068809b
 
 ## Overview
 
