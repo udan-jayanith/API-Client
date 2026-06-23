@@ -86,6 +86,14 @@ func (rw *response_widget) SetHeaders(headers []attr.Attribute) {
 	rw.tab_content.response_headers.SetRows(headers)
 }
 
+func (rw *response_widget) SearchHeaders(query string) {
+	rw.tab_content.response_headers.SetSearchQuery(query)
+}
+
+func (rw *response_widget) HeaderSearchQuery() string {
+	return rw.tab_content.response_headers.SearchQuery()
+}
+
 func (rw *response_widget) SetResponseBody(body *requests_handler.HTTP_Response_Body) {
 	rw.tab_content.response_body.SetBody(body)
 	rw.tab_content.response_body.SetContentType(body.ContentType)

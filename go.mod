@@ -25,6 +25,7 @@ require (
 	github.com/hbollon/go-edlib v1.7.0 // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
+	github.com/lithammer/fuzzysearch v1.1.8 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
