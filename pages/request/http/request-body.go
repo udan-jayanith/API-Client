@@ -118,6 +118,9 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	body.SetMultiline(true)
 	body.SetEditable(true)
 	adder.AddWidget(&w.body)
+
+	// TODO: Implement format btn
+
 	return nil
 }
 

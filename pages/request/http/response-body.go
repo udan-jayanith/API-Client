@@ -297,7 +297,6 @@ func (body *response_body_widget) clear_content() {
 	body.show_unknow_content = false
 }
 
-// TODO: handle the error
 func (body *response_body_widget) SetBody(b *requests_handler.HTTP_Response_Body) {
 	body.clear_content()
 	if b == nil || b.Content() == nil {

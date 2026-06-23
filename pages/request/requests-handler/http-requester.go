@@ -82,7 +82,6 @@ func (data *HTTP_Data) Do() bool {
 	return true
 }
 
-// TODO: make a function to check is the headers have recived.
 func (data *HTTP_Data) set_response_data(res_data HTTP_Response_Data) {
 	headers_copied := make([]attr.Attribute, len(res_data.Headers))
 	copy(headers_copied, res_data.Headers)

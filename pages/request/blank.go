@@ -34,7 +34,6 @@ func (nw *blank_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 		nw.popup.SetBackgroundDark(true)
 		nw.popup.SetAnimated(false)
 		nw.popup.SetContent(&nw.request_create_panel)
-		// TODO: Setup path env on request-page widget
 		nw.request_create_panel.OnCreate(func(ctx *gui.Context, path string, request_name string, request_type requests_handler.RequestType) {
 			if nw.on_request_item_create != nil {
 				nw.on_request_item_create(ctx, path, request_name, request_type)

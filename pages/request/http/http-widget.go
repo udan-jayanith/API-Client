@@ -126,7 +126,6 @@ func (brp *HTTP_Widget) SyncData() {
 	brp.data.Headers = brp.request_widget.Headers()
 	brp.data.Body = brp.request_widget.Body()
 
-	// TODO: sync response data
 	brp.data.SetSelectedRequestTab(brp.request_widget.SelectedTab())
 	brp.data.ResponseData(func(value *requests_handler.HTTP_Response_Data) {
 		value.SelectedResponseTab = brp.response_widget.SelectedTab()

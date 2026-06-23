@@ -172,6 +172,25 @@ func (c *HTTP_Response_Body) set_content(rr *readreader.ReadReader) {
 	c.is_formated = false
 }
 
+func FormatterTypeFromContentType(c ContentType) (formatter.ContentType, bool) {
+	var cf_type formatter.ContentType
+	switch c.Extension() {
+	case "html":
+		cf_type = formatter.HTML
+	case "css":
+		cf_type = formatter.CSS
+	case "js":
+		cf_type = formatter.Javascript
+	case "json":
+		cf_type = formatter.JSON
+	case "graphql":
+		cf_type = formatter.GraphQL
+	default:
+		return formatter.HTML, false
+	}
+	return cf_type, true
+}
+
 func (c *HTTP_Response_Body) format_content() {
 	var cf_type formatter.ContentType
 	switch c.ContentType.Extension() {
@@ -190,6 +209,7 @@ func (c *HTTP_Response_Body) format_content() {
 	}
 	r, err := formatter.Format(c.content.NewReader(), cf_type)
 	if err != nil {
+		// TODO: show this in a dialog
 		log.Println(err.Error())
 	}
 	defer r.Close()
