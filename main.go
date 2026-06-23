@@ -32,7 +32,7 @@ func (r *Root) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	ctx.SetPreferredColorMode(ebiten.ColorModeDark)
 	adder.AddWidget(&r.background)
 
-	r.menubar_widget.SetItems([]basicwidget.MenubarItem{
+	menubar_items := []basicwidget.MenubarItem{
 		{
 			Text: "Zbolt",
 		},
@@ -40,13 +40,24 @@ func (r *Root) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			Text: "Projects",
 		},
 		{
+			Text:     "Tools",
+			Disabled: true,
+		},
+		{
 			Text: "Dev",
 		},
-	})
+	}
+	r.menubar_widget.SetItems(menubar_items)
+
 	popup := r.menubar_widget.PopupMenuAt(2)
+	popup.SetItemsByStrings([]string{"Domian Name Server Lookup"})
+
+	popup = r.menubar_widget.PopupMenuAt(3)
 	popup.SetItemsByStrings([]string{"Start/End pprofing"})
+
 	r.menubar_widget.OnItemSelected(func(context *gui.Context, menuIndex, itemIndex int) {
-		if menuIndex == 2 {
+		switch menubar_items[menuIndex].Text {
+		case "Dev":
 			if is_pprofing {
 				stop_pprof()
 				message_model.Show(pp_file.Name(), message_model.Notify, nil)
@@ -56,6 +67,8 @@ func (r *Root) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 			if err != nil {
 				message_model.Show(err.Error(), message_model.Alert, nil)
 			}
+		case "Tools":
+
 		}
 	})
 
