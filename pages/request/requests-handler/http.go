@@ -77,6 +77,7 @@ type HTTP_Data struct {
 	Parameters    []attr.AttrCheck `json:"parameters"`
 	Headers       []attr.AttrCheck `json:"headers"`
 	Body          string           `json:"body"`
+	body_content_filepath string
 	RequestConfig struct {
 		AutoWrap bool `json:"auto-wrap"`
 		Formate  bool `json:"formate"`

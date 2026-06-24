@@ -196,6 +196,8 @@ func (rw *request_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	if rw.tab_container.Count() == 0 {
 		rw.set_tab_items()
 	}
+
+	// TODO: add a function that listens to request widget tab select
 	rw.tab_container.OnSelect(func(item CommonWidgets.TabItem[string], index int) {
 		if item.Value != "body" {
 			return

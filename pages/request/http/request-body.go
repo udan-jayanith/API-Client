@@ -18,6 +18,8 @@ type request_body_header struct {
 	}
 	format       CommonWidgets.ButtonWithTooltip
 	content_type CommonWidgets.WidgetWithTooltip[*widget.Combobox]
+
+	disable_format_btn, disable_auto_wrap bool
 }
 
 func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -30,11 +32,14 @@ func (w *request_body_header) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	w.auto_wrap.text.SetValue("Auto wrap")
 	w.auto_wrap.text.SetVerticalAlign(widget.VerticalAlignMiddle)
 	adder.AddWidget(&w.auto_wrap.text)
+	ctx.SetEnabled(&w.auto_wrap.toggle, !w.disable_auto_wrap)
 	adder.AddWidget(&w.auto_wrap.toggle)
 
 	w.format.SetText("Format")
 	w.format.SetTooltip("Ctrl+S")
+	ctx.SetEnabled(&w.format, !w.disable_format_btn)
 	adder.AddWidget(&w.format)
+
 	return nil
 }
 
@@ -91,13 +96,22 @@ func (rbh *request_body_header) Measure(ctx *gui.Context, constraints gui.Constr
 	return point
 }
 
+func (rbh *request_body_header) DisableAutoWrapToggle(disable bool) {
+	rbh.disable_auto_wrap = disable
+}
+
+func (rbh *request_body_header) DisableFormatButton(disable bool) {
+	rbh.disable_format_btn = disable
+}
+
 type request_body_widget struct {
 	gui.DefaultWidget
 	header request_body_header
 
-	textual_content widget.TextInput
+	is_textual_content bool
+	textual_content    widget.TextInput
+	url_encoded_form CommonWidgets.AttributeTable
 	//file_content
-	// TODO: rename this
 }
 
 func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -112,10 +126,12 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	w.textual_content.SetEditable(true)
 	adder.AddWidget(&w.textual_content)
 
+	content_type := w.ContetnType()
+	_, ok := requests_handler.FormatterTypeFromContentType(content_type)
+	w.header.DisableFormatButton(!ok || !w.is_textual_content)
+	w.header.DisableAutoWrapToggle(!w.is_textual_content)
 	// TODO: Implement format btn
 
-	// TODO: Disable format and autowrap if content reads from a file.
-	// TODO: Disable format button if content type is unknown.
 	return nil
 }
 
@@ -178,6 +194,10 @@ func (body *request_body_widget) SetAutowrap(autowrap bool) {
 
 func (body *request_body_widget) OnContentTypeChanged(fn func(context *gui.Context, value string, committed bool)) {
 	body.header.content_type.Widget().OnValueChanged(fn)
+}
+
+func (body *request_body_widget) ContetnType() requests_handler.ContentType {
+	return requests_handler.ContentType(body.header.content_type.Widget().Value())
 }
 
 func (body *request_body_widget) SetContentType(content_type requests_handler.ContentType) {
