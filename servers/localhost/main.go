@@ -24,7 +24,10 @@ func main() {
 	})
 
 	http.HandleFunc("POST /body", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", r.Header.Get("Content-Type"))
+		_, ok := r.Header["Content-Type"]
+		if ok {
+			w.Header().Add("Content-Type", r.Header.Get("Content-Type"))
+		}
 
 		b, _ := io.ReadAll(r.Body)
 		fmt.Fprintf(w, `%s`, b)
