@@ -121,6 +121,8 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 
 	// TODO: Implement format btn
 
+	// TODO: Disable format and autowrap is content read from a file.
+	// TODO: Disable format button if content type is unknown.
 	return nil
 }
 
