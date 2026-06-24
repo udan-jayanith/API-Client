@@ -75,8 +75,13 @@ func (brp *HTTP_Widget) setup_request_widget() {
 	}
 	brp.request_widget.SetMethod(data.Method)
 	brp.request_widget.SetContentType("")
-	for _, h := range data.Headers {
+
+	method := strings.ToLower(data.Method)
+	allowed := method == "post" || method == "put" || method == "patch"
+	for i, h := range data.Headers {
 		if h.Key == "Content-Type" {
+			h.Checked = allowed && h.Value != ""
+			data.Headers[i] = h
 			brp.request_widget.SetContentType(requests_handler.ContentType(h.Value))
 			break
 		}
