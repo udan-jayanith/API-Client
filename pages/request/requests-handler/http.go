@@ -6,12 +6,12 @@ import (
 	lazy_atomic "Zbolt/pages/request/requests-handler/internal/lazy-atomic"
 	url_utils "Zbolt/pages/request/requests-handler/url-utils"
 	"bufio"
-	"log"
 	"net/url"
 	"sync/atomic"
 	"time"
 
 	formatter "codeberg.org/udan-jayanith/Formatter"
+	"github.com/hajimehoshi/dialog"
 )
 
 type URL struct {
@@ -192,25 +192,15 @@ func FormatterTypeFromContentType(c ContentType) (formatter.ContentType, bool) {
 }
 
 func (c *HTTP_Response_Body) format_content() {
-	var cf_type formatter.ContentType
-	switch c.ContentType.Extension() {
-	case "html":
-		cf_type = formatter.HTML
-	case "css":
-		cf_type = formatter.CSS
-	case "js":
-		cf_type = formatter.Javascript
-	case "json":
-		cf_type = formatter.JSON
-	case "graphql":
-		cf_type = formatter.GraphQL
-	default:
+	cf_type, ok := FormatterTypeFromContentType(c.ContentType)
+	if !ok {
 		return
 	}
+	
 	r, err := formatter.Format(c.content.NewReader(), cf_type)
 	if err != nil {
-		// TODO: show this in a dialog
-		log.Println(err.Error())
+		dialog.Message(err.Error()).Error()
+		return
 	}
 	defer r.Close()
 
