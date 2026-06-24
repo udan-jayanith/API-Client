@@ -196,7 +196,7 @@ func (c *HTTP_Response_Body) format_content() {
 	if !ok {
 		return
 	}
-	
+
 	r, err := formatter.Format(c.content.NewReader(), cf_type)
 	if err != nil {
 		dialog.Message(err.Error()).Error()
@@ -221,7 +221,8 @@ func (c *HTTP_Response_Body) Content() *readreader.ReadReader {
 		c.format_content()
 	}
 
-	if c.IsTexttual() && c.format {
+	_, ok := FormatterTypeFromContentType(c.ContentType)
+	if ok && c.IsTexttual() && c.format {
 		return c.formated_content
 	}
 	return c.content
