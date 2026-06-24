@@ -95,33 +95,26 @@ type request_body_widget struct {
 	gui.DefaultWidget
 	header request_body_header
 
-	body CommonWidgets.WidgetWithLazyLoading[*widget.TextInput]
-}
-
-func (w *request_body_widget) SetLazyLoad(lazy_load bool) {
-	w.body.SetLazyLoad(lazy_load)
-}
-
-func (w *request_body_widget) LazyLoad() bool {
-	return w.body.LazyLoad()
+	textual_content widget.TextInput
+	//file_content
+	// TODO: rename this
 }
 
 func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
 	adder.AddWidget(&w.header)
 
-	body := w.body.Widget()
 	if w.header.auto_wrap.toggle.Value() {
-		body.SetWrapMode(widget.WrapModeAnywhere)
+		w.textual_content.SetWrapMode(widget.WrapModeAnywhere)
 	} else {
-		body.SetWrapMode(widget.WrapModeNone)
+		w.textual_content.SetWrapMode(widget.WrapModeNone)
 	}
-	body.SetMultiline(true)
-	body.SetEditable(true)
-	adder.AddWidget(&w.body)
+	w.textual_content.SetMultiline(true)
+	w.textual_content.SetEditable(true)
+	adder.AddWidget(&w.textual_content)
 
 	// TODO: Implement format btn
 
-	// TODO: Disable format and autowrap is content read from a file.
+	// TODO: Disable format and autowrap if content reads from a file.
 	// TODO: Disable format button if content type is unknown.
 	return nil
 }
@@ -137,7 +130,7 @@ func (w *request_body_widget) Layout(ctx *gui.Context, widgetBounds *gui.WidgetB
 				Widget: &w.header,
 			},
 			{
-				Widget: &w.body,
+				Widget: &w.textual_content,
 				Size:   gui.FlexibleSize(1),
 			},
 		},
@@ -161,18 +154,18 @@ func (body *request_body_widget) Measure(ctx *gui.Context, constraints gui.Const
 		point.Y = h
 	} else {
 		point.Y += body.header.Measure(ctx, constraints).Y
-		point.Y += body.body.Measure(ctx, constraints).Y
+		point.Y += body.textual_content.Measure(ctx, constraints).Y
 	}
 
 	return point
 }
 
 func (body *request_body_widget) SetBody(content string) {
-	body.body.Widget().ForceSetValue(content)
+	body.textual_content.ForceSetValue(content)
 }
 
 func (body *request_body_widget) Body() string {
-	return body.body.Widget().Value()
+	return body.textual_content.Value()
 }
 
 func (body *request_body_widget) OnAutowrapToggle(fn func(ctx *gui.Context, value bool)) {
