@@ -108,8 +108,10 @@ type request_body_widget struct {
 	gui.DefaultWidget
 	header request_body_header
 
-	is_textual_content bool
-	textual_content    widget.TextInput
+	//is_textual_content bool // TODO: When setting file_content set this to fulse. When setting body content set this to true.
+
+	content          string
+	textual_content  widget.TextInput
 	url_encoded_form CommonWidgets.AttributeTable
 	//file_content
 }
@@ -127,10 +129,10 @@ func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) err
 	adder.AddWidget(&w.textual_content)
 
 	content_type := w.ContetnType()
+	// TODO: This is a very expensive opration improve this.
 	_, ok := requests_handler.FormatterTypeFromContentType(content_type)
-	w.header.DisableFormatButton(!ok || !w.is_textual_content)
-	w.header.DisableAutoWrapToggle(!w.is_textual_content)
-	// TODO: Implement format btn
+	w.header.DisableFormatButton(!ok)
+	// TODO: Implement format btn`
 
 	return nil
 }
@@ -176,13 +178,18 @@ func (body *request_body_widget) Measure(ctx *gui.Context, constraints gui.Const
 	return point
 }
 
+// TODO: Rename this to SetTextualBody
 func (body *request_body_widget) SetBody(content string) {
+	// When setting body set textual_content = true
 	body.textual_content.ForceSetValue(content)
 }
 
+// TODO: Rename this to TextualBody
 func (body *request_body_widget) Body() string {
 	return body.textual_content.Value()
 }
+
+// TODO: Implement SetRequestContentFilepath and RequestContentFilepath.  
 
 func (body *request_body_widget) OnAutowrapToggle(fn func(ctx *gui.Context, value bool)) {
 	body.header.auto_wrap.toggle.OnValueChanged(fn)
