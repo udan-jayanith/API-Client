@@ -139,3 +139,7 @@ func (tab_item *tab_item_widget) SetMovable(movable bool) {
 func (tab_item *tab_item_widget) SetSelected(selected bool) {
 	tab_item.selected = selected
 }
+
+func (tab_item *tab_item_widget) SetIndex(index int) {
+	tab_item.index = index
+}
