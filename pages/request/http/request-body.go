@@ -113,7 +113,7 @@ type request_body_widget struct {
 	content          string
 	textual_content  widget.TextInput
 	url_encoded_form CommonWidgets.AttributeTable
-	//file_content
+	file_content     request_file_content
 }
 
 func (w *request_body_widget) Build(ctx *gui.Context, adder *gui.ChildAdder) error {
@@ -179,17 +179,16 @@ func (body *request_body_widget) Measure(ctx *gui.Context, constraints gui.Const
 }
 
 // TODO: Rename this to SetTextualBody
-func (body *request_body_widget) SetBody(content string) {
-	// When setting body set textual_content = true
+func (body *request_body_widget) SetTaxtualContent(content string) {
 	body.textual_content.ForceSetValue(content)
 }
 
 // TODO: Rename this to TextualBody
-func (body *request_body_widget) Body() string {
+func (body *request_body_widget) TexttualContent() string {
 	return body.textual_content.Value()
 }
 
-// TODO: Implement SetRequestContentFilepath and RequestContentFilepath.  
+// TODO: Implement SetRequestContentFilepath and RequestContentFilepath.
 
 func (body *request_body_widget) OnAutowrapToggle(fn func(ctx *gui.Context, value bool)) {
 	body.header.auto_wrap.toggle.OnValueChanged(fn)

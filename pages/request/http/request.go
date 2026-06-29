@@ -57,7 +57,7 @@ func (rw *request_widget) SetAutowrap(value bool) {
 }
 
 func (rw *request_widget) Body() string {
-	return rw.tab_content.body.Body()
+	return rw.tab_content.body.TexttualContent()
 }
 
 func (rw *request_widget) OnContentTypeChanged(fn func(context *gui.Context, value string, committed bool)) {
@@ -132,7 +132,7 @@ func (rw *request_widget) Headers() []attr.AttrCheck {
 
 // SetBody set the http request body
 func (rw *request_widget) SetBody(body string) {
-	rw.tab_content.body.SetBody(body)
+	rw.tab_content.body.SetTaxtualContent(body)
 }
 
 func (rw *request_widget) SelectedTab() int {
